@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // ✅ import indispensable
 import Header from "../components/Header";
+import AuroraBackground from "../components/AuroraBackground";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -49,10 +50,10 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-100 via-pink-100 to-rose-100">
+    <AuroraBackground>
       <Header />
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur">
+      <main className="mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-12 sm:min-h-[70vh] sm:justify-center">
+        <div className="w-full max-w-md rounded-2xl border border-white/15 bg-white/80 p-8 shadow-2xl backdrop-blur">
           <h1 className="mb-6 text-center text-2xl font-semibold text-violet-700">
             Créer un compte 📚
           </h1>
@@ -127,7 +128,7 @@ export default function Signup() {
             </p>
           )}
         </div>
-      </div>
-    </div>
+      </main>
+    </AuroraBackground>
   );
 }

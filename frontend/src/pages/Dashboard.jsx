@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
+import AuroraBackground from "../components/AuroraBackground";
 
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
@@ -28,16 +29,25 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, [navigate]);
 
-  if (loading) return <p className="text-center mt-10">Chargement...</p>;
+  if (loading) {
+    return (
+      <AuroraBackground>
+        <Header />
+        <div className="flex min-h-screen items-center justify-center px-4 pb-20 pt-12">
+          <p className="rounded-full border border-purple-200 bg-white/80 px-6 py-3 text-sm font-medium uppercase tracking-[0.28em] text-purple-600 shadow-lg">
+            Chargement...
+          </p>
+        </div>
+      </AuroraBackground>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-100 via-pink-100 to-violet-100">
+    <AuroraBackground>
       <Header />
-      <div className="mx-auto max-w-5xl px-4 pb-16 pt-12">
+      <main className="mx-auto max-w-5xl px-4 pb-16 pt-12">
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <h1 className="text-3xl font-semibold text-purple-700">
-            📚 Ma bibliothèque
-          </h1>
+          <h1 className="text-3xl font-semibold text-purple-900">📚 Ma bibliothèque</h1>
 
           <div className="flex flex-wrap gap-3">
             <button
@@ -45,7 +55,7 @@ export default function Dashboard() {
                 localStorage.removeItem("token");
                 window.location.href = "/login";
               }}
-              className="rounded-md bg-white/70 px-4 py-2 font-semibold text-gray-700 shadow transition hover:bg-white"
+              className="rounded-md border border-purple-200 bg-white px-4 py-2 font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50"
             >
               🚪 Déconnexion
             </button>
@@ -60,7 +70,7 @@ export default function Dashboard() {
         </div>
 
         {books.length === 0 ? (
-          <p className="rounded-xl bg-white/70 p-10 text-center text-gray-600 shadow">
+          <p className="rounded-2xl border border-purple-100 bg-white/80 p-10 text-center text-purple-600 shadow-lg backdrop-blur">
             Aucun livre ajouté pour le moment.
           </p>
         ) : (
@@ -68,7 +78,7 @@ export default function Dashboard() {
             {books.map((book) => (
               <div
                 key={book.id}
-                className="overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-purple-100 transition hover:shadow-xl"
+                className="overflow-hidden rounded-xl border border-purple-100 bg-white shadow-xl transition hover:shadow-2xl"
               >
                 <img
                   src={
@@ -92,7 +102,7 @@ export default function Dashboard() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </main>
+    </AuroraBackground>
   );
 }

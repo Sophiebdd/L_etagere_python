@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+import AuroraBackground from "../components/AuroraBackground";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -38,33 +39,37 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-rose-100">
+    <AuroraBackground>
       <Header />
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur">
+      <main className="mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-12 sm:min-h-[70vh] sm:justify-center">
+        <div className="w-full max-w-md rounded-2xl border border-white/15 bg-white/75 p-8 shadow-2xl backdrop-blur">
           <h2 className="mb-6 text-center text-2xl font-semibold text-purple-700">
             Se connecter 🔐
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium">Email</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-md border border-purple-200 p-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                className="mt-1 w-full rounded-md border border-purple-200/80 p-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium">Mot de passe</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Mot de passe
+              </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-md border border-purple-200 p-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                className="mt-1 w-full rounded-md border border-purple-200/80 p-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
                 required
               />
             </div>
@@ -81,7 +86,7 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="mt-4 text-center text-sm">
+          <p className="mt-4 text-center text-sm text-gray-600">
             Pas encore de compte ?{" "}
             <a
               href="/signup"
@@ -91,7 +96,6 @@ export default function Login() {
             </a>
           </p>
         </div>
-      </div>
-    </div>
+      </main>
+    </AuroraBackground>
   );
-}

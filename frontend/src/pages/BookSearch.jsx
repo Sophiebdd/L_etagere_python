@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import BookCard from "../components/BookCard";
 import Header from "../components/Header";
+import AuroraBackground from "../components/AuroraBackground";
 
 export default function BookSearch() {
   const [query, setQuery] = useState("");
@@ -30,11 +31,11 @@ export default function BookSearch() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-100 via-pink-100 to-violet-100">
+    <AuroraBackground>
       <Header />
-      <div className="mx-auto max-w-5xl px-4 pb-16 pt-12">
+      <main className="mx-auto max-w-5xl px-4 pb-16 pt-12">
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <h1 className="text-3xl font-semibold text-purple-700">
+          <h1 className="text-3xl font-semibold text-purple-900">
             🔍 Rechercher un livre (Google Books)
           </h1>
 
@@ -46,7 +47,10 @@ export default function BookSearch() {
           </Link>
         </div>
 
-        <form onSubmit={handleSearch} className="mb-6 flex flex-col gap-3 sm:flex-row">
+        <form
+          onSubmit={handleSearch}
+          className="mb-6 flex flex-col gap-3 rounded-2xl border border-purple-100 bg-white/80 p-4 shadow-lg backdrop-blur sm:flex-row"
+        >
           <input
             type="text"
             value={query}
@@ -71,12 +75,12 @@ export default function BookSearch() {
           </div>
         ) : (
           !loading && (
-            <p className="rounded-xl bg-white/70 p-10 text-center text-gray-600 shadow">
+            <p className="rounded-2xl border border-purple-100 bg-white/80 p-10 text-center text-purple-600 shadow-lg backdrop-blur">
               Saisissez un mot-clé pour commencer la recherche.
             </p>
           )
         )}
-      </div>
-    </div>
+      </main>
+    </AuroraBackground>
   );
 }
