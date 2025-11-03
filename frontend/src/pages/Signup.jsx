@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // ✅ import indispensable
+import Header from "../components/Header";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -48,81 +49,84 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-100 to-pink-100">
-      <div className="bg-white/70 backdrop-blur-md shadow-xl rounded-2xl p-8 w-full max-w-md">
-        <h1 className="text-2xl font-semibold text-center text-violet-700 mb-6">
-          Créer un compte 📚
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-violet-100 via-pink-100 to-rose-100">
+      <Header />
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md rounded-2xl bg-white/80 p-8 shadow-xl backdrop-blur">
+          <h1 className="mb-6 text-center text-2xl font-semibold text-violet-700">
+            Créer un compte 📚
+          </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Nom d'utilisateur
-            </label>
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-violet-400 focus:outline-none"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Nom d&apos;utilisateur
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-lg border border-violet-200 px-3 py-2 shadow-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-300"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-violet-400 focus:outline-none"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-lg border border-violet-200 px-3 py-2 shadow-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-300"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Mot de passe
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-violet-400 focus:outline-none"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Mot de passe
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-lg border border-violet-200 px-3 py-2 shadow-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-300"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-2 mt-2 text-white font-semibold rounded-lg transition ${
-              loading
-                ? "bg-violet-300 cursor-not-allowed"
-                : "bg-violet-500 hover:bg-violet-600"
-            }`}
-          >
-            {loading ? "Création..." : "S'inscrire"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`mt-2 w-full rounded-lg py-2 font-semibold text-white transition ${
+                loading
+                  ? "cursor-not-allowed bg-violet-300"
+                  : "bg-violet-500 hover:bg-violet-600"
+              }`}
+            >
+              {loading ? "Création..." : "S'inscrire"}
+            </button>
+          </form>
 
-        {message && (
-          <p
-            className={`mt-4 text-center text-sm font-medium ${
-              message.startsWith("✅")
-                ? "text-green-600"
-                : message.startsWith("❌")
-                ? "text-red-600"
-                : "text-yellow-600"
-            }`}
-          >
-            {message}
-          </p>
-        )}
+          {message && (
+            <p
+              className={`mt-4 text-center text-sm font-medium ${
+                message.startsWith("✅")
+                  ? "text-green-600"
+                  : message.startsWith("❌")
+                  ? "text-red-600"
+                  : "text-yellow-600"
+              }`}
+            >
+              {message}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import BookCard from "../components/BookCard";
+import Header from "../components/Header";
 
 export default function BookSearch() {
   const [query, setQuery] = useState("");
@@ -29,49 +30,48 @@ export default function BookSearch() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 to-purple-100 py-10">
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-purple-700">
+    <div className="min-h-screen bg-gradient-to-br from-rose-100 via-pink-100 to-violet-100">
+      <Header />
+      <div className="mx-auto max-w-5xl px-4 pb-16 pt-12">
+        <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <h1 className="text-3xl font-semibold text-purple-700">
             🔍 Rechercher un livre (Google Books)
           </h1>
 
-          {/* ✅ Lien de retour vers le dashboard */}
           <Link
             to="/dashboard"
-            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-md transition"
+            className="rounded-md bg-purple-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-purple-700"
           >
             🏠 Ma bibliothèque
           </Link>
         </div>
 
-        <form onSubmit={handleSearch} className="flex gap-3 mb-6">
+        <form onSubmit={handleSearch} className="mb-6 flex flex-col gap-3 sm:flex-row">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Entrez un titre ou un auteur..."
-            className="flex-grow px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
+            className="flex-grow rounded-lg border border-purple-200 px-4 py-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300"
           />
           <button
             type="submit"
             disabled={loading}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 rounded-lg transition"
+            className="rounded-lg bg-purple-600 px-5 py-2 font-semibold text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-400"
           >
             {loading ? "Recherche..." : "Rechercher"}
           </button>
         </form>
 
-        {/* Résultats */}
         {results.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
             {results.map((book) => (
               <BookCard key={book.id} book={book} />
             ))}
           </div>
         ) : (
           !loading && (
-            <p className="text-center text-gray-500">
+            <p className="rounded-xl bg-white/70 p-10 text-center text-gray-600 shadow">
               Saisissez un mot-clé pour commencer la recherche.
             </p>
           )

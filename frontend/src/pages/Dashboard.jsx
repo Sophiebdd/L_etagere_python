@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import Header from "../components/Header";
 
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
@@ -30,58 +31,60 @@ export default function Dashboard() {
   if (loading) return <p className="text-center mt-10">Chargement...</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 to-purple-100 py-10">
-      <div className="max-w-5xl mx-auto px-4">
-        {/* En-tête */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-purple-700">
+    <div className="min-h-screen bg-gradient-to-br from-rose-100 via-pink-100 to-violet-100">
+      <Header />
+      <div className="mx-auto max-w-5xl px-4 pb-16 pt-12">
+        <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <h1 className="text-3xl font-semibold text-purple-700">
             📚 Ma bibliothèque
           </h1>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() => {
                 localStorage.removeItem("token");
                 window.location.href = "/login";
               }}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition"
+              className="rounded-md bg-white/70 px-4 py-2 font-semibold text-gray-700 shadow transition hover:bg-white"
             >
               🚪 Déconnexion
             </button>
 
             <Link
               to="/search"
-              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-md transition"
+              className="rounded-md bg-purple-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-purple-700"
             >
               🔍 Rechercher un livre
             </Link>
           </div>
         </div>
 
-        {/* Contenu */}
         {books.length === 0 ? (
-          <p className="text-center text-gray-600">
+          <p className="rounded-xl bg-white/70 p-10 text-center text-gray-600 shadow">
             Aucun livre ajouté pour le moment.
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
             {books.map((book) => (
               <div
                 key={book.id}
-                className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-xl transition"
+                className="overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-purple-100 transition hover:shadow-xl"
               >
                 <img
-                    src={book.cover_image || "https://via.placeholder.com/200x300?text=Pas+d'image"}
-                    alt={book.title}
-                    className="w-full h-56 object-cover"
+                  src={
+                    book.cover_image ||
+                    "https://via.placeholder.com/200x300?text=Pas+d'image"
+                  }
+                  alt={book.title}
+                  className="h-56 w-full object-cover"
                 />
 
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-purple-700 truncate">
+                  <h3 className="truncate text-lg font-semibold text-purple-700">
                     {book.title}
                   </h3>
                   <p className="text-sm text-gray-600">{book.authors}</p>
-                  <p className="text-sm mt-2 text-gray-500 line-clamp-3">
+                  <p className="mt-2 line-clamp-3 text-sm text-gray-500">
                     {book.description || "Pas de description"}
                   </p>
                 </div>
