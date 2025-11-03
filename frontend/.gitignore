@@ -1,0 +1,36 @@
+# ---- GLOBAL ----
+__pycache__/
+*.py[cod]
+*.sqlite3
+.DS_Store
+.env
+*.log
+
+# ---- PYTHON BACKEND ----
+backend/.venv/
+backend/__pycache__/
+backend/alembic/versions/*.pyc
+backend/alembic/versions/__pycache__/
+backend/*.sqlite
+backend/*.db
+backend/.pytest_cache/
+backend/.mypy_cache/
+
+# Ignore Alembic cache files but not migration scripts
+!backend/alembic/versions/
+
+# ---- FRONTEND ----
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env
+frontend/.eslintcache
+frontend/.parcel-cache/
+frontend/.turbo/
+
+# ---- IDEs / OS ----
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
