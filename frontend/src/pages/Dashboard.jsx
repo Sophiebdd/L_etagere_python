@@ -6,6 +6,7 @@ import AuroraBackground from "../components/AuroraBackground";
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBook, setSelectedBook] = useState(null);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -42,6 +43,40 @@ export default function Dashboard() {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, [navigate]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setSelectedBook(null);
+      }
+    };
+
+    if (selectedBook) {
+      if (typeof document !== "undefined") {
+        document.body.style.overflow = "hidden";
+      }
+      if (typeof window !== "undefined") {
+        window.addEventListener("keydown", handleKeyDown);
+      }
+    }
+
+    return () => {
+      if (typeof document !== "undefined") {
+        document.body.style.overflow = "";
+      }
+      if (typeof window !== "undefined") {
+        window.removeEventListener("keydown", handleKeyDown);
+      }
+    };
+  }, [selectedBook]);
+
+  const openBookModal = (book) => {
+    setSelectedBook(book);
+  };
+
+  const closeBookModal = () => {
+    setSelectedBook(null);
+  };
 
   if (loading) {
     return (
@@ -95,7 +130,16 @@ export default function Dashboard() {
             {books.map((book) => (
               <div
                 key={book.id}
-                className="overflow-hidden rounded-xl border border-purple-100 bg-white shadow-xl transition hover:shadow-2xl"
+                role="button"
+                tabIndex={0}
+                onClick={() => openBookModal(book)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openBookModal(book);
+                  }
+                }}
+                className="cursor-pointer overflow-hidden rounded-xl border border-purple-100 bg-white shadow-xl transition hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
               >
                 <img
                   src={
@@ -119,6 +163,60 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        <Link
+          to="/manuscrits"
+          className="mt-12 inline-block text-3xl font-semibold text-purple-900 transition hover:text-purple-700"
+        >
+          ✍️ Mes manuscrits
+        </Link>
+
+        {selectedBook && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+            onClick={closeBookModal}
+          >
+            <div
+              className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex flex-col gap-6 sm:flex-row">
+                <img
+                  src={
+                    selectedBook.cover_image ||
+                    "https://via.placeholder.com/200x300?text=Pas+d'image"
+                  }
+                  alt={selectedBook.title}
+                  className="h-60 w-40 flex-shrink-0 rounded-xl object-cover shadow-lg"
+                />
+
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-purple-800">
+                      {selectedBook.title}
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {selectedBook.author || selectedBook.authors || "Auteur inconnu"}
+                    </p>
+                  </div>
+
+                  <div className="text-sm text-gray-700">
+                    <p className="font-semibold text-purple-700">Description</p>
+                    <p className="mt-1 whitespace-pre-line">
+                      {selectedBook.description || "Pas de description disponible."}
+                    </p>
+                  </div>
+
+                  {selectedBook.status && (
+                    <div className="inline-flex rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
+                      Statut : {selectedBook.status}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </main>

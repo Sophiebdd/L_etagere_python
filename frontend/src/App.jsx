@@ -3,6 +3,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Library from "./pages/Library";
+import Manuscripts from "./pages/Manuscripts";
 import BookSearch from "./pages/BookSearch";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 
@@ -28,6 +29,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Library />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manuscrits"
+          element={
+            <ProtectedRoute>
+              <Manuscripts />
             </ProtectedRoute>
           }
         />
