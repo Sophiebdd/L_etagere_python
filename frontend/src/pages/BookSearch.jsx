@@ -10,6 +10,11 @@ export default function BookSearch() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login", { replace: true });
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -39,12 +44,21 @@ export default function BookSearch() {
             🔍 Rechercher un livre (Google Books)
           </h1>
 
-          <Link
-            to="/dashboard"
-            className="rounded-md bg-purple-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-purple-700"
-          >
-            🏠 Ma bibliothèque
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/dashboard"
+              className="rounded-md border border-purple-200 bg-white px-4 py-2 font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50"
+            >
+              ← Retour au dashboard
+            </Link>
+            <button
+              onClick={handleLogout}
+              title="Se déconnecter"
+              className="flex h-10 w-10 items-center justify-center rounded-md border border-purple-200 bg-white text-lg shadow-sm transition hover:bg-purple-50"
+            >
+              🚪
+            </button>
+          </div>
         </div>
 
         <form
