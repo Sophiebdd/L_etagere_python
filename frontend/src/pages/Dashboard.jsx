@@ -24,7 +24,16 @@ export default function Dashboard() {
         if (!res.ok) throw new Error("Erreur lors du chargement des livres");
         return res.json();
       })
-      .then((data) => setBooks(data))
+      .then((data) => {
+        const sortedBooks = Array.isArray(data)
+          ? [...data].sort((a, b) => {
+              const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
+              const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
+              return dateB - dateA;
+            })
+          : [];
+        setBooks(sortedBooks.slice(0, 6));
+      })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, [navigate]);
@@ -47,7 +56,12 @@ export default function Dashboard() {
       <Header />
       <main className="mx-auto max-w-5xl px-4 pb-16 pt-12">
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <h1 className="text-3xl font-semibold text-purple-900">📚 Ma bibliothèque</h1>
+          <Link
+            to="/library"
+            className="text-3xl font-semibold text-purple-900 transition hover:text-purple-700"
+          >
+            📚 Ma bibliothèque
+          </Link>
 
           <div className="flex flex-wrap gap-3">
             <button
@@ -93,7 +107,9 @@ export default function Dashboard() {
                   <h3 className="truncate text-lg font-semibold text-purple-700">
                     {book.title}
                   </h3>
-                  <p className="text-sm text-gray-600">{book.authors}</p>
+                  <p className="text-sm text-gray-600">
+                    {book.author || book.authors || "Auteur inconnu"}
+                  </p>
                   <p className="mt-2 line-clamp-3 text-sm text-gray-500">
                     {book.description || "Pas de description"}
                   </p>
