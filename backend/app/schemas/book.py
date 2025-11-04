@@ -18,6 +18,10 @@ class BookCreate(BookBase):
     pass
 
 
+class BookUpdate(BaseModel):
+    status: Optional[str] = None
+
+
 class Book(BookBase):
     """Schéma utilisé en réponse API"""
     id: int
