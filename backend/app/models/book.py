@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Date, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Date, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -17,5 +17,12 @@ class Book(Base):
     cover_image = Column(String(255), nullable=True)
     external_id = Column(Text, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    is_favorite = Column(Boolean, nullable=False, default=False)
 
     user = relationship("User", back_populates="books")
+    notes = relationship(
+        "BookNote",
+        back_populates="book",
+        cascade="all, delete-orphan",
+        order_by="BookNote.created_at.desc()",
+    )

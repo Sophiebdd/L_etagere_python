@@ -5,6 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'app'))
 from app.database import Base, engine
 import app.models.user  # 🔸 important : importe ton modèle pour qu’Alembic le détecte
 import app.models.book 
+import app.models.book_note
 
 from logging.config import fileConfig
 

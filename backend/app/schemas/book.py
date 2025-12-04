@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, List
+from .note import BookNote as BookNoteSchema
 
 class BookBase(BaseModel):
     title: str
@@ -11,6 +12,7 @@ class BookBase(BaseModel):
     isbn: Optional[str] = None
     cover_image: Optional[str] = None
     external_id: Optional[str] = None
+    is_favorite: Optional[bool] = False
 
 
 class BookCreate(BookBase):
@@ -20,6 +22,7 @@ class BookCreate(BookBase):
 
 class BookUpdate(BaseModel):
     status: Optional[str] = None
+    is_favorite: Optional[bool] = None
 
 
 class Book(BookBase):
@@ -27,6 +30,7 @@ class Book(BookBase):
     id: int
     user_id: int
     created_at: datetime
+    notes: List[BookNoteSchema] = []
 
     class Config:
         from_attributes = True  # remplace l’ancien orm_mode=True
