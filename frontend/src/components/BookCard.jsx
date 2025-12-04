@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+import { redirectToLogin } from "../utils/auth";
+
 export default function BookCard({ book }) {
+  const navigate = useNavigate();
   const item = book || {};
   const volume = item.volumeInfo || {};
   const title = volume.title || "Titre inconnu";
@@ -14,7 +18,10 @@ export default function BookCard({ book }) {
 
   const handleAddBook = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return alert("Veuillez vous connecter pour ajouter un livre.");
+    if (!token) {
+      redirectToLogin(navigate);
+      return;
+    }
 
     const bookData = {
       external_id: item.id,
@@ -37,6 +44,11 @@ export default function BookCard({ book }) {
       },
       body: JSON.stringify(bookData),
     });
+
+    if (response.status === 401) {
+      redirectToLogin(navigate);
+      return;
+    }
 
     if (response.ok) {
       alert("📚 Livre ajouté à ta bibliothèque !");

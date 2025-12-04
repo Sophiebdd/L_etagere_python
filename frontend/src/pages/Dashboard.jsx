@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
+import { redirectToLogin } from "../utils/auth";
 
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
@@ -27,6 +28,10 @@ export default function Dashboard() {
       },
     })
       .then((res) => {
+        if (res.status === 401) {
+          redirectToLogin(navigate);
+          throw new Error("Session expirée");
+        }
         if (!res.ok) throw new Error("Erreur lors du chargement des livres");
         return res.json();
       })
@@ -104,13 +109,6 @@ export default function Dashboard() {
           </Link>
 
           <div className="flex flex-wrap gap-3">
-            <Link
-              to="/search"
-              className="rounded-md bg-purple-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-purple-700"
-            >
-              🔍 Rechercher un livre
-            </Link>
-
             <button
               onClick={handleLogout}
               title="Se déconnecter"

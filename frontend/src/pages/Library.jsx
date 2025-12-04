@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
+import { redirectToLogin } from "../utils/auth";
 
 const STATUS_OPTIONS = ["À lire", "En cours", "Lu"];
 
@@ -30,6 +31,10 @@ export default function Library() {
       },
     })
       .then((res) => {
+        if (res.status === 401) {
+          redirectToLogin(navigate);
+          throw new Error("Session expirée");
+        }
         if (!res.ok) throw new Error("Erreur lors du chargement des livres");
         return res.json();
       })
@@ -71,6 +76,11 @@ export default function Library() {
         },
         body: JSON.stringify({ status: newStatus }),
       });
+
+      if (response.status === 401) {
+        redirectToLogin(navigate);
+        throw new Error("Session expirée");
+      }
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
@@ -114,6 +124,11 @@ export default function Library() {
         },
       });
 
+      if (response.status === 401) {
+        redirectToLogin(navigate);
+        throw new Error("Session expirée");
+      }
+
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
         setBooks(previousBooks);
@@ -151,6 +166,12 @@ export default function Library() {
               className="rounded-md border border-purple-200 bg-white px-4 py-2 font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50"
             >
               ← Retour au dashboard
+            </Link>
+            <Link
+              to="/search"
+              className="rounded-md bg-purple-600 px-4 py-2 font-semibold text-white shadow transition hover:bg-purple-700"
+            >
+              🔍 Rechercher un livre
             </Link>
             <button
               onClick={handleLogout}
