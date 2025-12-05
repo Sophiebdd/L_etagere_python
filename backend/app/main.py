@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import user, auth, book, google_books
+from app.routes import user, auth, book, google_books, manuscript
 
 app = FastAPI(title="L'Étagère API")
 
@@ -22,5 +22,5 @@ app.include_router(user.router)
 app.include_router(auth.router)
 app.include_router(book.router)
 app.include_router(google_books.router)
-
+app.include_router(manuscript.router)
 

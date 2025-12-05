@@ -13,3 +13,13 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     books = relationship("Book", back_populates="user")
+    manuscripts = relationship(
+        "Manuscript",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    chapters = relationship(
+        "Chapter",
+        back_populates="author",
+        cascade="all, delete-orphan",
+    )

@@ -4,8 +4,31 @@ import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import { redirectToLogin } from "../utils/auth";
 
+const API_BASE_URL = "http://127.0.0.1:8001";
+
+const toPlainText = (html) => {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const formatChapterDate = (date) => {
+  if (!date) return "";
+  try {
+    return new Date(date).toLocaleString("fr-FR", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  } catch {
+    return "";
+  }
+};
+
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
+  const [recentChapters, setRecentChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
   const navigate = useNavigate();
@@ -22,28 +45,43 @@ export default function Dashboard() {
       return;
     }
 
-    fetch("http://127.0.0.1:8001/books/mine", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    Promise.all([
+      fetch(`${API_BASE_URL}/books/mine`, { headers }),
+      fetch(`${API_BASE_URL}/manuscripts/chapters/recent`, { headers }),
+    ])
+      .then(async ([booksRes, chaptersRes]) => {
+        if (booksRes.status === 401 || chaptersRes.status === 401) {
           redirectToLogin(navigate);
           throw new Error("Session expirée");
         }
-        if (!res.ok) throw new Error("Erreur lors du chargement des livres");
-        return res.json();
-      })
-      .then((data) => {
-        const sortedBooks = Array.isArray(data)
-          ? [...data].sort((a, b) => {
+        if (!booksRes.ok) {
+          const err = await booksRes.json().catch(() => ({}));
+          throw new Error(err.detail || "Erreur lors du chargement des livres");
+        }
+        if (!chaptersRes.ok) {
+          const err = await chaptersRes.json().catch(() => ({}));
+          throw new Error(err.detail || "Erreur lors du chargement des chapitres");
+        }
+        const [booksData, chaptersData] = await Promise.all([booksRes.json(), chaptersRes.json()]);
+        const sortedBooks = Array.isArray(booksData)
+          ? [...booksData].sort((a, b) => {
               const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
               const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
               return dateB - dateA;
             })
           : [];
         setBooks(sortedBooks.slice(0, 6));
+        const safeChapters = Array.isArray(chaptersData)
+          ? chaptersData.map((chapter) => ({
+              ...chapter,
+              manuscript: chapter.manuscript ?? null,
+            }))
+          : [];
+        setRecentChapters(safeChapters);
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
@@ -164,12 +202,42 @@ export default function Dashboard() {
           </div>
         )}
 
-        <Link
-          to="/manuscrits"
-          className="mt-12 inline-block text-3xl font-semibold text-purple-900 transition hover:text-purple-700"
-        >
-          ✍️ Mes manuscrits
-        </Link>
+        <section className="mt-12">
+          <div className="mb-4">
+            <Link
+              to="/manuscrits"
+              className="text-3xl font-semibold text-purple-900 transition hover:text-purple-700"
+            >
+              ✍️ Mes manuscrits
+            </Link>
+          </div>
+          {recentChapters.length === 0 ? (
+            <p className="rounded-2xl border border-dashed border-purple-200 bg-white/80 p-8 text-center text-sm text-purple-600 shadow-inner">
+              Pas encore de chapitre rédigé. Rejoins l'atelier pour écrire le premier !
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {recentChapters.map((chapter) => {
+                const plainText = toPlainText(chapter.content);
+                const excerpt =
+                  plainText.length > 260 ? `${plainText.slice(0, 260)}…` : plainText;
+                return (
+                  <article
+                    key={chapter.id}
+                    className="rounded-2xl border border-purple-100 bg-white p-5 shadow-lg"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
+                      {chapter.manuscript?.title || "Manuscrit en brouillon"}
+                    </p>
+                    <h3 className="mt-1 text-lg font-semibold text-purple-900">{chapter.title}</h3>
+                    <p className="text-xs text-gray-500">{formatChapterDate(chapter.created_at)}</p>
+                    <p className="mt-3 text-sm text-gray-600">{excerpt || "Chapitre enregistré."}</p>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         {selectedBook && (
           <div

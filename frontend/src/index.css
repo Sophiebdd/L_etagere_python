@@ -5,3 +5,9 @@
 body {
   background-color: #f7f1ff;
 }
+
+.rich-text-editor-content[contenteditable="true"]:empty:before {
+  color: #9ca3af;
+  content: attr(data-placeholder);
+  pointer-events: none;
+}

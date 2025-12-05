@@ -6,6 +6,8 @@ from app.database import Base, engine
 import app.models.user  # 🔸 important : importe ton modèle pour qu’Alembic le détecte
 import app.models.book 
 import app.models.book_note
+import app.models.manuscript
+import app.models.chapter
 
 from logging.config import fileConfig
 
