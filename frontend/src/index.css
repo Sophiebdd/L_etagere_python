@@ -6,8 +6,37 @@ body {
   background-color: #f7f1ff;
 }
 
-.rich-text-editor-content[contenteditable="true"]:empty:before {
+.rich-text-editor-content .editor-body {
+  min-height: 180px;
+  outline: none;
+  width: 100%;
+}
+
+.rich-text-editor-content .editor-body > * + * {
+  margin-top: 0.75rem;
+}
+
+.rich-text-editor-content .editor-body ul {
+  list-style: disc;
+  margin-left: 1.5rem;
+}
+
+.rich-text-editor-content .editor-body ol {
+  list-style: decimal;
+  margin-left: 1.5rem;
+}
+
+.rich-text-editor-content .editor-body blockquote {
+  border-left: 3px solid #c4b5fd;
+  margin-left: 0;
+  padding-left: 1rem;
+  color: #6b21a8;
+}
+
+.rich-text-editor-content .editor-body.is-editor-empty:first-child::before {
   color: #9ca3af;
   content: attr(data-placeholder);
+  float: left;
+  height: 0;
   pointer-events: none;
 }
