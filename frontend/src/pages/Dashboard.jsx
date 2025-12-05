@@ -143,7 +143,7 @@ export default function Dashboard() {
             to="/library"
             className="text-3xl font-semibold text-purple-900 transition hover:text-purple-700"
           >
-            📚 Ma bibliothèque
+            Ma bibliothèque
           </Link>
 
           <div className="flex flex-wrap gap-3">
@@ -208,7 +208,7 @@ export default function Dashboard() {
               to="/manuscrits"
               className="text-3xl font-semibold text-purple-900 transition hover:text-purple-700"
             >
-              ✍️ Mes manuscrits
+              Mes manuscrits
             </Link>
           </div>
           {recentChapters.length === 0 ? (

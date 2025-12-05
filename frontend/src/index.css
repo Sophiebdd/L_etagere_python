@@ -6,8 +6,17 @@ body {
   background-color: #f7f1ff;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .rich-text-editor-content .editor-body {
-  min-height: 180px;
+  min-height: 260px;
   outline: none;
   width: 100%;
 }

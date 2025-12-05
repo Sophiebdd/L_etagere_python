@@ -4,8 +4,9 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
 import { TextStyle, FontSize } from "@tiptap/extension-text-style";
+import TextAlign from "@tiptap/extension-text-align";
 
-const TOOLBAR_ACTIONS = [
+const INLINE_ACTIONS = [
   {
     label: "Gras",
     icon: "𝐁",
@@ -41,6 +42,32 @@ const TOOLBAR_ACTIONS = [
     icon: "❝",
     command: (editor) => editor.chain().focus().toggleBlockquote().run(),
     isActive: (editor) => editor.isActive("blockquote"),
+  },
+];
+const ALIGN_ACTIONS = [
+  {
+    label: "Aligner à gauche",
+    icon: "↤",
+    command: (editor) => editor.chain().focus().setTextAlign("left").run(),
+    isActive: (editor) => editor.isActive({ textAlign: "left" }),
+  },
+  {
+    label: "Centrer",
+    icon: "↔",
+    command: (editor) => editor.chain().focus().setTextAlign("center").run(),
+    isActive: (editor) => editor.isActive({ textAlign: "center" }),
+  },
+  {
+    label: "Aligner à droite",
+    icon: "↦",
+    command: (editor) => editor.chain().focus().setTextAlign("right").run(),
+    isActive: (editor) => editor.isActive({ textAlign: "right" }),
+  },
+  {
+    label: "Justifier",
+    icon: "≋",
+    command: (editor) => editor.chain().focus().setTextAlign("justify").run(),
+    isActive: (editor) => editor.isActive({ textAlign: "justify" }),
   },
 ];
 
@@ -88,6 +115,9 @@ export default function RichTextEditor({
       TextStyle,
       FontSize.configure({
         types: ["textStyle"],
+      }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
       }),
       Placeholder.configure({
         placeholder,
@@ -144,7 +174,7 @@ export default function RichTextEditor({
     <div className={`space-y-3 ${className}`}>
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-purple-100 bg-white/80 p-2 shadow-inner">
         <div className="flex flex-wrap items-center gap-2">
-          {TOOLBAR_ACTIONS.map((action) => (
+          {INLINE_ACTIONS.map((action) => (
             <button
               key={action.label}
               type="button"
@@ -157,6 +187,26 @@ export default function RichTextEditor({
               } disabled:cursor-not-allowed disabled:opacity-50`}
               aria-pressed={editor ? action.isActive(editor) : false}
               aria-label={action.label}
+              title={action.label}
+            >
+              {action.icon}
+            </button>
+          ))}
+          <span className="mx-1 h-6 border-l border-purple-200" aria-hidden />
+          {ALIGN_ACTIONS.map((action) => (
+            <button
+              key={action.label}
+              type="button"
+              onClick={() => action.command(editor)}
+              disabled={!editor}
+              className={`rounded-lg border border-purple-100 bg-white px-3 py-1 text-xs font-semibold transition ${
+                editor && action.isActive(editor)
+                  ? "text-purple-900"
+                  : "text-purple-700 hover:bg-purple-50"
+              } disabled:cursor-not-allowed disabled:opacity-50`}
+              aria-pressed={editor ? action.isActive(editor) : false}
+              aria-label={action.label}
+              title={action.label}
             >
               {action.icon}
             </button>
@@ -186,7 +236,7 @@ export default function RichTextEditor({
         </div>
       </div>
 
-      <div className="rich-text-editor-content min-h-[200px] rounded-2xl border border-purple-100 bg-white/80 px-4 py-3 text-[12px] text-gray-700 shadow-inner">
+      <div className="rich-text-editor-content min-h-[320px] rounded-2xl border border-purple-100 bg-white/80 px-4 py-3 text-[12px] text-gray-700 shadow-inner">
         <EditorContent editor={editor} className="w-full" />
       </div>
     </div>

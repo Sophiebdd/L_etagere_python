@@ -35,6 +35,7 @@ export default function Manuscripts() {
   const [editingChapterId, setEditingChapterId] = useState(null);
   const [deletingManuscriptId, setDeletingManuscriptId] = useState(null);
   const [deletingChapterId, setDeletingChapterId] = useState(null);
+  const [previewChapter, setPreviewChapter] = useState(null);
   const navigate = useNavigate();
 
   const selectedManuscript = useMemo(() => {
@@ -111,6 +112,19 @@ export default function Manuscripts() {
     setChapterForm({ title: "", content: "" });
     setEditingChapterId(null);
   }, [selectedManuscriptId]);
+
+  useEffect(() => {
+    if (previewChapter && typeof document !== "undefined") {
+      document.body.style.overflow = "hidden";
+    } else if (typeof document !== "undefined") {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      if (typeof document !== "undefined") {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [previewChapter]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -324,6 +338,19 @@ export default function Manuscripts() {
     } finally {
       setDeletingChapterId(null);
     }
+  };
+
+  const openChapterPreview = (chapter) => {
+    setPreviewChapter(chapter);
+  };
+
+  const closeChapterPreview = () => {
+    setPreviewChapter(null);
+  };
+
+  const chapterExcerpt = (html = "") => {
+    const plainText = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    return plainText.length > 240 ? `${plainText.slice(0, 240)}…` : plainText;
   };
 
   if (loading) {
@@ -541,23 +568,14 @@ export default function Manuscripts() {
                 </section>
 
                 <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
-                        Progression
-                      </p>
-                      <h3 className="text-xl font-semibold text-purple-900">
-                        {selectedManuscript.chapters?.length || 0} chapitre
-                        {selectedManuscript.chapters?.length > 1 ? "s" : ""}
-                      </h3>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={loadManuscripts}
-                      className="text-sm font-semibold text-purple-600 transition hover:text-purple-800"
-                    >
-                      Rafraîchir ↺
-                    </button>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
+                      Progression
+                    </p>
+                    <h3 className="text-xl font-semibold text-purple-900">
+                      {selectedManuscript.chapters?.length || 0} chapitre
+                      {selectedManuscript.chapters?.length > 1 ? "s" : ""}
+                    </h3>
                   </div>
 
                   {selectedManuscript.chapters?.length ? (
@@ -593,10 +611,16 @@ export default function Manuscripts() {
                               </button>
                             </div>
                           </div>
-                          <div
-                            className="mt-3 space-y-2 text-sm leading-relaxed text-gray-700"
-                            dangerouslySetInnerHTML={{ __html: chapter.content }}
-                          />
+                          <p className="mt-3 text-sm leading-relaxed text-gray-700">
+                            {chapterExcerpt(chapter.content) || "Chapitre encore vide."}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => openChapterPreview(chapter)}
+                            className="mt-3 text-sm font-semibold text-purple-600 transition hover:text-purple-800"
+                          >
+                            Voir le chapitre →
+                          </button>
                         </article>
                       ))}
                     </div>
@@ -615,6 +639,39 @@ export default function Manuscripts() {
           </div>
         </div>
       </main>
+      {previewChapter && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+          onClick={closeChapterPreview}
+        >
+          <div
+          className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl no-scrollbar"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
+                  Chapitre {previewChapter.order_index ?? "?"}
+                </p>
+                <h2 className="text-2xl font-semibold text-purple-900">{previewChapter.title}</h2>
+                <p className="text-xs text-gray-500">Rédigé le {formatDate(previewChapter.created_at)}</p>
+              </div>
+              <button
+                type="button"
+                onClick={closeChapterPreview}
+                className="rounded-full border border-purple-200 p-2 text-purple-700 transition hover:bg-purple-50"
+                aria-label="Fermer"
+              >
+                ✕
+              </button>
+            </div>
+            <div
+              className="mt-6 space-y-4 text-sm leading-relaxed text-gray-700"
+              dangerouslySetInnerHTML={{ __html: previewChapter.content }}
+            />
+          </div>
+        </div>
+      )}
     </AuroraBackground>
   );
 }

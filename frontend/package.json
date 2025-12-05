@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@tiptap/extension-placeholder": "^3.12.1",
+    "@tiptap/extension-text-align": "^3.12.1",
     "@tiptap/extension-text-style": "^3.12.1",
     "@tiptap/extension-underline": "^3.12.1",
     "@tiptap/react": "^3.12.1",
