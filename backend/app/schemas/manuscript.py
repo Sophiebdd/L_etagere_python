@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class ManuscriptSummary(BaseModel):
@@ -67,3 +67,9 @@ class Manuscript(ManuscriptBase):
     class Config:
         from_attributes = True
 
+
+class ManuscriptShareRequest(BaseModel):
+    recipients: List[EmailStr]
+    chapter_ids: Optional[List[int]] = None
+    subject: Optional[str] = None
+    message: Optional[str] = None

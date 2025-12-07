@@ -4,6 +4,7 @@ import BookCard from "../components/BookCard";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
+import Footer from "../components/Footer";
 
 export default function BookSearch() {
   const [query, setQuery] = useState("");
@@ -38,8 +39,9 @@ export default function BookSearch() {
 
   return (
     <AuroraBackground>
-      <Header onLogout={handleLogout} />
-      <main className="mx-auto max-w-5xl px-4 pb-16 pt-12">
+      <div className="flex min-h-screen flex-col">
+        <Header onLogout={handleLogout} />
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-32 pt-12">
         <div className="mb-6 space-y-2">
           <PageBreadcrumb
             items={[
@@ -55,7 +57,7 @@ export default function BookSearch() {
 
         <form
           onSubmit={handleSearch}
-          className="mb-6 flex flex-col gap-3 rounded-2xl border border-purple-100 bg-white/80 p-4 shadow-lg backdrop-blur sm:flex-row"
+          className="mb-6 flex w-full flex-col gap-3 rounded-2xl border border-purple-100 bg-white/80 p-4 shadow-lg backdrop-blur sm:flex-row"
         >
           <input
             type="text"
@@ -81,12 +83,14 @@ export default function BookSearch() {
           </div>
         ) : (
           !loading && (
-            <p className="rounded-2xl border border-purple-100 bg-white/80 p-10 text-center text-purple-600 shadow-lg backdrop-blur">
+            <p className="w-full rounded-2xl border border-purple-100 bg-white/80 p-10 text-center text-purple-600 shadow-lg backdrop-blur">
               Saisissez un mot-clé pour commencer la recherche.
             </p>
           )
         )}
       </main>
+      </div>
+      <Footer />
     </AuroraBackground>
   );
 }

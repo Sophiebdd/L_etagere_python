@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
+import Footer from "../components/Footer";
 import { redirectToLogin } from "../utils/auth";
 
 const STATUS_OPTIONS = ["À lire", "En cours", "Lu"];
@@ -351,8 +352,9 @@ export default function Library() {
 
   return (
     <AuroraBackground>
-      <Header onLogout={handleLogout} />
-      <main className="mx-auto max-w-6xl px-4 pb-16 pt-12">
+      <div className="flex min-h-screen flex-col">
+        <Header onLogout={handleLogout} />
+        <main className="mx-auto max-w-6xl flex-1 px-4 pb-32 pt-12">
         <div className="mb-8 space-y-3">
           <PageBreadcrumb items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Bibliothèque" }]} />
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -464,7 +466,9 @@ export default function Library() {
             </table>
           </div>
         )}
-      </main>
+        </main>
+      </div>
+      <Footer />
       {selectedNotesBook && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"

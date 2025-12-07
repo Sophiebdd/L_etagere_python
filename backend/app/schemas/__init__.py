@@ -8,4 +8,5 @@ from .manuscript import (
     ChapterCreate,
     ChapterUpdate,
     ChapterWithManuscript,
+    ManuscriptShareRequest,
 )

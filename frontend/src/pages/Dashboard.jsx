@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
-import PageBreadcrumb from "../components/PageBreadcrumb";
+import Footer from "../components/Footer";
 import { redirectToLogin } from "../utils/auth";
 
 const API_BASE_URL = "http://127.0.0.1:8001";
@@ -137,8 +137,9 @@ export default function Dashboard() {
 
   return (
     <AuroraBackground>
-      <Header onLogout={handleLogout} />
-      <main className="mx-auto max-w-5xl px-4 pb-16 pt-12">
+      <div className="flex min-h-screen flex-col">
+        <Header onLogout={handleLogout} />
+        <main className="mx-auto max-w-5xl flex-1 px-4 pb-32 pt-12">
         <div className="mb-8">
           <Link
             to="/library"
@@ -277,6 +278,8 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+      </div>
+      <Footer />
     </AuroraBackground>
   );
 }

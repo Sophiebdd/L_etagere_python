@@ -36,3 +36,5 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.5.0
 uvicorn==0.38.0
+fpdf==1.7.2
+beautifulsoup4==4.12.3

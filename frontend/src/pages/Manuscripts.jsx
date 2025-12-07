@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
+import Footer from "../components/Footer";
 import RichTextEditor from "../components/RichTextEditor";
 import { redirectToLogin } from "../utils/auth";
 
@@ -37,6 +38,13 @@ export default function Manuscripts() {
   const [deletingManuscriptId, setDeletingManuscriptId] = useState(null);
   const [deletingChapterId, setDeletingChapterId] = useState(null);
   const [previewChapter, setPreviewChapter] = useState(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareRecipients, setShareRecipients] = useState("");
+  const [shareSubject, setShareSubject] = useState("");
+  const [shareMessage, setShareMessage] = useState("");
+  const [shareIncludeAll, setShareIncludeAll] = useState(true);
+  const [shareSelectedChapters, setShareSelectedChapters] = useState([]);
+  const [sharing, setSharing] = useState(false);
   const navigate = useNavigate();
 
   const selectedManuscript = useMemo(() => {
@@ -115,8 +123,10 @@ export default function Manuscripts() {
   }, [selectedManuscriptId]);
 
   useEffect(() => {
-    if (previewChapter && typeof document !== "undefined") {
-      document.body.style.overflow = "hidden";
+    if (previewChapter || isShareModalOpen) {
+      if (typeof document !== "undefined") {
+        document.body.style.overflow = "hidden";
+      }
     } else if (typeof document !== "undefined") {
       document.body.style.overflow = "";
     }
@@ -125,7 +135,18 @@ export default function Manuscripts() {
         document.body.style.overflow = "";
       }
     };
-  }, [previewChapter]);
+  }, [previewChapter, isShareModalOpen]);
+
+  useEffect(() => {
+    if (!isShareModalOpen) {
+      setShareSelectedChapters([]);
+      setShareRecipients("");
+      setShareSubject("");
+      setShareMessage("");
+      setShareIncludeAll(true);
+      setSharing(false);
+    }
+  }, [isShareModalOpen]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -354,6 +375,75 @@ export default function Manuscripts() {
     return plainText.length > 240 ? `${plainText.slice(0, 240)}…` : plainText;
   };
 
+  const toggleChapterShareSelection = (chapterId) => {
+    setShareSelectedChapters((current) =>
+      current.includes(chapterId)
+        ? current.filter((id) => id !== chapterId)
+        : [...current, chapterId]
+    );
+  };
+
+  const handleShareSubmit = async (event) => {
+    event.preventDefault();
+    if (!selectedManuscript) {
+      alert("Sélectionne un manuscrit à partager");
+      return;
+    }
+    const token = getTokenOrRedirect();
+    if (!token) return;
+
+    const recipients = shareRecipients
+      .split(/[,;\s]+/)
+      .map((email) => email.trim())
+      .filter(Boolean);
+
+    if (recipients.length === 0) {
+      alert("Ajoute au moins un destinataire");
+      return;
+    }
+
+    if (!shareIncludeAll && shareSelectedChapters.length === 0) {
+      alert("Sélectionne au moins un chapitre à partager");
+      return;
+    }
+
+    const payload = {
+      recipients,
+      subject: shareSubject.trim() || undefined,
+      message: shareMessage.trim() || undefined,
+      chapter_ids: shareIncludeAll ? undefined : shareSelectedChapters,
+    };
+
+    setSharing(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/manuscripts/${selectedManuscript.id}/share`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.status === 401) {
+        redirectToLogin(navigate);
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Impossible d'envoyer le manuscrit");
+      }
+
+      alert("Manuscrit envoyé avec succès !");
+      setIsShareModalOpen(false);
+    } catch (error) {
+      alert(error.message || "Erreur lors de l'envoi du manuscrit");
+    } finally {
+      setSharing(false);
+    }
+  };
+
   if (loading) {
     return (
       <AuroraBackground>
@@ -369,15 +459,26 @@ export default function Manuscripts() {
 
   return (
     <AuroraBackground>
-      <Header onLogout={handleLogout} />
-      <main className="mx-auto max-w-6xl px-4 pb-16 pt-12">
+      <div className="flex min-h-screen flex-col">
+        <Header onLogout={handleLogout} />
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-32 pt-12">
         <div className="mb-8 space-y-3">
           <PageBreadcrumb items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Manuscrits" }]} />
-          <h1 className="text-3xl font-semibold text-purple-900">Mes manuscrits</h1>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-3xl font-semibold text-purple-900">Mes manuscrits</h1>
+            <button
+              type="button"
+              onClick={() => setIsShareModalOpen(true)}
+              disabled={!selectedManuscript}
+              className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              ✉️ Partager
+            </button>
+          </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[320px,1fr]">
-          <div className="space-y-6">
+        <div className="grid w-full gap-8 lg:grid-cols-[320px,1fr]">
+          <div className="space-y-6 w-full">
             <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
               <h2 className="text-lg font-semibold text-purple-800">Nouveau manuscrit</h2>
               <p className="mb-4 text-sm text-gray-500">
@@ -474,7 +575,7 @@ export default function Manuscripts() {
             </section>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-8 w-full">
             {selectedManuscript ? (
               <>
                 <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
@@ -626,13 +727,121 @@ export default function Manuscripts() {
           </div>
         </div>
       </main>
+      </div>
+      <Footer />
+      {isShareModalOpen && selectedManuscript && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+          onClick={() => setIsShareModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">Partager</p>
+                <h2 className="text-2xl font-semibold text-purple-900">{selectedManuscript.title}</h2>
+                <p className="text-sm text-gray-500">Prépare ton envoi par e-mail.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsShareModalOpen(false)}
+                className="rounded-full border border-purple-200 p-2 text-purple-700 transition hover:bg-purple-50"
+                aria-label="Fermer"
+              >
+                ✕
+              </button>
+            </div>
+            <form onSubmit={handleShareSubmit} className="mt-6 space-y-4">
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">Destinataires</label>
+                <input
+                  type="text"
+                  value={shareRecipients}
+                  onChange={(event) => setShareRecipients(event.target.value)}
+                  placeholder="email1@example.com, autreadresse@mail.com"
+                  className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                />
+                <p className="mt-1 text-xs text-gray-500">Sépare les adresses avec une virgule ou un espace.</p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">Sujet</label>
+                  <input
+                    type="text"
+                    value={shareSubject}
+                    onChange={(event) => setShareSubject(event.target.value)}
+                    placeholder={`Partage de ${selectedManuscript.title}`}
+                    className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">Message</label>
+                  <input
+                    type="text"
+                    value={shareMessage}
+                    onChange={(event) => setShareMessage(event.target.value)}
+                    placeholder="Quelques mots pour présenter ton texte"
+                    className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2 rounded-2xl border border-purple-100 p-4 text-sm">
+                <label className="flex items-center gap-2 font-semibold text-purple-800">
+                  <input type="radio" checked={shareIncludeAll} onChange={() => setShareIncludeAll(true)} />
+                  Tout le manuscrit
+                </label>
+                <label className="flex items-center gap-2 text-gray-700">
+                  <input type="radio" checked={!shareIncludeAll} onChange={() => setShareIncludeAll(false)} />
+                  Sélectionner des chapitres
+                </label>
+                {!shareIncludeAll && (
+                  <div className="mt-3 max-h-48 space-y-2 overflow-y-auto rounded-2xl border border-dashed border-purple-200 p-3">
+                    {selectedManuscript.chapters.length === 0 && (
+                      <p className="text-xs text-gray-500">Ce manuscrit n&apos;a pas encore de chapitre.</p>
+                    )}
+                    {selectedManuscript.chapters.map((chapter) => (
+                      <label key={chapter.id} className="flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={shareSelectedChapters.includes(chapter.id)}
+                          onChange={() => toggleChapterShareSelection(chapter.id)}
+                        />
+                        {chapter.order_index ? `Chapitre ${chapter.order_index} · ` : ""}
+                        {chapter.title}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsShareModalOpen(false)}
+                  className="rounded-full border border-purple-200 px-4 py-2 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={sharing}
+                  className="rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
+                >
+                  {sharing ? "Envoi..." : "Envoyer"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {previewChapter && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
           onClick={closeChapterPreview}
         >
           <div
-          className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl no-scrollbar"
+            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl no-scrollbar"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
