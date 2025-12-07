@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
@@ -156,7 +157,7 @@ export default function Manuscripts() {
   const handleCreateManuscript = async (event) => {
     event.preventDefault();
     if (!formValues.title.trim()) {
-      alert("Ajoute un titre à ton manuscrit ✨");
+      toast.error("Ajoute un titre à ton manuscrit ✨");
       return;
     }
 
@@ -195,7 +196,7 @@ export default function Manuscripts() {
       setFormValues({ title: "", description: "" });
       setSelectedManuscriptId(created.id);
     } catch (error) {
-      alert(error.message || "Erreur lors de la création du manuscrit");
+      toast.error(error.message || "Erreur lors de la création du manuscrit");
     } finally {
       setSavingManuscript(false);
     }
@@ -237,7 +238,7 @@ export default function Manuscripts() {
         return currentId;
       });
     } catch (error) {
-      alert(error.message || "Erreur lors de la suppression");
+      toast.error(error.message || "Erreur lors de la suppression");
     } finally {
       setDeletingManuscriptId(null);
     }
@@ -246,15 +247,15 @@ export default function Manuscripts() {
   const handleChapterSubmit = async (event) => {
     event.preventDefault();
     if (!selectedManuscript) {
-      alert("Commence par créer un manuscrit 📔");
+      toast.error("Commence par créer un manuscrit 📔");
       return;
     }
     if (!chapterForm.title.trim()) {
-      alert("Ajoute un titre à ton chapitre");
+      toast.error("Ajoute un titre à ton chapitre");
       return;
     }
     if (isContentEmpty(chapterForm.content)) {
-      alert("Le contenu du chapitre est vide");
+      toast.error("Le contenu du chapitre est vide");
       return;
     }
 
@@ -306,7 +307,7 @@ export default function Manuscripts() {
       setChapterForm({ title: "", content: "" });
       setEditingChapterId(null);
     } catch (error) {
-      alert(error.message || "Erreur lors de l'enregistrement du chapitre");
+      toast.error(error.message || "Erreur lors de l'enregistrement du chapitre");
     } finally {
       setSavingChapter(false);
     }
@@ -356,7 +357,7 @@ export default function Manuscripts() {
         })
       );
     } catch (error) {
-      alert(error.message || "Erreur lors de la suppression du chapitre");
+      toast.error(error.message || "Erreur lors de la suppression du chapitre");
     } finally {
       setDeletingChapterId(null);
     }
@@ -386,7 +387,7 @@ export default function Manuscripts() {
   const handleShareSubmit = async (event) => {
     event.preventDefault();
     if (!selectedManuscript) {
-      alert("Sélectionne un manuscrit à partager");
+      toast.error("Sélectionne un manuscrit à partager");
       return;
     }
     const token = getTokenOrRedirect();
@@ -398,12 +399,12 @@ export default function Manuscripts() {
       .filter(Boolean);
 
     if (recipients.length === 0) {
-      alert("Ajoute au moins un destinataire");
+      toast.error("Ajoute au moins un destinataire");
       return;
     }
 
     if (!shareIncludeAll && shareSelectedChapters.length === 0) {
-      alert("Sélectionne au moins un chapitre à partager");
+      toast.error("Sélectionne au moins un chapitre à partager");
       return;
     }
 
@@ -435,10 +436,10 @@ export default function Manuscripts() {
         throw new Error(errorData.detail || "Impossible d'envoyer le manuscrit");
       }
 
-      alert("Manuscrit envoyé avec succès !");
+      toast.success("Manuscrit envoyé avec succès !");
       setIsShareModalOpen(false);
     } catch (error) {
-      alert(error.message || "Erreur lors de l'envoi du manuscrit");
+      toast.error(error.message || "Erreur lors de l'envoi du manuscrit");
     } finally {
       setSharing(false);
     }

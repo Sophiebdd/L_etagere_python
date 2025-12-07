@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { redirectToLogin } from "../utils/auth";
 
 export default function BookCard({ book }) {
@@ -51,10 +52,10 @@ export default function BookCard({ book }) {
     }
 
     if (response.ok) {
-      alert("📚 Livre ajouté à ta bibliothèque !");
+      toast.success("📚 Livre ajouté à ta bibliothèque !");
     } else {
-      const err = await response.json();
-      alert("❌ Erreur : " + (err.detail || "Impossible d’ajouter le livre"));
+      const err = await response.json().catch(() => ({}));
+      toast.error(err.detail || "Impossible d’ajouter le livre");
     }
   };
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import BookCard from "../components/BookCard";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
@@ -31,7 +32,7 @@ export default function BookSearch() {
       setResults(data);
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de la recherche.");
+      toast.error("Erreur lors de la recherche.");
     } finally {
       setLoading(false);
     }

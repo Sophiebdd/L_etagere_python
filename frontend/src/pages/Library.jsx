@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
@@ -119,7 +120,7 @@ export default function Library() {
         return nextBooks;
       });
     } catch (err) {
-      alert(err.message || "Erreur lors de la mise à jour du statut");
+      toast.error(err.message || "Erreur lors de la mise à jour du statut");
     } finally {
       setUpdatingStatusId(null);
     }
@@ -177,7 +178,7 @@ export default function Library() {
       );
     } catch (err) {
       setBooks(previousBooks);
-      alert(err.message || "Erreur lors de la mise à jour du favori");
+      toast.error(err.message || "Erreur lors de la mise à jour du favori");
     }
   };
 
@@ -218,7 +219,7 @@ export default function Library() {
         throw new Error(err.detail || "Impossible de supprimer le livre");
       }
     } catch (err) {
-      alert(err.message || "Erreur lors de la suppression du livre");
+      toast.error(err.message || "Erreur lors de la suppression du livre");
     } finally {
       setDeletingBookId(null);
     }
@@ -281,7 +282,7 @@ export default function Library() {
       );
       setNewNoteContent("");
     } catch (err) {
-      alert(err.message || "Erreur lors de l'ajout de la note");
+      toast.error(err.message || "Erreur lors de l'ajout de la note");
     } finally {
       setAddingNote(false);
     }
@@ -331,7 +332,7 @@ export default function Library() {
         )
       );
     } catch (err) {
-      alert(err.message || "Erreur lors de la suppression de la note");
+      toast.error(err.message || "Erreur lors de la suppression de la note");
     } finally {
       setDeletingNoteId(null);
     }
