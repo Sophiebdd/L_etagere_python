@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
+import PageBreadcrumb from "../components/PageBreadcrumb";
 import { redirectToLogin } from "../utils/auth";
 
 const API_BASE_URL = "http://127.0.0.1:8001";
@@ -124,7 +125,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <AuroraBackground>
-        <Header />
+        <Header onLogout={handleLogout} />
         <div className="flex min-h-screen items-center justify-center px-4 pb-20 pt-12">
           <p className="rounded-full border border-purple-200 bg-white/80 px-6 py-3 text-sm font-medium uppercase tracking-[0.28em] text-purple-600 shadow-lg">
             Chargement...
@@ -136,25 +137,15 @@ export default function Dashboard() {
 
   return (
     <AuroraBackground>
-      <Header />
+      <Header onLogout={handleLogout} />
       <main className="mx-auto max-w-5xl px-4 pb-16 pt-12">
-        <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="mb-8">
           <Link
             to="/library"
             className="text-3xl font-semibold text-purple-900 transition hover:text-purple-700"
           >
             Ma bibliothèque
           </Link>
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={handleLogout}
-              title="Se déconnecter"
-              className="flex h-10 w-10 items-center justify-center rounded-md border border-purple-200 bg-white text-lg shadow-sm transition hover:bg-purple-50"
-            >
-              🚪
-            </button>
-          </div>
         </div>
 
         {books.length === 0 ? (
