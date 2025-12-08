@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
+import Footer from "../components/Footer";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -72,6 +73,14 @@ export default function Login() {
                 className="mt-1 w-full rounded-md border border-purple-200/80 p-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
                 required
               />
+              <p className="mt-2 text-right text-sm">
+                <a
+                  href="/forgot-password"
+                  className="font-medium text-purple-600 transition hover:text-purple-700 hover:underline"
+                >
+                  Mot de passe oublié ?
+                </a>
+              </p>
             </div>
 
             {error && (
@@ -97,6 +106,7 @@ export default function Login() {
           </p>
         </div>
       </main>
+      <Footer />
     </AuroraBackground>
   );
 }

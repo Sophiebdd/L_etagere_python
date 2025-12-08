@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // ✅ import indispensable
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
+import Footer from "../components/Footer";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -129,6 +130,7 @@ export default function Signup() {
           )}
         </div>
       </main>
+      <Footer />
     </AuroraBackground>
   );
 }
