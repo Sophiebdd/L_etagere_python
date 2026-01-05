@@ -184,16 +184,39 @@ export default function Library() {
   };
 
   const handleDelete = async (bookId) => {
-    if (!window.confirm("Supprimer ce livre de ta bibliothèque ?")) {
-      return;
-    }
-
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
 
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-medium">Supprimer ce livre de ta bibliothèque ?</p>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+            }}
+            className="px-3 py-1.5 text-sm bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              confirmDelete(bookId, token);
+            }}
+            className="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+          >
+            Supprimer
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  };
+
+  const confirmDelete = async (bookId, token) => {
     const previousBooks = books;
     setDeletingBookId(bookId);
       setBooks((current) => current.filter((book) => book.id !== bookId));

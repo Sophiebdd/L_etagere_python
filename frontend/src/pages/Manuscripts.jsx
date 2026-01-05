@@ -203,13 +203,36 @@ export default function Manuscripts() {
   };
 
   const handleDeleteManuscript = async (manuscriptId) => {
-    if (!window.confirm("Supprimer définitivement ce manuscrit et ses chapitres ?")) {
-      return;
-    }
-
     const token = getTokenOrRedirect();
     if (!token) return;
 
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-medium">Supprimer définitivement ce manuscrit et ses chapitres ?</p>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+            }}
+            className="px-3 py-1.5 text-sm bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              confirmDeleteManuscript(manuscriptId, token);
+            }}
+            className="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+          >
+            Supprimer
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  };
+
+  const confirmDeleteManuscript = async (manuscriptId, token) => {
     setDeletingManuscriptId(manuscriptId);
     try {
       const response = await fetch(`${API_BASE_URL}/manuscripts/${manuscriptId}`, {
@@ -319,13 +342,36 @@ export default function Manuscripts() {
   };
 
   const handleDeleteChapter = async (chapterId) => {
-    if (!window.confirm("Supprimer ce chapitre ?")) {
-      return;
-    }
-
     const token = getTokenOrRedirect();
     if (!token) return;
 
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-medium">Supprimer ce chapitre ?</p>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+            }}
+            className="px-3 py-1.5 text-sm bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              confirmDeleteChapter(chapterId, token);
+            }}
+            className="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+          >
+            Supprimer
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  };
+
+  const confirmDeleteChapter = async (chapterId, token) => {
     setDeletingChapterId(chapterId);
     try {
       const response = await fetch(`${API_BASE_URL}/manuscripts/chapters/${chapterId}`, {
