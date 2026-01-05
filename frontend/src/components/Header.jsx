@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 export default function Header({ showNavigation = true, onLogout = null }) {
   return (
@@ -18,9 +19,16 @@ export default function Header({ showNavigation = true, onLogout = null }) {
         <span className="text-xs font-semibold uppercase tracking-[0.45em] text-purple-200/80">
           Cabinet de curiosités littéraires
         </span>
-        <h1 className="mt-4 text-4xl font-light tracking-[0.08em] text-white drop-shadow sm:text-5xl">
-          L&apos;étagère
-        </h1>
+        <div className="mt-6 flex flex-col items-center gap-1">
+          <img
+            src={logo}
+            alt="Logo L'étagère"
+            className="h-40 w-40"
+          />
+          <h1 className="text-4xl font-light tracking-[0.08em] text-white drop-shadow sm:text-5xl">
+            L&apos;étagère
+          </h1>
+        </div>
         <p className="mt-3 max-w-3xl text-base text-indigo-100/90 sm:text-lg">
           Un refuge suspendu où les histoires patientent, parfumées d&apos;encre et d&apos;aventures, prêtes à se glisser entre vos mains.
         </p>
