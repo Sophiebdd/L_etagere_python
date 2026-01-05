@@ -7,6 +7,7 @@ import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import { redirectToLogin } from "../utils/auth";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
 const STATUS_OPTIONS = ["À lire", "En cours", "Lu"];
 
 export default function Library() {
@@ -36,7 +37,7 @@ export default function Library() {
       return;
     }
 
-    fetch("http://127.0.0.1:8001/books/mine", {
+    fetch(`${API_BASE_URL}/books/mine`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

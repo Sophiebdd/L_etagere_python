@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { redirectToLogin } from "../utils/auth";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
+
 export default function BookCard({ book }) {
   const navigate = useNavigate();
   const item = book || {};
@@ -33,11 +35,11 @@ export default function BookCard({ book }) {
       isbn:
         volume.industryIdentifiers?.[0]?.identifier ||
         null,
-      cover_image: cover,
+      cover_image: volume.imageLinks?.thumbnail || null,
       status: "À lire",
     };
 
-    const response = await fetch("http://127.0.0.1:8001/books/", {
+    const response = await fetch(`${API_BASE_URL}/books/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -55,7 +57,13 @@ export default function BookCard({ book }) {
       toast.success("📚 Livre ajouté à ta bibliothèque !");
     } else {
       const err = await response.json().catch(() => ({}));
-      toast.error(err.detail || "Impossible d’ajouter le livre");
+      // Gérer les erreurs de validation Pydantic
+      if (err.detail && Array.isArray(err.detail)) {
+        const messages = err.detail.map(e => e.msg || JSON.stringify(e)).join(", ");
+        toast.error(`Erreur: ${messages}`);
+      } else {
+        toast.error(err.detail || "Impossible d'ajouter le livre");
+      }
     }
   };
 
