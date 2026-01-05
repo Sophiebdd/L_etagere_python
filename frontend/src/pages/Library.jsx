@@ -84,7 +84,7 @@ export default function Library() {
     );
 
     try {
-      const response = await fetch(`http://127.0.0.1:8001/books/${bookId}`, {
+      const response = await fetch(`${API_BASE_URL}/books/${bookId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -142,7 +142,7 @@ export default function Library() {
     );
 
     try {
-      const response = await fetch(`http://127.0.0.1:8001/books/${bookId}`, {
+      const response = await fetch(`${API_BASE_URL}/books/${bookId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -201,7 +201,7 @@ export default function Library() {
       }
 
     try {
-      const response = await fetch(`http://127.0.0.1:8001/books/${bookId}`, {
+      const response = await fetch(`${API_BASE_URL}/books/${bookId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -251,7 +251,7 @@ export default function Library() {
     setAddingNote(true);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8001/books/${selectedNotesBook.id}/notes`,
+        `${API_BASE_URL}/books/${selectedNotesBook.id}/notes`,
         {
           method: "POST",
           headers: {
@@ -302,7 +302,7 @@ export default function Library() {
     setDeletingNoteId(noteId);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8001/books/${selectedNotesBook.id}/notes/${noteId}`,
+        `${API_BASE_URL}/books/${selectedNotesBook.id}/notes/${noteId}`,
         {
           method: "DELETE",
           headers: {
