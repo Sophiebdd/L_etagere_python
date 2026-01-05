@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *.sqlite3
 .DS_Store
-.env
+.env.*
 *.log
 
 # ---- PYTHON BACKEND ----

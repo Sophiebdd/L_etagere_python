@@ -20,11 +20,7 @@ export default function Header({ showNavigation = true, onLogout = null }) {
           Cabinet de curiosités littéraires
         </span>
         <div className="mt-6 flex flex-col items-center gap-1">
-          <img
-            src={logo}
-            alt="Logo L'étagère"
-            className="h-40 w-40"
-          />
+          
           <h1 className="text-4xl font-light tracking-[0.08em] text-white drop-shadow sm:text-5xl">
             L&apos;étagère
           </h1>
