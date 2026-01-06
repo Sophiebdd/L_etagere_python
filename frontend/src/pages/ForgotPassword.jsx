@@ -3,6 +3,8 @@ import toast from "react-hot-toast";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
+
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -14,7 +16,7 @@ export default function ForgotPassword() {
     setInfoMessage("");
 
     try {
-      const response = await fetch("http://127.0.0.1:8001/auth/forgot-password", {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -4,6 +4,8 @@ import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import Footer from "../components/Footer";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
+
 export default function Signup() {
   const [formData, setFormData] = useState({
     username: "",
@@ -24,7 +26,7 @@ export default function Signup() {
     setMessage("");
 
     try {
-      const response = await fetch("http://127.0.0.1:8001/users/", {
+      const response = await fetch(`${API_BASE_URL}/users/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
