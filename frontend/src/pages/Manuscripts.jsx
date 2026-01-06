@@ -75,7 +75,7 @@ export default function Manuscripts() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/manuscripts`, {
+      const response = await fetch(`${API_BASE_URL}/manuscripts/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -174,7 +174,7 @@ export default function Manuscripts() {
 
     setSavingManuscript(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/manuscripts`, {
+      const response = await fetch(`${API_BASE_URL}/manuscripts/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
