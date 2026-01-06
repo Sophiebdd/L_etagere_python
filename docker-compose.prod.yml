@@ -30,7 +30,7 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_API_BASE_URL: https://letagere.app/api
+        VITE_API_BASE_URL: /api
     expose:
       - "80"
     depends_on:

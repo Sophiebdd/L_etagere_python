@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
