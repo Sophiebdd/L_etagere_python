@@ -38,6 +38,9 @@ export default function Manuscripts() {
   const [editingChapterId, setEditingChapterId] = useState(null);
   const [deletingManuscriptId, setDeletingManuscriptId] = useState(null);
   const [deletingChapterId, setDeletingChapterId] = useState(null);
+  const [editingSynopsis, setEditingSynopsis] = useState(false);
+  const [synopsisDraft, setSynopsisDraft] = useState("");
+  const [savingSynopsis, setSavingSynopsis] = useState(false);
   const [previewChapter, setPreviewChapter] = useState(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareRecipients, setShareRecipients] = useState("");
@@ -122,6 +125,11 @@ export default function Manuscripts() {
     setChapterForm({ title: "", content: "" });
     setEditingChapterId(null);
   }, [selectedManuscriptId]);
+
+  useEffect(() => {
+    setSynopsisDraft(selectedManuscript?.description || "");
+    setEditingSynopsis(false);
+  }, [selectedManuscript]);
 
   useEffect(() => {
     if (previewChapter || isShareModalOpen) {
@@ -409,6 +417,51 @@ export default function Manuscripts() {
     }
   };
 
+  const handleUpdateSynopsis = async (event) => {
+    event.preventDefault();
+    if (!selectedManuscript) return;
+
+    const token = getTokenOrRedirect();
+    if (!token) return;
+
+    setSavingSynopsis(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/manuscripts/${selectedManuscript.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          description: synopsisDraft.trim(),
+        }),
+      });
+
+      if (response.status === 401) {
+        redirectToLogin(navigate);
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Impossible de mettre à jour le synopsis");
+      }
+
+      const updated = await response.json();
+      setManuscripts((current) =>
+        current.map((manuscript) =>
+          manuscript.id === updated.id ? { ...manuscript, description: updated.description } : manuscript
+        )
+      );
+      setEditingSynopsis(false);
+      toast.success("Synopsis mis à jour");
+    } catch (error) {
+      toast.error(error.message || "Erreur lors de la mise à jour du synopsis");
+    } finally {
+      setSavingSynopsis(false);
+    }
+  };
+
   const openChapterPreview = (chapter) => {
     setPreviewChapter(chapter);
   };
@@ -632,9 +685,53 @@ export default function Manuscripts() {
                         Manuscrit
                       </p>
                       <h2 className="text-2xl font-bold text-purple-900">{selectedManuscript.title}</h2>
-                      <p className="mt-2 text-sm text-gray-600 whitespace-pre-line">
-                        {selectedManuscript.description || "Pas encore de synopsis, laisse parler ton inspiration ✨"}
-                      </p>
+                      {editingSynopsis ? (
+                        <form className="mt-4 space-y-3" onSubmit={handleUpdateSynopsis}>
+                          <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
+                            Synopsis
+                          </label>
+                          <textarea
+                            value={synopsisDraft}
+                            onChange={(event) => setSynopsisDraft(event.target.value)}
+                            className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                            rows={4}
+                            placeholder="Décris l'ambiance ou la trame principale de ton manuscrit..."
+                          />
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="submit"
+                              disabled={savingSynopsis}
+                              className="rounded-full bg-purple-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
+                            >
+                              {savingSynopsis ? "Enregistrement..." : "Sauvegarder"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSynopsisDraft(selectedManuscript.description || "");
+                                setEditingSynopsis(false);
+                              }}
+                              className="rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-purple-600 transition hover:border-purple-300 hover:text-purple-800"
+                            >
+                              Annuler
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <>
+                          <p className="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                            {selectedManuscript.description ||
+                              "Pas encore de synopsis, laisse parler ton inspiration ✨"}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setEditingSynopsis(true)}
+                            className="mt-4 rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-purple-600 transition hover:border-purple-300 hover:text-purple-800"
+                          >
+                            Modifier le synopsis
+                          </button>
+                        </>
+                      )}
                     </div>
                     <div className="rounded-2xl border border-purple-100 bg-purple-50/60 px-4 py-2 text-center text-sm font-semibold text-purple-700 shadow-inner">
                       {selectedManuscript.chapters?.length || 0} chapitre
