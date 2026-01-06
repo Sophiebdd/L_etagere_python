@@ -11,6 +11,8 @@ origins = [
     "http://127.0.0.1:5174",
     "http://letagere.local:5173",
     "http://letagere.local:5174",
+    "https://letagere.app",
+    "https://www.letagere.app",
 ]
 
 app.add_middleware(
@@ -27,4 +29,3 @@ app.include_router(auth.router)
 app.include_router(book.router)
 app.include_router(google_books.router)
 app.include_router(manuscript.router)
-
