@@ -4,6 +4,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: l_etagere_python
+    ports:
+      - "127.0.0.1:3306:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
