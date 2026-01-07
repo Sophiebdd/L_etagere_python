@@ -182,6 +182,20 @@ ssh -L 3307:127.0.0.1:3306 ubuntu@IP_DU_VPS
 - Password : `password`
 - Database : `l_etagere_python`
 
+## DBeaver (recommandé sur Linux)
+
+Installation (Snap) :
+```bash
+sudo snap install dbeaver-ce --classic
+```
+
+Ensuite, même configuration que HeidiSQL :
+- Host : `127.0.0.1`
+- Port : `3308` (ou celui du tunnel)
+- Database : `l_etagere_python`
+- Username : `root` (ou ton user dédié)
+- Password : `password`
+
 ---
 
 # Git sans token (SSH)
@@ -246,4 +260,3 @@ docker compose -f docker-compose.prod.yml logs -f backend
 - Ne jamais commit les secrets.
 - Si un token GitHub est partagé, le révoquer immédiatement.
 - Les données MySQL sont stockées dans le volume Docker `db_data`.
-
