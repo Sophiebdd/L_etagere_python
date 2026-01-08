@@ -574,15 +574,20 @@ export default function Library() {
                             </option>
                           ))}
                         </select>
-                        <button
-                          type="button"
+                        <span
+                          role="button"
+                          tabIndex={0}
                           onClick={() =>
                             handleToggleFavorite(book.id, Boolean(book.is_favorite))
                           }
-                          className={`rounded-full border px-3 py-2 text-xs font-semibold shadow-sm transition ${
-                            book.is_favorite
-                              ? "border-pink-200 bg-pink-50 text-pink-600"
-                              : "border-purple-200 bg-white text-purple-600"
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              handleToggleFavorite(book.id, Boolean(book.is_favorite));
+                            }
+                          }}
+                          className={`text-xl transition ${
+                            book.is_favorite ? "text-pink-600" : "text-pink-300"
                           }`}
                           aria-pressed={book.is_favorite}
                           aria-label={
@@ -591,8 +596,8 @@ export default function Library() {
                               : "Ajouter aux favoris"
                           }
                         >
-                          {book.is_favorite ? "💜 Favori" : "🤍 Favori"}
-                        </button>
+                          {book.is_favorite ? "💜" : "🤍"}
+                        </span>
                       </div>
                     </div>
                   </div>
