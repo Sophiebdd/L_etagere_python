@@ -530,7 +530,94 @@ export default function Library() {
           </p>
         ) : (
           <>
-            <div className="overflow-x-auto rounded-2xl border border-purple-100 bg-white shadow-lg">
+            <div className="space-y-4 md:hidden">
+              {books.map((book) => (
+                <div
+                  key={book.id}
+                  className="flex flex-col gap-4 rounded-2xl border border-purple-100 bg-white p-4 shadow-lg"
+                >
+                  <div className="flex gap-4">
+                    <img
+                      src={
+                        book.cover_image ||
+                        "https://via.placeholder.com/80x120?text=Pas+d'image"
+                      }
+                      alt={book.title}
+                      className="h-24 w-16 rounded-md object-cover shadow"
+                    />
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <p className="truncate text-base font-semibold text-purple-900">
+                        {book.title}
+                      </p>
+                      <p className="truncate text-sm text-purple-600">
+                        {book.author || book.authors || "Auteur inconnu"}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <select
+                          className="rounded-full border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-purple-700 shadow-sm transition focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 disabled:cursor-not-allowed disabled:opacity-60"
+                          value={
+                            STATUS_OPTIONS.includes(book.status)
+                              ? book.status
+                              : STATUS_OPTIONS[0]
+                          }
+                          onChange={(event) =>
+                            handleStatusChange(book.id, event.target.value)
+                          }
+                          disabled={
+                            updatingStatusId === book.id ||
+                            deletingBookId === book.id
+                          }
+                        >
+                          {STATUS_OPTIONS.map((statusOption) => (
+                            <option key={statusOption} value={statusOption}>
+                              {statusOption}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleToggleFavorite(book.id, Boolean(book.is_favorite))
+                          }
+                          className={`rounded-full border px-3 py-2 text-xs font-semibold shadow-sm transition ${
+                            book.is_favorite
+                              ? "border-pink-200 bg-pink-50 text-pink-600"
+                              : "border-purple-200 bg-white text-purple-600"
+                          }`}
+                          aria-pressed={book.is_favorite}
+                          aria-label={
+                            book.is_favorite
+                              ? "Retirer des favoris"
+                              : "Ajouter aux favoris"
+                          }
+                        >
+                          {book.is_favorite ? "💜 Favori" : "🤍 Favori"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openNotesModal(book.id)}
+                      className="rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold text-purple-600 shadow-sm transition hover:bg-purple-50"
+                    >
+                      📝 Notes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(book.id)}
+                      disabled={deletingBookId === book.id}
+                      className="rounded-full border border-red-200 px-4 py-2 text-xs font-semibold text-red-600 shadow-sm transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      🗑️ Supprimer
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto rounded-2xl border border-purple-100 bg-white shadow-lg md:block">
               <table className="min-w-[980px] w-full table-fixed divide-y divide-purple-100 text-sm">
                 <thead className="bg-purple-50/50 text-left text-xs font-semibold uppercase tracking-wider text-purple-700">
                   <tr>
