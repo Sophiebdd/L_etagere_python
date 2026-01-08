@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, selectinload
 from app.database import get_db
 from app.models.book import Book   # ✅ import direct de la classe Book
@@ -7,6 +8,7 @@ from app.schemas import (
     Book as BookSchema,
     BookCreate,
     BookUpdate,
+    BookPage,
     BookNote as BookNoteSchema,
     BookNoteCreate,
 )
@@ -64,17 +66,47 @@ def update_book(book_id: int, book_update: BookUpdate, db: Session = Depends(get
     db.refresh(book)
     return book
 
-@router.get("/mine", response_model=list[BookSchema])
-def get_my_books(db: Session = Depends(get_db), user=Depends(get_current_user)):
+@router.get("/mine", response_model=BookPage)
+def get_my_books(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    status_filter: str | None = Query(None, alias="status"),
+    search: str | None = None,
+    favorites: bool | None = None,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
     """Retourne les livres ajoutés par l'utilisateur connecté"""
-    books = (
+    base_query = (
         db.query(Book)
         .options(selectinload(Book.notes))
         .filter(Book.user_id == user.id)
-        .order_by(Book.created_at.desc())
+    )
+
+    if status_filter:
+        base_query = base_query.filter(Book.status == status_filter)
+    if favorites is not None:
+        base_query = base_query.filter(Book.is_favorite == favorites)
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        base_query = base_query.filter(
+            or_(Book.title.ilike(term), Book.author.ilike(term))
+        )
+
+    total_items = base_query.order_by(None).count()
+    books = (
+        base_query.order_by(Book.created_at.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
         .all()
     )
-    return books
+
+    return {
+        "items": books,
+        "total_items": total_items,
+        "page": page,
+        "page_size": page_size,
+    }
 
 
 @router.get("/{book_id}/notes", response_model=list[BookNoteSchema])

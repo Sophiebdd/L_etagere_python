@@ -50,8 +50,10 @@ export default function Dashboard() {
       Authorization: `Bearer ${token}`,
     };
 
+    const bookParams = new URLSearchParams({ page: "1", page_size: "6" });
+
     Promise.all([
-      fetch(`${API_BASE_URL}/books/mine`, { headers }),
+      fetch(`${API_BASE_URL}/books/mine?${bookParams.toString()}`, { headers }),
       fetch(`${API_BASE_URL}/manuscripts/chapters/recent`, { headers }),
     ])
       .then(async ([booksRes, chaptersRes]) => {
@@ -68,14 +70,16 @@ export default function Dashboard() {
           throw new Error(err.detail || "Erreur lors du chargement des chapitres");
         }
         const [booksData, chaptersData] = await Promise.all([booksRes.json(), chaptersRes.json()]);
-        const sortedBooks = Array.isArray(booksData)
+        const bookItems = Array.isArray(booksData)
           ? [...booksData].sort((a, b) => {
               const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
               const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
               return dateB - dateA;
             })
-          : [];
-        setBooks(sortedBooks.slice(0, 6));
+          : Array.isArray(booksData.items)
+            ? booksData.items
+            : [];
+        setBooks(bookItems.slice(0, 6));
         const safeChapters = Array.isArray(chaptersData)
           ? chaptersData.map((chapter) => ({
               ...chapter,

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
@@ -13,6 +13,13 @@ const STATUS_OPTIONS = ["À lire", "En cours", "Lu"];
 export default function Library() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalItems, setTotalItems] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("Tous");
+  const [searchText, setSearchText] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
   const [deletingBookId, setDeletingBookId] = useState(null);
   const [notesModalBookId, setNotesModalBookId] = useState(null);
@@ -24,50 +31,89 @@ export default function Library() {
     () => books.find((book) => book.id === notesModalBookId) || null,
     [books, notesModalBookId]
   );
+  const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0;
+
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      const nextTerm = searchText.trim();
+      setPage(1);
+      setSearchTerm(nextTerm);
+    }, 250);
+
+    return () => clearTimeout(handle);
+  }, [searchText]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login", { replace: true });
   };
 
-  useEffect(() => {
+  const fetchBooks = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
 
-    fetch(`${API_BASE_URL}/books/mine`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          redirectToLogin(navigate);
-          throw new Error("Session expirée");
-        }
-        if (!res.ok) throw new Error("Erreur lors du chargement des livres");
-        return res.json();
-      })
-      .then((data) => {
-        const sortedBooks = Array.isArray(data)
-          ? [...data].sort((a, b) => {
-              const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
-              const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
-              return dateB - dateA;
-            })
+    const params = new URLSearchParams();
+    params.set("page", String(page));
+    params.set("page_size", String(pageSize));
+    if (statusFilter && statusFilter !== "Tous") {
+      params.set("status", statusFilter);
+    }
+    if (searchTerm) {
+      params.set("search", searchTerm);
+    }
+    if (favoritesOnly) {
+      params.set("favorites", "true");
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/books/mine?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.status === 401) {
+        redirectToLogin(navigate);
+        throw new Error("Session expirée");
+      }
+      if (!res.ok) throw new Error("Erreur lors du chargement des livres");
+      const data = await res.json();
+
+      const items = Array.isArray(data)
+        ? [...data].sort((a, b) => {
+            const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
+            const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
+            return dateB - dateA;
+          })
+        : Array.isArray(data.items)
+          ? data.items
           : [];
-        const withNotes = sortedBooks.map((book) => ({
-          ...book,
-          notes: Array.isArray(book.notes) ? book.notes : [],
-          is_favorite: Boolean(book.is_favorite),
-        }));
-        setBooks(withNotes);
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, [navigate]);
+
+      const withNotes = items.map((book) => ({
+        ...book,
+        notes: Array.isArray(book.notes) ? book.notes : [],
+        is_favorite: Boolean(book.is_favorite),
+      }));
+
+      setBooks(withNotes);
+      if (Array.isArray(data)) {
+        setTotalItems(items.length);
+      } else {
+        setTotalItems(Number.isFinite(data.total_items) ? data.total_items : 0);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate, page, pageSize, statusFilter, searchTerm, favoritesOnly]);
+
+  useEffect(() => {
+    fetchBooks();
+  }, [fetchBooks]);
 
   const handleStatusChange = async (bookId, newStatus) => {
     const token = localStorage.getItem("token");
@@ -106,8 +152,8 @@ export default function Library() {
       }
 
       const updatedBook = await response.json();
-      setBooks((current) => {
-        const nextBooks = current.map((book) =>
+      setBooks((current) =>
+        current.map((book) =>
           book.id === bookId
             ? {
                 ...book,
@@ -117,9 +163,9 @@ export default function Library() {
                   : book.notes || [],
               }
             : book
-        );
-        return nextBooks;
-      });
+        )
+      );
+      fetchBooks();
     } catch (err) {
       toast.error(err.message || "Erreur lors de la mise à jour du statut");
     } finally {
@@ -177,6 +223,7 @@ export default function Library() {
             : book
         )
       );
+      fetchBooks();
     } catch (err) {
       setBooks(previousBooks);
       toast.error(err.message || "Erreur lors de la mise à jour du favori");
@@ -242,6 +289,7 @@ export default function Library() {
         setBooks(previousBooks);
         throw new Error(err.detail || "Impossible de supprimer le livre");
       }
+      fetchBooks();
     } catch (err) {
       toast.error(err.message || "Erreur lors de la suppression du livre");
     } finally {
@@ -252,6 +300,20 @@ export default function Library() {
   const openNotesModal = (bookId) => {
     setNotesModalBookId(bookId);
     setNewNoteContent("");
+  };
+
+  const handleFilterSubmit = (event) => {
+    event.preventDefault();
+    setPage(1);
+    setSearchTerm(searchText.trim());
+  };
+
+  const handleResetFilters = () => {
+    setSearchText("");
+    setSearchTerm("");
+    setStatusFilter("Tous");
+    setFavoritesOnly(false);
+    setPage(1);
   };
 
   const closeNotesModal = () => {
@@ -362,7 +424,7 @@ export default function Library() {
     }
   };
 
-  if (loading) {
+  if (loading && books.length === 0) {
     return (
       <AuroraBackground>
         <Header onLogout={handleLogout} />
@@ -379,7 +441,7 @@ export default function Library() {
     <AuroraBackground>
       <div className="flex min-h-screen flex-col">
         <Header onLogout={handleLogout} />
-        <main className="mx-auto max-w-6xl flex-1 px-4 pb-32 pt-12">
+        <main className="mx-auto max-w-7xl flex-1 px-4 pb-32 pt-12">
         <div className="mb-8 space-y-3">
           <PageBreadcrumb items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Bibliothèque" }]} />
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -393,103 +455,205 @@ export default function Library() {
           </div>
         </div>
 
+        <form
+          onSubmit={handleFilterSubmit}
+          className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-purple-100 bg-white/80 p-4 shadow-lg backdrop-blur"
+        >
+          <input
+            type="search"
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+            placeholder="Rechercher par titre ou auteur..."
+            className="min-w-[220px] flex-1 rounded-lg border border-purple-200 px-4 py-2 text-sm shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300"
+          />
+          <select
+            value={statusFilter}
+            onChange={(event) => {
+              setStatusFilter(event.target.value);
+              setPage(1);
+            }}
+            className="rounded-full border border-purple-200 bg-white px-3 py-2 text-sm text-purple-700 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+          >
+            {["Tous", ...STATUS_OPTIONS].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => {
+              setFavoritesOnly((current) => !current);
+              setPage(1);
+            }}
+            aria-pressed={favoritesOnly}
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-600 transition hover:text-pink-500"
+          >
+            <span className="text-base">{favoritesOnly ? "💜" : "🤍"}</span>
+            Livres aimés
+          </button>
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-purple-500 transition hover:bg-purple-50"
+          >
+            Réinitialiser
+          </button>
+        </form>
+
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-purple-700">
+          <div>
+            {totalItems} livre{totalItems > 1 ? "s" : ""}
+          </div>
+          <label className="flex items-center gap-2">
+            Affichage
+            <select
+              value={pageSize}
+              onChange={(event) => {
+                setPageSize(Number(event.target.value));
+                setPage(1);
+              }}
+              className="rounded-full border border-purple-200 bg-white px-3 py-1 text-sm text-purple-700 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+            >
+              {[10, 20, 50].map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
         {books.length === 0 ? (
           <p className="rounded-2xl border border-purple-100 bg-white/80 p-10 text-center text-purple-600 shadow-lg backdrop-blur">
             Aucun livre ajouté pour le moment.
           </p>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-lg">
-            <table className="min-w-full divide-y divide-purple-100 text-sm">
-              <thead className="bg-purple-50/50 text-left text-xs font-semibold uppercase tracking-wider text-purple-700">
-                <tr>
-                  <th className="px-6 py-4">Couverture</th>
-                  <th className="px-6 py-4">Titre</th>
-                  <th className="px-6 py-4">Auteur</th>
-                  <th className="px-6 py-4">Statut</th>
-                  <th className="px-6 py-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-purple-100 text-gray-700">
-                {books.map((book) => (
-                  <tr key={book.id} className="hover:bg-purple-50/50">
-                    <td className="px-6 py-4">
-                      <img
-                        src={
-                          book.cover_image ||
-                          "https://via.placeholder.com/80x120?text=Pas+d'image"
-                        }
-                        alt={book.title}
-                        className="h-24 w-16 rounded-md object-cover shadow"
-                      />
-                    </td>
-                    <td className="px-6 py-4 font-medium text-purple-800">{book.title}</td>
-                    <td className="px-6 py-4">{book.author || book.authors || "Auteur inconnu"}</td>
-                    <td className="px-6 py-4">
-                      <select
-                        className="rounded-md border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-purple-700 shadow-sm transition focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 disabled:cursor-not-allowed disabled:opacity-60"
-                        value={
-                          STATUS_OPTIONS.includes(book.status)
-                            ? book.status
-                            : STATUS_OPTIONS[0]
-                        }
-                        onChange={(event) => handleStatusChange(book.id, event.target.value)}
-                        disabled={updatingStatusId === book.id || deletingBookId === book.id}
-                      >
-                        {STATUS_OPTIONS.map((statusOption) => (
-                          <option key={statusOption} value={statusOption}>
-                            {statusOption}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-3">
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          onClick={() =>
-                            handleToggleFavorite(book.id, Boolean(book.is_favorite))
-                          }
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                              event.preventDefault();
-                              handleToggleFavorite(book.id, Boolean(book.is_favorite));
-                            }
-                          }}
-                          className={`text-xl transition ${
-                            book.is_favorite ? "text-pink-600" : "text-pink-300"
-                          }`}
-                          aria-pressed={book.is_favorite}
-                          aria-label={
-                            book.is_favorite
-                              ? "Retirer des favoris"
-                              : "Ajouter aux favoris"
-                          }
-                        >
-                          {book.is_favorite ? "💜" : "🤍"}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => openNotesModal(book.id)}
-                          className="rounded-md border border-purple-200 px-3 py-2 text-xs font-semibold text-purple-600 shadow-sm transition hover:bg-purple-50"
-                        >
-                          📝 Notes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(book.id)}
-                          disabled={deletingBookId === book.id}
-                          className="rounded-md border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 shadow-sm transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          🗑️ Supprimer
-                        </button>
-                      </div>
-                    </td>
+          <>
+            <div className="overflow-x-auto rounded-2xl border border-purple-100 bg-white shadow-lg">
+              <table className="min-w-[980px] w-full table-fixed divide-y divide-purple-100 text-sm">
+                <thead className="bg-purple-50/50 text-left text-xs font-semibold uppercase tracking-wider text-purple-700">
+                  <tr>
+                    <th className="w-28 px-6 py-4">Couverture</th>
+                    <th className="w-[280px] px-6 py-4">Titre</th>
+                    <th className="px-6 py-4">Auteur</th>
+                    <th className="w-28 px-6 py-4">Statut</th>
+                    <th className="w-72 px-4 py-4">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-purple-100 text-gray-700">
+                  {books.map((book) => (
+                    <tr key={book.id} className="hover:bg-purple-50/50">
+                      <td className="px-6 py-4">
+                        <img
+                          src={
+                            book.cover_image ||
+                            "https://via.placeholder.com/80x120?text=Pas+d'image"
+                          }
+                          alt={book.title}
+                          className="h-24 w-16 rounded-md object-cover shadow"
+                        />
+                      </td>
+                      <td className="px-6 py-4 font-medium text-purple-800">
+                        <span className="block truncate" title={book.title}>
+                          {book.title}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="block truncate">
+                          {book.author || book.authors || "Auteur inconnu"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <select
+                          className="rounded-md border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-purple-700 shadow-sm transition focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 disabled:cursor-not-allowed disabled:opacity-60"
+                          value={
+                            STATUS_OPTIONS.includes(book.status)
+                              ? book.status
+                              : STATUS_OPTIONS[0]
+                          }
+                          onChange={(event) => handleStatusChange(book.id, event.target.value)}
+                          disabled={updatingStatusId === book.id || deletingBookId === book.id}
+                        >
+                          {STATUS_OPTIONS.map((statusOption) => (
+                            <option key={statusOption} value={statusOption}>
+                              {statusOption}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex flex-wrap gap-2 whitespace-nowrap">
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            onClick={() =>
+                              handleToggleFavorite(book.id, Boolean(book.is_favorite))
+                            }
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                handleToggleFavorite(book.id, Boolean(book.is_favorite));
+                              }
+                            }}
+                            className={`text-xl transition ${
+                              book.is_favorite ? "text-pink-600" : "text-pink-300"
+                            }`}
+                            aria-pressed={book.is_favorite}
+                            aria-label={
+                              book.is_favorite
+                                ? "Retirer des favoris"
+                                : "Ajouter aux favoris"
+                            }
+                          >
+                            {book.is_favorite ? "💜" : "🤍"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => openNotesModal(book.id)}
+                            className="rounded-md border border-purple-200 px-3 py-2 text-xs font-semibold text-purple-600 shadow-sm transition hover:bg-purple-50"
+                          >
+                            📝 Notes
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(book.id)}
+                            disabled={deletingBookId === book.id}
+                            className="rounded-md border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 shadow-sm transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            🗑️ Supprimer
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {totalPages > 1 && (
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-purple-700">
+                <button
+                  type="button"
+                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                  disabled={page === 1 || loading}
+                  className="rounded-full border border-purple-200 bg-white px-4 py-2 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Précédent
+                </button>
+                <span>
+                  Page {page} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={page >= totalPages || loading}
+                  className="rounded-full border border-purple-200 bg-white px-4 py-2 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Suivant
+                </button>
+              </div>
+            )}
+          </>
         )}
         </main>
       </div>

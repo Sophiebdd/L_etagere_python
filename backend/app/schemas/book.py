@@ -34,3 +34,10 @@ class Book(BookBase):
 
     class Config:
         from_attributes = True  # remplace l’ancien orm_mode=True
+
+
+class BookPage(BaseModel):
+    items: List[Book]
+    total_items: int
+    page: int
+    page_size: int
