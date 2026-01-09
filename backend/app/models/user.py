@@ -25,3 +25,4 @@ class User(Base):
         back_populates="author",
         cascade="all, delete-orphan",
     )
+    api_logs = relationship("ApiLog", back_populates="user")

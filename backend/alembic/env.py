@@ -8,6 +8,7 @@ import app.models.book
 import app.models.book_note
 import app.models.manuscript
 import app.models.chapter
+import app.models.api_log
 
 from logging.config import fileConfig
 

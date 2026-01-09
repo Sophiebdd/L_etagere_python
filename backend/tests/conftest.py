@@ -21,6 +21,7 @@ importlib.import_module("app.models.book_note")  # noqa: F401
 importlib.import_module("app.models.chapter")  # noqa: F401
 importlib.import_module("app.models.manuscript")  # noqa: F401
 importlib.import_module("app.models.user")  # noqa: F401
+importlib.import_module("app.models.api_log")  # noqa: F401
 
 engine = create_engine(
     "sqlite+pysqlite:///:memory:",
