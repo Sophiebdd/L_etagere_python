@@ -54,7 +54,7 @@ def create_manuscript(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
-    db_manuscript = Manuscript(**manuscript.dict(), user_id=user.id)
+    db_manuscript = Manuscript(**manuscript.model_dump(), user_id=user.id)
     db.add(db_manuscript)
     db.commit()
     db.refresh(db_manuscript)
@@ -85,7 +85,7 @@ def update_manuscript(
     user=Depends(get_current_user),
 ):
     manuscript = _get_user_manuscript_or_404(manuscript_id, user.id, db)
-    update_data = manuscript_update.dict(exclude_unset=True, exclude_none=True)
+    update_data = manuscript_update.model_dump(exclude_unset=True, exclude_none=True)
     for field, value in update_data.items():
         setattr(manuscript, field, value)
     db.commit()
@@ -189,7 +189,7 @@ def update_chapter(
     user=Depends(get_current_user),
 ):
     chapter = _get_user_chapter_or_404(chapter_id, user.id, db)
-    update_data = chapter_update.dict(exclude_unset=True, exclude_none=True)
+    update_data = chapter_update.model_dump(exclude_unset=True, exclude_none=True)
     for field, value in update_data.items():
         setattr(chapter, field, value)
     db.commit()

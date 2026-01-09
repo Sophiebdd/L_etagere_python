@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
+from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserRead
 from app.core.security import hash_password
@@ -8,13 +8,6 @@ from app.models.book import Book
 
 
 router = APIRouter(prefix="/users", tags=["Users"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/", response_model=UserRead)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):

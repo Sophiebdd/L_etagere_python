@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel, EmailStr, constr
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
+from app.database import get_db
 from app.models.user import User
 from app.core.security import verify_password, create_access_token, hash_password
 from app.services.email import send_email, EmailError
@@ -30,13 +30,6 @@ class ResetPasswordRequest(BaseModel):
     token: str
     new_password: constr(min_length=8)
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _generate_reset_token() -> str:
@@ -69,7 +62,9 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
 
     raw_token = _generate_reset_token()
     user.reset_token_hash = _hash_reset_token(raw_token)
-    user.reset_token_expires_at = datetime.now(timezone.utc) + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
+    user.reset_token_expires_at = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(
+        minutes=RESET_TOKEN_EXPIRE_MINUTES
+    )
 
     reset_link = f"{FRONTEND_BASE_URL}/reset-password?token={raw_token}"
     html_content = f"""
@@ -107,7 +102,7 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
     if (
         not user
         or not user.reset_token_expires_at
-        or user.reset_token_expires_at < datetime.now(timezone.utc)
+        or user.reset_token_expires_at < datetime.now(timezone.utc).replace(tzinfo=None)
     ):
         raise HTTPException(status_code=400, detail="Lien de réinitialisation invalide ou expiré")
 

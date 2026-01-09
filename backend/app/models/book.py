@@ -1,7 +1,11 @@
 from sqlalchemy import Column, Integer, String, Text, Date, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from app.database import Base
+
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
 
 class Book(Base):
     __tablename__ = "books"
@@ -11,7 +15,7 @@ class Book(Base):
     author = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     status = Column(String(50), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
     publication_date = Column(Date, nullable=True)
     isbn = Column(String(255), nullable=True)
     cover_image = Column(String(255), nullable=True)

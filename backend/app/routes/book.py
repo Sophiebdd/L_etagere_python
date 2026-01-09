@@ -30,7 +30,7 @@ def _get_user_book_or_404(book_id: int, user_id: int, db: Session) -> Book:
 
 @router.post("/", response_model=BookSchema)
 def create_book(book: BookCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
-    db_book = Book(**book.dict(), user_id=user.id)
+    db_book = Book(**book.model_dump(), user_id=user.id)
     db.add(db_book)
     db.commit()
     db.refresh(db_book)
@@ -58,7 +58,7 @@ def delete_book(book_id: int, db: Session = Depends(get_db), user=Depends(get_cu
 def update_book(book_id: int, book_update: BookUpdate, db: Session = Depends(get_db), user=Depends(get_current_user)):
     book = _get_user_book_or_404(book_id, user.id, db)
 
-    update_data = book_update.dict(exclude_unset=True, exclude_none=True)
+    update_data = book_update.model_dump(exclude_unset=True, exclude_none=True)
     for field, value in update_data.items():
         setattr(book, field, value)
 

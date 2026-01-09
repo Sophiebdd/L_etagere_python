@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date, datetime
 from typing import Optional, List
 from .note import BookNote as BookNoteSchema
@@ -32,8 +32,7 @@ class Book(BookBase):
     created_at: datetime
     notes: List[BookNoteSchema] = []
 
-    class Config:
-        from_attributes = True  # remplace l’ancien orm_mode=True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookPage(BaseModel):

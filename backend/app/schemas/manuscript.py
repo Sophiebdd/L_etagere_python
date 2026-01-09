@@ -1,15 +1,14 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class ManuscriptSummary(BaseModel):
     id: int
     title: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ChapterBase(BaseModel):
@@ -35,8 +34,7 @@ class Chapter(ChapterBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ChapterWithManuscript(Chapter):
@@ -64,8 +62,7 @@ class Manuscript(ManuscriptBase):
     updated_at: datetime
     chapters: List[Chapter] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ManuscriptShareRequest(BaseModel):
