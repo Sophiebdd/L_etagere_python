@@ -21,24 +21,8 @@ jobs:
             CURRENT_REV=$(docker compose -f docker-compose.prod.yml exec -T backend alembic current -q | awk '{print $1; exit}')
             HEAD_REV=$(docker compose -f docker-compose.prod.yml exec -T backend alembic heads -q | awk '{print $1; exit}')
             if [ -z "$CURRENT_REV" ] || [ "$CURRENT_REV" != "$HEAD_REV" ]; then
-              DB_INFO=$(docker compose -f docker-compose.prod.yml exec -T backend python - <<'PY'
-import os
-from urllib.parse import urlparse
-
-url = os.environ.get("DATABASE_URL", "")
-parsed = urlparse(url)
-user = parsed.username or ""
-password = parsed.password or ""
-database = (parsed.path or "").lstrip("/")
-
-print(user)
-print(password)
-print(database)
-PY
-              )
-              IFS=$'\n' read -r DB_USER DB_PASS DB_NAME <<'EOF'
-$DB_INFO
-EOF
+              DB_INFO=$(docker compose -f docker-compose.prod.yml exec -T backend python -c "import os; from urllib.parse import urlparse; url=os.environ.get('DATABASE_URL',''); p=urlparse(url); print(p.username or ''); print(p.password or ''); print((p.path or '').lstrip('/'))")
+              IFS=$'\n' read -r DB_USER DB_PASS DB_NAME <<< "$DB_INFO"
               if [ -z "$DB_USER" ] || [ -z "$DB_PASS" ] || [ -z "$DB_NAME" ]; then
                 echo "DATABASE_URL is missing required parts; aborting backup."
                 exit 1

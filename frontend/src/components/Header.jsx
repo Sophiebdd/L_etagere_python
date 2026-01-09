@@ -1,6 +1,4 @@
 import { Link } from "react-router-dom";
-import logo from "../assets/logo.png";
-
 export default function Header({ showNavigation = true, onLogout = null }) {
   return (
     <header className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 text-white shadow-lg">

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -83,7 +83,7 @@ export default function RichTextEditor({
   const [fontSizeValue, setFontSizeValue] = useState(DEFAULT_FONT_SIZE);
   const manualFontSizeRef = useRef(null);
 
-  const extractFontSize = (editorInstance) => {
+  const extractFontSize = useCallback((editorInstance) => {
     const storedMarks = editorInstance.view?.state?.storedMarks || [];
     const storedMark = storedMarks.find((mark) => mark.type.name === "textStyle");
     if (storedMark?.attrs?.fontSize) {
@@ -94,9 +94,9 @@ export default function RichTextEditor({
     );
     if (active) return active;
     return DEFAULT_FONT_SIZE;
-  };
+  }, []);
 
-  const syncFontSizeFromEditor = (editorInstance) => {
+  const syncFontSizeFromEditor = useCallback((editorInstance) => {
     const size = extractFontSize(editorInstance);
     if (manualFontSizeRef.current !== null) {
       if (size === manualFontSizeRef.current) {
@@ -106,7 +106,7 @@ export default function RichTextEditor({
       }
     }
     setFontSizeValue((prev) => (prev === size ? prev : size));
-  };
+  }, [extractFontSize]);
 
   const editor = useEditor({
     extensions: [
@@ -149,7 +149,7 @@ export default function RichTextEditor({
       editor.commands.setContent(incoming, false);
       syncFontSizeFromEditor(editor);
     }
-  }, [value, editor]);
+  }, [value, editor, syncFontSizeFromEditor]);
 
   const resetContent = () => {
     editor?.commands.clearContent();

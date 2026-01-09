@@ -46,6 +46,7 @@ export default function Signup() {
         setMessage(`❌ Erreur : ${err.detail || "Une erreur est survenue."}`);
       }
     } catch (error) {
+      console.error(error);
       setMessage("⚠️ Impossible de contacter le serveur.");
     } finally {
       setLoading(false);
