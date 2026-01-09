@@ -14,14 +14,14 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            set -e
+            set -euo pipefail
             cd ${{ secrets.DEPLOY_PATH }}
             git pull
             docker compose -f docker-compose.prod.yml up -d --build
-            CURRENT_REV=$(docker compose -f docker-compose.prod.yml exec -T backend alembic current -q | awk '{print $1; exit}')
-            HEAD_REV=$(docker compose -f docker-compose.prod.yml exec -T backend alembic heads -q | awk '{print $1; exit}')
+            CURRENT_REV=$(docker compose -f docker-compose.prod.yml exec -T backend alembic current | grep -Eo '[0-9a-f]+' | head -n1 || true)
+            HEAD_REV=$(docker compose -f docker-compose.prod.yml exec -T backend alembic heads | grep -Eo '[0-9a-f]+' | head -n1 || true)
             if [ -z "$CURRENT_REV" ] || [ "$CURRENT_REV" != "$HEAD_REV" ]; then
-              DB_INFO=$(docker compose -f docker-compose.prod.yml exec -T backend python -c "import os; from urllib.parse import urlparse; url=os.environ.get('DATABASE_URL',''); p=urlparse(url); print(p.username or ''); print(p.password or ''); print((p.path or '').lstrip('/'))")
+              DB_INFO=$(docker compose -f docker-compose.prod.yml exec -T backend python -c "import os; from urllib.parse import urlparse; url=os.environ['DATABASE_URL']; p=urlparse(url); print(p.username or ''); print(p.password or ''); print((p.path or '').lstrip('/'))")
               IFS=$'\n' read -r DB_USER DB_PASS DB_NAME <<< "$DB_INFO"
               if [ -z "$DB_USER" ] || [ -z "$DB_PASS" ] || [ -z "$DB_NAME" ]; then
                 echo "DATABASE_URL is missing required parts; aborting backup."
