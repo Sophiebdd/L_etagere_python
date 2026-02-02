@@ -32,13 +32,13 @@ export default function Header({ showNavigation = true, onLogout = null }) {
               to="/library"
               className="rounded-full border border-white/20 bg-white/10 px-5 py-2 transition hover:bg-white/20 hover:text-white"
             >
-              Partitions de papier
+              Ma bibliothèque
             </Link>
             <Link
               to="/manuscrits"
               className="rounded-full border border-white/20 bg-white/10 px-5 py-2 transition hover:bg-white/20 hover:text-white"
             >
-              Horizons feuilletés
+              Mes manuscrits
             </Link>
           </div>
         )}

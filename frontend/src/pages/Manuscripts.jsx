@@ -43,6 +43,7 @@ export default function Manuscripts() {
   const [savingSynopsis, setSavingSynopsis] = useState(false);
   const [previewChapter, setPreviewChapter] = useState(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isNewManuscriptModalOpen, setIsNewManuscriptModalOpen] = useState(false);
   const [shareRecipients, setShareRecipients] = useState("");
   const [shareSubject, setShareSubject] = useState("");
   const [shareMessage, setShareMessage] = useState("");
@@ -132,7 +133,7 @@ export default function Manuscripts() {
   }, [selectedManuscript]);
 
   useEffect(() => {
-    if (previewChapter || isShareModalOpen) {
+    if (previewChapter || isShareModalOpen || isNewManuscriptModalOpen) {
       if (typeof document !== "undefined") {
         document.body.style.overflow = "hidden";
       }
@@ -144,7 +145,7 @@ export default function Manuscripts() {
         document.body.style.overflow = "";
       }
     };
-  }, [previewChapter, isShareModalOpen]);
+  }, [previewChapter, isShareModalOpen, isNewManuscriptModalOpen]);
 
   useEffect(() => {
     if (!isShareModalOpen) {
@@ -203,6 +204,7 @@ export default function Manuscripts() {
       ]);
       setFormValues({ title: "", description: "" });
       setSelectedManuscriptId(created.id);
+      setIsNewManuscriptModalOpen(false);
     } catch (error) {
       toast.error(error.message || "Erreur lors de la création du manuscrit");
     } finally {
@@ -566,118 +568,30 @@ export default function Manuscripts() {
           <PageBreadcrumb items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Manuscrits" }]} />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h1 className="text-3xl font-semibold text-purple-900">Mes manuscrits</h1>
-            <button
-              type="button"
-              onClick={() => setIsShareModalOpen(true)}
-              disabled={!selectedManuscript}
-              className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              ✉️ Partager
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsNewManuscriptModalOpen(true)}
+                className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50"
+              >
+                ➕ Nouveau
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsShareModalOpen(true)}
+                disabled={!selectedManuscript}
+                className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                ✉️ Partager
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="grid w-full gap-8 lg:grid-cols-[320px,1fr]">
-          <div className="space-y-6 w-full">
-            <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
-              <h2 className="text-lg font-semibold text-purple-800">Nouveau manuscrit</h2>
-              <p className="mb-4 text-sm text-gray-500">
-                Donne un titre et une intention, tu pourras ensuite ajouter tes chapitres.
-              </p>
-              <form className="space-y-4" onSubmit={handleCreateManuscript}>
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
-                    Titre
-                  </label>
-                  <input
-                    type="text"
-                    value={formValues.title}
-                    onChange={(event) =>
-                      setFormValues((current) => ({ ...current, title: event.target.value }))
-                    }
-                    className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
-                    placeholder="Mon prochain roman..."
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
-                    Synopsis
-                  </label>
-                  <textarea
-                    value={formValues.description}
-                    onChange={(event) =>
-                      setFormValues((current) => ({
-                        ...current,
-                        description: event.target.value,
-                      }))
-                    }
-                    className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
-                    rows={4}
-                    placeholder="Une idée, une ambiance, une discussion avec ton personnage principal..."
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={savingManuscript}
-                  className="w-full rounded-2xl bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
-                >
-                  {savingManuscript ? "Création..." : "Créer le manuscrit"}
-                </button>
-              </form>
-            </section>
-
-            <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
-              <h2 className="text-lg font-semibold text-purple-800">Mes manuscrits</h2>
-              {manuscripts.length === 0 ? (
-                <p className="mt-3 rounded-2xl border border-dashed border-purple-200 bg-purple-50/60 p-4 text-sm text-purple-700">
-                  Aucun manuscrit pour l'instant. Commence par en créer un pour débloquer ton espace d'écriture.
-                </p>
-              ) : (
-                <ul className="mt-4 space-y-3">
-                  {manuscripts.map((manuscript) => (
-                    <li
-                      key={manuscript.id}
-                      className={`rounded-2xl border px-4 py-3 shadow-sm transition ${
-                        selectedManuscript?.id === manuscript.id
-                          ? "border-purple-400 bg-purple-50"
-                          : "border-purple-100 bg-white hover:border-purple-200"
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setSelectedManuscriptId(manuscript.id)}
-                        className="flex w-full items-start justify-between text-left"
-                      >
-                        <div>
-                          <p className="text-sm font-semibold text-purple-900">{manuscript.title}</p>
-                          <p className="text-xs text-gray-500">
-                            {manuscript.chapters?.length || 0} chapitre
-                            {manuscript.chapters?.length > 1 ? "s" : ""}
-                          </p>
-                        </div>
-                        <span className="text-lg text-purple-400">→</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          handleDeleteManuscript(manuscript.id);
-                        }}
-                        disabled={deletingManuscriptId === manuscript.id}
-                        className="mt-2 text-xs font-semibold text-red-500 transition hover:text-red-700 disabled:opacity-50"
-                      >
-                        {deletingManuscriptId === manuscript.id ? "Suppression..." : "Supprimer"}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </div>
-
-          <div className="space-y-8 w-full">
-            {selectedManuscript ? (
-              <>
+        <div className="space-y-8 w-full">
+          <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1.35fr),minmax(0,0.65fr)]">
+            <div className="w-full">
+              {selectedManuscript ? (
                 <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -723,13 +637,25 @@ export default function Manuscripts() {
                             {selectedManuscript.description ||
                               "Pas encore de synopsis, laisse parler ton inspiration ✨"}
                           </p>
-                          <button
-                            type="button"
-                            onClick={() => setEditingSynopsis(true)}
-                            className="mt-4 rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-purple-600 transition hover:border-purple-300 hover:text-purple-800"
-                          >
-                            Modifier le synopsis
-                          </button>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setEditingSynopsis(true)}
+                              className="rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-purple-600 transition hover:border-purple-300 hover:text-purple-800"
+                            >
+                              Modifier le synopsis
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteManuscript(selectedManuscript.id)}
+                              disabled={deletingManuscriptId === selectedManuscript.id}
+                              className="rounded-full border border-red-200 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-red-500 transition hover:border-red-300 hover:text-red-700 disabled:opacity-50"
+                            >
+                              {deletingManuscriptId === selectedManuscript.id
+                                ? "Suppression..."
+                                : "Supprimer"}
+                            </button>
+                          </div>
                         </>
                       )}
                     </div>
@@ -739,140 +665,249 @@ export default function Manuscripts() {
                     </div>
                   </div>
                 </section>
-
-                <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
-                        {editingChapterId ? "Modifier le chapitre" : "Nouveau chapitre"}
-                      </p>
-                      <h3 className="text-xl font-semibold text-purple-900">
-                        {editingChapterId ? "Tu ajustes ton texte" : "Pose les premières lignes"}
-                      </h3>
-                    </div>
-                    {editingChapterId && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setChapterForm({ title: "", content: "" });
-                          setEditingChapterId(null);
-                        }}
-                        className="text-sm font-semibold text-purple-600 transition hover:text-purple-800"
-                      >
-                        Annuler la modification
-                      </button>
-                    )}
-                  </div>
-
-                  <form className="mt-4 space-y-4" onSubmit={handleChapterSubmit}>
-                    <div>
-                      <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
-                        Titre du chapitre
-                      </label>
-                      <input
-                        type="text"
-                        value={chapterForm.title}
-                        onChange={(event) =>
-                          setChapterForm((current) => ({ ...current, title: event.target.value }))
-                        }
-                        className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
-                        placeholder="Chapitre 1 - La rencontre"
-                      />
-                    </div>
-                    <RichTextEditor
-                      value={chapterForm.content}
-                      onChange={(content) =>
-                        setChapterForm((current) => ({ ...current, content }))
-                      }
-                    />
-                    <button
-                      type="submit"
-                      disabled={savingChapter}
-                      className="rounded-2xl bg-purple-600 px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
-                    >
-                      {savingChapter
-                        ? "Enregistrement..."
-                        : editingChapterId
-                        ? "Mettre à jour le chapitre"
-                        : "Ajouter le chapitre"}
-                    </button>
-                  </form>
+              ) : (
+                <section className="rounded-3xl border border-dashed border-purple-200 bg-white/60 p-10 text-center text-purple-700 shadow-inner">
+                  <p className="text-lg font-semibold">Commence par créer ton premier manuscrit ✨</p>
                 </section>
+              )}
+            </div>
 
-                <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
+            <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
+              <h2 className="text-lg font-semibold text-purple-800">Mes manuscrits</h2>
+              {manuscripts.length === 0 ? (
+                <p className="mt-3 rounded-2xl border border-dashed border-purple-200 bg-purple-50/60 p-4 text-sm text-purple-700">
+                  Aucun manuscrit pour l'instant. Commence par en créer un pour débloquer ton espace d'écriture.
+                </p>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  <div className="relative">
+                    <select
+                      value={selectedManuscript?.id || ""}
+                      onChange={(event) => setSelectedManuscriptId(Number(event.target.value))}
+                      className="w-full appearance-none rounded-2xl border border-purple-100 bg-white px-4 py-3 text-sm font-semibold text-purple-900 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                    >
+                      {manuscripts.map((manuscript) => (
+                        <option key={manuscript.id} value={manuscript.id}>
+                          {manuscript.title} · {manuscript.chapters?.length || 0} chapitre
+                          {manuscript.chapters?.length > 1 ? "s" : ""}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-purple-400">
+                      ▾
+                    </span>
+                  </div>
+                </div>
+              )}
+            </section>
+          </div>
+
+          {selectedManuscript && (
+            <>
+              <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
+                <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
-                      Progression
+                      {editingChapterId ? "Modifier le chapitre" : "Nouveau chapitre"}
                     </p>
                     <h3 className="text-xl font-semibold text-purple-900">
-                      {selectedManuscript.chapters?.length || 0} chapitre
-                      {selectedManuscript.chapters?.length > 1 ? "s" : ""}
+                      {editingChapterId ? "Tu ajustes ton texte" : "Pose les premières lignes"}
                     </h3>
                   </div>
-
-                  {selectedManuscript.chapters?.length ? (
-                    <div className="mt-4 space-y-4">
-                      {selectedManuscript.chapters.map((chapter) => (
-                        <article
-                          key={chapter.id}
-                          className="rounded-2xl border border-purple-100 bg-white/90 p-4 shadow hover:border-purple-200"
-                        >
-                          <div className="flex flex-wrap items-start justify-between gap-3">
-                            <div>
-                              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-400">
-                                Chapitre {chapter.order_index ?? "?"}
-                              </p>
-                              <h4 className="text-lg font-semibold text-purple-900">{chapter.title}</h4>
-                              <p className="text-xs text-gray-500">Rédigé le {formatDate(chapter.created_at)}</p>
-                            </div>
-                            <div className="flex gap-4 text-sm font-semibold">
-                              <button
-                                type="button"
-                                onClick={() => handleEditChapter(chapter)}
-                                className="text-purple-600 transition hover:text-purple-800"
-                              >
-                                Modifier
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteChapter(chapter.id)}
-                                disabled={deletingChapterId === chapter.id}
-                                className="text-red-500 transition hover:text-red-700 disabled:opacity-50"
-                              >
-                                {deletingChapterId === chapter.id ? "Suppression..." : "Supprimer"}
-                              </button>
-                            </div>
-                          </div>
-                          <p className="mt-3 text-sm leading-relaxed text-gray-700">
-                            {chapterExcerpt(chapter.content) || "Chapitre encore vide."}
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => openChapterPreview(chapter)}
-                            className="mt-3 text-sm font-semibold text-purple-600 transition hover:text-purple-800"
-                          >
-                            Voir le chapitre →
-                          </button>
-                        </article>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-4 rounded-2xl border border-dashed border-purple-200 bg-purple-50/60 p-6 text-center text-sm text-purple-700">
-                      Pas encore de chapitre pour ce manuscrit. Ton espace d'écriture est prêt !
-                    </p>
+                  {editingChapterId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChapterForm({ title: "", content: "" });
+                        setEditingChapterId(null);
+                      }}
+                      className="text-sm font-semibold text-purple-600 transition hover:text-purple-800"
+                    >
+                      Annuler la modification
+                    </button>
                   )}
-                </section>
-              </>
-            ) : (
-              <section className="rounded-3xl border border-dashed border-purple-200 bg-white/60 p-10 text-center text-purple-700 shadow-inner">
-                <p className="text-lg font-semibold">Commence par créer ton premier manuscrit ✨</p>
+                </div>
+
+                <form className="mt-4 space-y-4" onSubmit={handleChapterSubmit}>
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
+                      Titre du chapitre
+                    </label>
+                    <input
+                      type="text"
+                      value={chapterForm.title}
+                      onChange={(event) =>
+                        setChapterForm((current) => ({ ...current, title: event.target.value }))
+                      }
+                      className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                      placeholder="Chapitre 1 - La rencontre"
+                    />
+                  </div>
+                  <RichTextEditor
+                    value={chapterForm.content}
+                    onChange={(content) =>
+                      setChapterForm((current) => ({ ...current, content }))
+                    }
+                  />
+                  <button
+                    type="submit"
+                    disabled={savingChapter}
+                    className="rounded-2xl bg-purple-600 px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
+                  >
+                    {savingChapter
+                      ? "Enregistrement..."
+                      : editingChapterId
+                      ? "Mettre à jour le chapitre"
+                      : "Ajouter le chapitre"}
+                  </button>
+                </form>
               </section>
-            )}
-          </div>
+
+              <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
+                    Progression
+                  </p>
+                  <h3 className="text-xl font-semibold text-purple-900">
+                    {selectedManuscript.chapters?.length || 0} chapitre
+                    {selectedManuscript.chapters?.length > 1 ? "s" : ""}
+                  </h3>
+                </div>
+
+                {selectedManuscript.chapters?.length ? (
+                  <div className="mt-4 space-y-4">
+                    {selectedManuscript.chapters.map((chapter) => (
+                      <article
+                        key={chapter.id}
+                        className="rounded-2xl border border-purple-100 bg-white/90 p-4 shadow hover:border-purple-200"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-400">
+                              Chapitre {chapter.order_index ?? "?"}
+                            </p>
+                            <h4 className="text-lg font-semibold text-purple-900">{chapter.title}</h4>
+                            <p className="text-xs text-gray-500">Rédigé le {formatDate(chapter.created_at)}</p>
+                          </div>
+                          <div className="flex gap-4 text-sm font-semibold">
+                            <button
+                              type="button"
+                              onClick={() => handleEditChapter(chapter)}
+                              className="text-purple-600 transition hover:text-purple-800"
+                            >
+                              Modifier
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteChapter(chapter.id)}
+                              disabled={deletingChapterId === chapter.id}
+                              className="text-red-500 transition hover:text-red-700 disabled:opacity-50"
+                            >
+                              {deletingChapterId === chapter.id ? "Suppression..." : "Supprimer"}
+                            </button>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-sm leading-relaxed text-gray-700">
+                          {chapterExcerpt(chapter.content) || "Chapitre encore vide."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => openChapterPreview(chapter)}
+                          className="mt-3 text-sm font-semibold text-purple-600 transition hover:text-purple-800"
+                        >
+                          Voir le chapitre →
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-4 rounded-2xl border border-dashed border-purple-200 bg-purple-50/60 p-6 text-center text-sm text-purple-700">
+                    Pas encore de chapitre pour ce manuscrit. Ton espace d'écriture est prêt !
+                  </p>
+                )}
+              </section>
+            </>
+          )}
         </div>
       </main>
       </div>
       <Footer />
+      {isNewManuscriptModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+          onClick={() => setIsNewManuscriptModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">Nouveau manuscrit</p>
+                <h2 className="text-2xl font-semibold text-purple-900">Lance une nouvelle histoire</h2>
+                <p className="text-sm text-gray-500">Donne un titre et une intention, tu pourras ensuite ajouter tes chapitres.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsNewManuscriptModalOpen(false)}
+                className="rounded-full border border-purple-200 p-2 text-purple-700 transition hover:bg-purple-50"
+                aria-label="Fermer"
+              >
+                ✕
+              </button>
+            </div>
+            <form className="mt-6 space-y-4" onSubmit={handleCreateManuscript}>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
+                  Titre
+                </label>
+                <input
+                  type="text"
+                  value={formValues.title}
+                  onChange={(event) =>
+                    setFormValues((current) => ({ ...current, title: event.target.value }))
+                  }
+                  className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  placeholder="Mon prochain roman..."
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
+                  Synopsis
+                </label>
+                <textarea
+                  value={formValues.description}
+                  onChange={(event) =>
+                    setFormValues((current) => ({
+                      ...current,
+                      description: event.target.value,
+                    }))
+                  }
+                  className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  rows={4}
+                  placeholder="Une idée, une ambiance, une discussion avec ton personnage principal..."
+                />
+              </div>
+              <div className="flex flex-wrap items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsNewManuscriptModalOpen(false)}
+                  className="rounded-full border border-purple-200 px-4 py-2 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingManuscript}
+                  className="rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
+                >
+                  {savingManuscript ? "Création..." : "Créer le manuscrit"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {isShareModalOpen && selectedManuscript && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
