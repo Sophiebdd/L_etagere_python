@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
@@ -23,15 +23,29 @@ export default function Library() {
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
   const [deletingBookId, setDeletingBookId] = useState(null);
   const [notesModalBookId, setNotesModalBookId] = useState(null);
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [filtersReady, setFiltersReady] = useState(false);
   const [newNoteContent, setNewNoteContent] = useState("");
   const [addingNote, setAddingNote] = useState(false);
   const [deletingNoteId, setDeletingNoteId] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const selectedNotesBook = useMemo(
     () => books.find((book) => book.id === notesModalBookId) || null,
     [books, notesModalBookId]
   );
   const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0;
+  const formatDescription = (value, maxLength = 160) => {
+    const raw = typeof value === "string" ? value : "";
+    const cleaned = raw.replace(/<\/?[^>]+(>|$)/g, "").trim();
+    if (!cleaned) {
+      return "Pas de résumé.";
+    }
+    if (cleaned.length <= maxLength) {
+      return cleaned;
+    }
+    return `${cleaned.slice(0, maxLength).trim()}...`;
+  };
 
   useEffect(() => {
     const handle = setTimeout(() => {
@@ -42,6 +56,16 @@ export default function Library() {
 
     return () => clearTimeout(handle);
   }, [searchText]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const statusParam = params.get("status");
+    if (statusParam && STATUS_OPTIONS.includes(statusParam)) {
+      setStatusFilter(statusParam);
+      setPage(1);
+    }
+    setFiltersReady(true);
+  }, [location.search]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -112,8 +136,11 @@ export default function Library() {
   }, [navigate, page, pageSize, statusFilter, searchTerm, favoritesOnly]);
 
   useEffect(() => {
+    if (!filtersReady) {
+      return;
+    }
     fetchBooks();
-  }, [fetchBooks]);
+  }, [fetchBooks, filtersReady]);
 
   const handleStatusChange = async (bookId, newStatus) => {
     const token = localStorage.getItem("token");
@@ -302,6 +329,14 @@ export default function Library() {
     setNewNoteContent("");
   };
 
+  const openBookModal = (book) => {
+    setSelectedBook(book);
+  };
+
+  const closeBookModal = () => {
+    setSelectedBook(null);
+  };
+
   const handleFilterSubmit = (event) => {
     event.preventDefault();
     setPage(1);
@@ -424,6 +459,118 @@ export default function Library() {
     }
   };
 
+  const renderBookCard = (book, variant = "grid") => {
+    const isCompact = variant === "carousel";
+    const description = formatDescription(
+      book.description,
+      isCompact ? 120 : 180
+    );
+
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => openBookModal(book)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openBookModal(book);
+          }
+        }}
+        className={`w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-purple-100 bg-white shadow-xl transition hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 ${
+          isCompact ? "w-72 snap-start" : "w-full"
+        }`}
+      >
+        <img
+          src={
+            book.cover_image ||
+            "https://via.placeholder.com/200x300?text=Pas+d'image"
+          }
+          alt={book.title}
+          className="h-56 w-full object-cover"
+        />
+        <div className="p-4">
+          <h3 className="truncate text-lg font-semibold text-purple-700">
+            {book.title}
+          </h3>
+          <p className="text-sm text-gray-600">
+            {book.author || book.authors || "Auteur inconnu"}
+          </p>
+          {book.genre ? (
+            <span className="mt-2 inline-flex items-center rounded-full bg-purple-50 px-2.5 py-1 text-xs font-semibold text-purple-600">
+              {book.genre}
+            </span>
+          ) : null}
+          <p className="mt-2 line-clamp-3 text-sm text-gray-500">
+            {description}
+          </p>
+          <div
+            className="mt-3 flex flex-wrap items-center gap-2 sm:flex-nowrap"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <select
+              className="rounded-full border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-purple-700 shadow-sm transition focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 disabled:cursor-not-allowed disabled:opacity-60"
+              value={
+                STATUS_OPTIONS.includes(book.status)
+                  ? book.status
+                  : STATUS_OPTIONS[0]
+              }
+              onChange={(event) =>
+                handleStatusChange(book.id, event.target.value)
+              }
+              disabled={
+                updatingStatusId === book.id || deletingBookId === book.id
+              }
+            >
+              {STATUS_OPTIONS.map((statusOption) => (
+                <option key={statusOption} value={statusOption}>
+                  {statusOption}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                handleToggleFavorite(book.id, Boolean(book.is_favorite));
+              }}
+              className={`text-base transition ${
+                book.is_favorite ? "text-pink-600" : "text-pink-300 hover:text-pink-500"
+              }`}
+              aria-pressed={book.is_favorite}
+              aria-label={
+                book.is_favorite ? "Retirer des favoris" : "Ajouter aux favoris"
+              }
+            >
+              {book.is_favorite ? "💜" : "🤍"}
+            </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                openNotesModal(book.id);
+              }}
+              className="rounded-full border border-purple-200 px-3 py-2 text-xs font-semibold text-purple-600 shadow-sm transition hover:bg-purple-50"
+            >
+              📝 Notes
+            </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                handleDelete(book.id);
+              }}
+              disabled={deletingBookId === book.id}
+              className="rounded-full border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 shadow-sm transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              🗑️ Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (loading && books.length === 0) {
     return (
       <AuroraBackground>
@@ -441,7 +588,7 @@ export default function Library() {
     <AuroraBackground>
       <div className="flex min-h-screen flex-col">
         <Header onLogout={handleLogout} />
-        <main className="mx-auto max-w-7xl flex-1 px-4 pb-32 pt-12">
+        <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 pb-32 pt-12">
         <div className="mb-8 space-y-3">
           <PageBreadcrumb items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Bibliothèque" }]} />
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -464,7 +611,7 @@ export default function Library() {
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
             placeholder="Rechercher par titre ou auteur..."
-            className="min-w-[220px] flex-1 rounded-lg border border-purple-200 px-4 py-2 text-sm shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            className="w-full rounded-lg border border-purple-200 px-4 py-2 text-sm shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300 sm:min-w-[220px] sm:flex-1"
           />
           <select
             value={statusFilter}
@@ -472,7 +619,7 @@ export default function Library() {
               setStatusFilter(event.target.value);
               setPage(1);
             }}
-            className="rounded-full border border-purple-200 bg-white px-3 py-2 text-sm text-purple-700 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+            className="w-full rounded-full border border-purple-200 bg-white px-3 py-2 text-sm text-purple-700 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 sm:w-auto"
           >
             {["Tous", ...STATUS_OPTIONS].map((option) => (
               <option key={option} value={option}>
@@ -487,7 +634,7 @@ export default function Library() {
               setPage(1);
             }}
             aria-pressed={favoritesOnly}
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-600 transition hover:text-pink-500"
+            className="inline-flex w-full items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-600 transition hover:text-pink-500 sm:w-auto"
           >
             <span className="text-base">{favoritesOnly ? "💜" : "🤍"}</span>
             Livres aimés
@@ -495,7 +642,7 @@ export default function Library() {
           <button
             type="button"
             onClick={handleResetFilters}
-            className="rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-purple-500 transition hover:bg-purple-50"
+            className="w-full rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-purple-500 transition hover:bg-purple-50 sm:w-auto"
           >
             Réinitialiser
           </button>
@@ -530,197 +677,12 @@ export default function Library() {
           </p>
         ) : (
           <>
-            <div className="space-y-4 md:hidden">
+            <div className="grid w-full min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {books.map((book) => (
-                <div
-                  key={book.id}
-                  className="flex flex-col gap-4 rounded-2xl border border-purple-100 bg-white p-4 shadow-lg"
-                >
-                  <div className="flex gap-4">
-                    <img
-                      src={
-                        book.cover_image ||
-                        "https://via.placeholder.com/80x120?text=Pas+d'image"
-                      }
-                      alt={book.title}
-                      className="h-24 w-16 rounded-md object-cover shadow"
-                    />
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <p className="truncate text-base font-semibold text-purple-900">
-                        {book.title}
-                      </p>
-                      <p className="truncate text-sm text-purple-600">
-                        {book.author || book.authors || "Auteur inconnu"}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2 pt-1">
-                        <select
-                          className="rounded-full border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-purple-700 shadow-sm transition focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 disabled:cursor-not-allowed disabled:opacity-60"
-                          value={
-                            STATUS_OPTIONS.includes(book.status)
-                              ? book.status
-                              : STATUS_OPTIONS[0]
-                          }
-                          onChange={(event) =>
-                            handleStatusChange(book.id, event.target.value)
-                          }
-                          disabled={
-                            updatingStatusId === book.id ||
-                            deletingBookId === book.id
-                          }
-                        >
-                          {STATUS_OPTIONS.map((statusOption) => (
-                            <option key={statusOption} value={statusOption}>
-                              {statusOption}
-                            </option>
-                          ))}
-                        </select>
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          onClick={() =>
-                            handleToggleFavorite(book.id, Boolean(book.is_favorite))
-                          }
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                              event.preventDefault();
-                              handleToggleFavorite(book.id, Boolean(book.is_favorite));
-                            }
-                          }}
-                          className={`text-xl transition ${
-                            book.is_favorite ? "text-pink-600" : "text-pink-300"
-                          }`}
-                          aria-pressed={book.is_favorite}
-                          aria-label={
-                            book.is_favorite
-                              ? "Retirer des favoris"
-                              : "Ajouter aux favoris"
-                          }
-                        >
-                          {book.is_favorite ? "💜" : "🤍"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => openNotesModal(book.id)}
-                      className="rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold text-purple-600 shadow-sm transition hover:bg-purple-50"
-                    >
-                      📝 Notes
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(book.id)}
-                      disabled={deletingBookId === book.id}
-                      className="rounded-full border border-red-200 px-4 py-2 text-xs font-semibold text-red-600 shadow-sm transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      🗑️ Supprimer
-                    </button>
-                  </div>
+                <div key={book.id} className="min-w-0">
+                  {renderBookCard(book)}
                 </div>
               ))}
-            </div>
-
-            <div className="hidden overflow-x-auto rounded-2xl border border-purple-100 bg-white shadow-lg md:block">
-              <table className="min-w-[980px] w-full table-fixed divide-y divide-purple-100 text-sm">
-                <thead className="bg-purple-50/50 text-left text-xs font-semibold uppercase tracking-wider text-purple-700">
-                  <tr>
-                    <th className="w-28 px-6 py-4">Couverture</th>
-                    <th className="w-[280px] px-6 py-4">Titre</th>
-                    <th className="px-6 py-4">Auteur</th>
-                    <th className="w-28 px-6 py-4">Statut</th>
-                    <th className="w-72 px-4 py-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-purple-100 text-gray-700">
-                  {books.map((book) => (
-                    <tr key={book.id} className="hover:bg-purple-50/50">
-                      <td className="px-6 py-4">
-                        <img
-                          src={
-                            book.cover_image ||
-                            "https://via.placeholder.com/80x120?text=Pas+d'image"
-                          }
-                          alt={book.title}
-                          className="h-24 w-16 rounded-md object-cover shadow"
-                        />
-                      </td>
-                      <td className="px-6 py-4 font-medium text-purple-800">
-                        <span className="block truncate" title={book.title}>
-                          {book.title}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="block truncate">
-                          {book.author || book.authors || "Auteur inconnu"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <select
-                          className="rounded-md border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-purple-700 shadow-sm transition focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 disabled:cursor-not-allowed disabled:opacity-60"
-                          value={
-                            STATUS_OPTIONS.includes(book.status)
-                              ? book.status
-                              : STATUS_OPTIONS[0]
-                          }
-                          onChange={(event) => handleStatusChange(book.id, event.target.value)}
-                          disabled={updatingStatusId === book.id || deletingBookId === book.id}
-                        >
-                          {STATUS_OPTIONS.map((statusOption) => (
-                            <option key={statusOption} value={statusOption}>
-                              {statusOption}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex flex-wrap gap-2 whitespace-nowrap">
-                          <span
-                            role="button"
-                            tabIndex={0}
-                            onClick={() =>
-                              handleToggleFavorite(book.id, Boolean(book.is_favorite))
-                            }
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter" || event.key === " ") {
-                                event.preventDefault();
-                                handleToggleFavorite(book.id, Boolean(book.is_favorite));
-                              }
-                            }}
-                            className={`text-xl transition ${
-                              book.is_favorite ? "text-pink-600" : "text-pink-300"
-                            }`}
-                            aria-pressed={book.is_favorite}
-                            aria-label={
-                              book.is_favorite
-                                ? "Retirer des favoris"
-                                : "Ajouter aux favoris"
-                            }
-                          >
-                            {book.is_favorite ? "💜" : "🤍"}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => openNotesModal(book.id)}
-                            className="rounded-md border border-purple-200 px-3 py-2 text-xs font-semibold text-purple-600 shadow-sm transition hover:bg-purple-50"
-                          >
-                            📝 Notes
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(book.id)}
-                            disabled={deletingBookId === book.id}
-                            className="rounded-md border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 shadow-sm transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            🗑️ Supprimer
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
             {totalPages > 1 && (
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-purple-700">
@@ -750,6 +712,57 @@ export default function Library() {
         </main>
       </div>
       <Footer />
+      {selectedBook && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+          onClick={closeBookModal}
+        >
+          <div
+            className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex flex-col gap-6 sm:flex-row">
+              <img
+                src={
+                  selectedBook.cover_image ||
+                  "https://via.placeholder.com/200x300?text=Pas+d'image"
+                }
+                alt={selectedBook.title}
+                className="h-60 w-40 flex-shrink-0 rounded-xl object-cover shadow-lg"
+              />
+
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-semibold text-purple-800">
+                    {selectedBook.title}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {selectedBook.author || selectedBook.authors || "Auteur inconnu"}
+                  </p>
+                </div>
+
+                <div className="text-sm text-gray-700">
+                  <p className="font-semibold text-purple-700">Description</p>
+                  <p className="mt-1 whitespace-pre-line">
+                    {selectedBook.description || "Pas de description disponible."}
+                  </p>
+                </div>
+
+                {selectedBook.status && (
+                  <div className="inline-flex rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
+                    Statut : {selectedBook.status}
+                  </div>
+                )}
+                {selectedBook.genre && (
+                  <div className="inline-flex rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-600">
+                    {selectedBook.genre}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {selectedNotesBook && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"

@@ -20,6 +20,7 @@ class Book(Base):
     isbn = Column(String(255), nullable=True)
     cover_image = Column(String(255), nullable=True)
     external_id = Column(Text, nullable=True)
+    genre = Column(String(255), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     is_favorite = Column(Boolean, nullable=False, default=False)
 

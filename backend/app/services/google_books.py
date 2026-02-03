@@ -14,6 +14,7 @@ def _format_book(item):
         "volumeInfo": {
             "title": volume.get("title"),
             "authors": volume.get("authors", []),
+            "categories": volume.get("categories", []),
             "description": volume.get("description", ""),
             "imageLinks": volume.get("imageLinks", {}),
             "publishedDate": volume.get("publishedDate"),

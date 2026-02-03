@@ -10,6 +10,7 @@ export default function BookCard({ book }) {
   const volume = item.volumeInfo || {};
   const title = volume.title || "Titre inconnu";
   const authors = volume.authors ? volume.authors.join(", ") : "Auteur inconnu";
+  const genre = volume.categories?.[0] || null;
   const cover =
     volume.imageLinks?.thumbnail ||
     "https://via.placeholder.com/128x200?text=Pas+d'image";
@@ -36,6 +37,7 @@ export default function BookCard({ book }) {
         volume.industryIdentifiers?.[0]?.identifier ||
         null,
       cover_image: volume.imageLinks?.thumbnail || null,
+      genre,
       status: "À lire",
     };
 
@@ -76,6 +78,7 @@ export default function BookCard({ book }) {
       />
       <h3 className="font-semibold text-violet-700 line-clamp-2">{title}</h3>
       <p className="text-sm text-gray-600 mb-2">{authors}</p>
+      {genre && <p className="text-xs text-violet-500 mb-2">{genre}</p>}
       <p className="text-xs text-gray-500 flex-grow">{description}</p>
 
       <button

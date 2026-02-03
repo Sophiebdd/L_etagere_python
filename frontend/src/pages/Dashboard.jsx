@@ -28,7 +28,11 @@ const formatChapterDate = (date) => {
 };
 
 export default function Dashboard() {
-  const [books, setBooks] = useState([]);
+  const [highlights, setHighlights] = useState({
+    toRead: { items: [], total: 0 },
+    inProgress: { items: [], total: 0 },
+    done: { items: [], total: 0 },
+  });
   const [recentChapters, setRecentChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
@@ -50,36 +54,71 @@ export default function Dashboard() {
       Authorization: `Bearer ${token}`,
     };
 
-    const bookParams = new URLSearchParams({ page: "1", page_size: "6" });
+    const sections = [
+      { key: "toRead", status: "À lire" },
+      { key: "inProgress", status: "En cours" },
+      { key: "done", status: "Lu" },
+    ];
+
+    const buildParams = (status) => {
+      const params = new URLSearchParams();
+      params.set("page", "1");
+      params.set("page_size", "12");
+      params.set("status", status);
+      return params.toString();
+    };
 
     Promise.all([
-      fetch(`${API_BASE_URL}/books/mine?${bookParams.toString()}`, { headers }),
+      ...sections.map((section) =>
+        fetch(`${API_BASE_URL}/books/mine?${buildParams(section.status)}`, {
+          headers,
+        })
+      ),
       fetch(`${API_BASE_URL}/manuscripts/chapters/recent`, { headers }),
     ])
-      .then(async ([booksRes, chaptersRes]) => {
-        if (booksRes.status === 401 || chaptersRes.status === 401) {
+      .then(async (responses) => {
+        const chaptersRes = responses[responses.length - 1];
+        const bookResponses = responses.slice(0, -1);
+
+        if (
+          bookResponses.some((res) => res.status === 401) ||
+          chaptersRes.status === 401
+        ) {
           redirectToLogin(navigate);
           throw new Error("Session expirée");
         }
-        if (!booksRes.ok) {
-          const err = await booksRes.json().catch(() => ({}));
-          throw new Error(err.detail || "Erreur lors du chargement des livres");
-        }
+
+        const bookPayloads = await Promise.all(
+          bookResponses.map(async (res) => {
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({}));
+              throw new Error(err.detail || "Erreur lors du chargement des livres");
+            }
+            return res.json();
+          })
+        );
+
         if (!chaptersRes.ok) {
           const err = await chaptersRes.json().catch(() => ({}));
           throw new Error(err.detail || "Erreur lors du chargement des chapitres");
         }
-        const [booksData, chaptersData] = await Promise.all([booksRes.json(), chaptersRes.json()]);
-        const bookItems = Array.isArray(booksData)
-          ? [...booksData].sort((a, b) => {
-              const dateA = a?.created_at ? new Date(a.created_at).getTime() : 0;
-              const dateB = b?.created_at ? new Date(b.created_at).getTime() : 0;
-              return dateB - dateA;
-            })
-          : Array.isArray(booksData.items)
-            ? booksData.items
-            : [];
-        setBooks(bookItems.slice(0, 6));
+
+        const chaptersData = await chaptersRes.json();
+        const nextHighlights = {};
+        sections.forEach((section, index) => {
+          const data = bookPayloads[index];
+          const items = Array.isArray(data)
+            ? data
+            : Array.isArray(data.items)
+              ? data.items
+              : [];
+          nextHighlights[section.key] = {
+            items,
+            total: Array.isArray(data) ? items.length : Number(data.total_items) || 0,
+          };
+        });
+
+        setHighlights(nextHighlights);
         const safeChapters = Array.isArray(chaptersData)
           ? chaptersData.map((chapter) => ({
               ...chapter,
@@ -126,6 +165,75 @@ export default function Dashboard() {
     setSelectedBook(null);
   };
 
+  const highlightSections = [
+    {
+      key: "inProgress",
+      title: "En cours de lecture",
+      status: "En cours",
+      items: highlights.inProgress.items,
+      total: highlights.inProgress.total,
+    },
+    {
+      key: "toRead",
+      title: "À découvrir",
+      status: "À lire",
+      items: highlights.toRead.items,
+      total: highlights.toRead.total,
+    },
+    {
+      key: "done",
+      title: "Livres lus",
+      status: "Lu",
+      items: highlights.done.items,
+      total: highlights.done.total,
+    },
+  ];
+
+  const handleHorizontalWheel = (event) => {
+    const container = event.currentTarget;
+    if (container.scrollWidth <= container.clientWidth) {
+      return;
+    }
+    if (event.deltaY === 0 && event.deltaX === 0) {
+      return;
+    }
+    const dominantDelta =
+      Math.abs(event.deltaX) > Math.abs(event.deltaY)
+        ? event.deltaX
+        : event.deltaY;
+    container.scrollLeft += dominantDelta;
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  const renderPoster = (book) => (
+    <div className="group relative w-28 shrink-0 snap-start sm:w-36 lg:w-40">
+      <button
+        type="button"
+        onClick={() => openBookModal(book)}
+        className="relative w-full overflow-hidden rounded-xl shadow-xl ring-1 ring-white/10"
+      >
+        <img
+          src={
+            book.cover_image ||
+            "https://via.placeholder.com/160x240?text=Pas+d'image"
+          }
+          alt={book.title}
+          className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.03] sm:h-52 lg:h-60"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3 text-left opacity-0 transition duration-300 group-hover:opacity-100">
+          <p className="text-xs font-semibold text-white line-clamp-2">
+            {book.title}
+          </p>
+          <p className="text-[11px] text-white/70 line-clamp-1">
+            {book.author || book.authors || "Auteur inconnu"}
+          </p>
+        </div>
+      </button>
+    </div>
+  );
+
   if (loading) {
     return (
       <AuroraBackground>
@@ -143,7 +251,7 @@ export default function Dashboard() {
     <AuroraBackground>
       <div className="flex min-h-screen flex-col">
         <Header onLogout={handleLogout} />
-        <main className="mx-auto max-w-5xl flex-1 px-4 pb-32 pt-12">
+        <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 pb-32 pt-12">
         <div className="mb-8">
           <Link
             to="/library"
@@ -153,50 +261,51 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {books.length === 0 ? (
-          <p className="rounded-2xl border border-purple-100 bg-white/80 p-10 text-center text-purple-600 shadow-lg backdrop-blur">
-            Aucun livre ajouté pour le moment.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {books.map((book) => (
-              <div
-                key={book.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => openBookModal(book)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    openBookModal(book);
-                  }
-                }}
-                className="cursor-pointer overflow-hidden rounded-xl border border-purple-100 bg-white shadow-xl transition hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
-              >
-                <img
-                  src={
-                    book.cover_image ||
-                    "https://via.placeholder.com/200x300?text=Pas+d'image"
-                  }
-                  alt={book.title}
-                  className="h-56 w-full object-cover"
-                />
-
-                <div className="p-4">
-                  <h3 className="truncate text-lg font-semibold text-purple-700">
-                    {book.title}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {book.author || book.authors || "Auteur inconnu"}
-                  </p>
-                  <p className="mt-2 line-clamp-3 text-sm text-gray-500">
-                    {book.description || "Pas de description"}
+        <section className="space-y-8">
+          {highlightSections.map((section) => (
+            <div
+              key={section.key}
+              className="rounded-3xl bg-gradient-to-br from-violet-900/70 via-indigo-900/70 to-slate-900/70 px-4 py-4 text-white shadow-xl ring-1 ring-white/10 backdrop-blur sm:px-6 sm:py-5"
+            >
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-semibold">{section.title}</h2>
+                  <p className="text-sm text-white/60">
+                    {section.total} livre{section.total > 1 ? "s" : ""}
                   </p>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+              {section.items.length === 0 ? (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/10 p-6 text-sm text-white/70">
+                  <span>Aucun livre dans cette section pour le moment.</span>
+                  <Link
+                    to={`/library?status=${encodeURIComponent(section.status)}`}
+                    className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white"
+                  >
+                    Tout voir →
+                  </Link>
+                </div>
+              ) : (
+                <div
+                  className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain overscroll-y-none sm:gap-4 sm:pb-4"
+                  onWheel={handleHorizontalWheel}
+                >
+                  {section.items.map((book) => (
+                    <div key={book.id} className="shrink-0">
+                      {renderPoster(book)}
+                    </div>
+                  ))}
+                  <Link
+                    to={`/library?status=${encodeURIComponent(section.status)}`}
+                    className="flex h-44 w-28 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-[10px] font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white sm:h-52 sm:w-36 sm:text-xs lg:h-60 lg:w-40"
+                  >
+                    Tout voir →
+                  </Link>
+                </div>
+              )}
+            </div>
+          ))}
+        </section>
 
         <section className="mt-12">
           <div className="mb-4">

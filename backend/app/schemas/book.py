@@ -12,6 +12,7 @@ class BookBase(BaseModel):
     isbn: Optional[str] = None
     cover_image: Optional[str] = None
     external_id: Optional[str] = None
+    genre: Optional[str] = None
     is_favorite: Optional[bool] = False
 
 
@@ -22,6 +23,7 @@ class BookCreate(BookBase):
 
 class BookUpdate(BaseModel):
     status: Optional[str] = None
+    genre: Optional[str] = None
     is_favorite: Optional[bool] = None
 
 

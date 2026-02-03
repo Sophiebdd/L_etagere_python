@@ -4,6 +4,7 @@
 
 body {
   background-color: #f7f1ff;
+  overflow-x: hidden;
 }
 
 .no-scrollbar::-webkit-scrollbar {
