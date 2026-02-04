@@ -447,12 +447,6 @@ export default function Dashboard() {
                       {renderRecommendationCard(book)}
                     </div>
                   ))}
-                  <Link
-                    to="/library"
-                    className="flex h-44 w-28 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-[10px] font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white sm:h-52 sm:w-36 sm:text-xs lg:h-60 lg:w-40"
-                  >
-                    Explorer →
-                  </Link>
                 </div>
               )}
             </div>

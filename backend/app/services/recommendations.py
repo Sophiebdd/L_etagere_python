@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 import re
+import random
 
 from sqlalchemy.orm import Session
 
@@ -72,6 +73,18 @@ _STOPWORDS = {
     "where",
     "about",
 }
+
+
+def _normalize_title(title: str) -> str:
+    if not title:
+        return ""
+    value = title.lower()
+    value = re.sub(r"\(.*?\)", " ", value)
+    value = re.sub(r"\[.*?\]", " ", value)
+    value = re.sub(r"[:\-–—]\s*(tome|vol|volume|livre|édition|edition)\s*\d+", " ", value)
+    value = re.sub(r"\b(tome|vol|volume|livre|édition|edition|integrale|intégrale)\b", " ", value)
+    value = re.sub(r"\s+", " ", value)
+    return value.strip()
 
 
 def _pick_isbn(identifiers: list[dict] | None) -> str | None:
@@ -152,10 +165,12 @@ def _build_queries(books: list[Book]) -> list[str]:
         queries.append(f"inauthor:{_quote_term(author)}")
     for genre, _ in Counter(genres).most_common(2):
         queries.append(f"subject:{_quote_term(genre)}")
-    for title, _ in Counter(titles).most_common(2):
+    for title, _ in Counter(titles).most_common(1):
         queries.append(f"intitle:{_quote_term(title)}")
-    if not queries and keywords:
-        queries.extend(_quote_term(word) for word in keywords)
+    if keywords:
+        keyword_query = " OR ".join(_quote_term(word) for word in keywords[:3])
+        if keyword_query:
+            queries.append(keyword_query)
 
     return queries
 
@@ -212,12 +227,12 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
         queries = [query]
 
     candidates: list[dict] = []
-    for q in queries[:4]:
+    for q in queries[:2]:
         results = search_books(
             q,
             start_index=0,
-            max_results=max(limit * 2, 16),
-            extra_params={"printType": "books", "orderBy": "relevance"},
+            max_results=max(limit * 3, 40),
+            extra_params={"printType": "books", "orderBy": "relevance", "langRestrict": "fr"},
         )
         candidates.extend(results.get("items", []))
 
@@ -227,8 +242,8 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
             results = search_books(
                 fallback_query,
                 start_index=0,
-                max_results=max(limit * 3, 20),
-                extra_params={"printType": "books", "orderBy": "relevance"},
+                max_results=max(limit * 3, 40),
+                extra_params={"printType": "books", "orderBy": "relevance", "langRestrict": "fr"},
             )
             candidates = results.get("items", [])
 
@@ -238,6 +253,7 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
         ((book.title or "").strip().lower(), (book.author or "").strip().lower())
         for book in user_books
     }
+    existing_titles = {_normalize_title(book.title or "") for book in user_books}
 
     scored: list[tuple[float, dict]] = []
     fallback: list[dict] = []
@@ -258,6 +274,8 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
         )
         if candidate_key in existing_pairs:
             continue
+        if _normalize_title(candidate["title"] or "") in existing_titles:
+            continue
         candidate_text = build_book_text(
             candidate["title"],
             candidate["author"],
@@ -276,5 +294,27 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
 
     if scored:
         scored.sort(key=lambda item: item[0], reverse=True)
-        return [item for _, item in scored[:limit]]
+        # Limit to 1 book per author
+        unique_by_author: list[dict] = []
+        seen_authors: set[str] = set()
+        for _, candidate in scored:
+            author_key = (candidate.get("author") or "").strip().lower()
+            if not author_key:
+                author_key = "auteur_inconnu"
+            if author_key in seen_authors:
+                continue
+            seen_authors.add(author_key)
+            unique_by_author.append(candidate)
+
+        if not unique_by_author:
+            unique_by_author = [item for _, item in scored]
+
+        # Mix exploration: 70% top, 30% random from remaining
+        top_count = max(1, int(limit * 0.7))
+        top_slice = unique_by_author[:top_count]
+        remaining_pool = unique_by_author[top_count:]
+        if remaining_pool:
+            random_count = min(limit - len(top_slice), len(remaining_pool))
+            top_slice.extend(random.sample(remaining_pool, random_count))
+        return top_slice[:limit]
     return fallback[:limit]

@@ -18,6 +18,14 @@ Exemple d'usage ici :
 Oui, c’est de l’IA : on utilise un **modèle de langage pré‑entraîné** (SentenceTransformers)
 pour convertir du texte en vecteur sémantique.  
 Ce n’est **pas** de la génération, juste de la **représentation sémantique**.
+On n’utilise **pas** OpenAI.  
+OpenAPI ici signifie uniquement la **documentation automatique** de l’API via FastAPI (Swagger).
+
+### OpenAPI et la doc (clarification)
+- **OpenAPI** = la spécification (format JSON) qui décrit toutes les routes.
+- **FastAPI** génère ce fichier automatiquement à partir du code.
+- **Swagger UI** affiche ce fichier dans `/docs`.
+Donc la “doc” visible est juste une interface qui **lit** le document OpenAPI.
 
 ## Pourquoi c’est utile
 - Comprendre des phrases “avec les mots” plutôt qu’un simple mot‑clé.
@@ -38,6 +46,7 @@ Ce n’est **pas** de la génération, juste de la **représentation sémantique
 4. Interroger Google Books (requêtes auteur/genre/titre, ordre pertinence).
 5. Filtrer des résultats peu pertinents.
 6. Re‑classer par similarité sémantique.
+7. Ajouter de la diversité (1 livre par auteur + part d’exploration).
 
 ## Détails des étapes (pédagogique)
 ### 1) Profil utilisateur
@@ -46,12 +55,17 @@ Ce n’est **pas** de la génération, juste de la **représentation sémantique
 
 ### 2) Recherche de candidats
 - On interroge Google Books par **auteur / genre / titre**.
+- On ajoute une requête “mots‑clés” (issus des descriptions) pour varier les thèmes.
 - On récupère des candidats (ex: 20–30).
 
 ### 3) Re‑ranking
 - On calcule l’embedding de chaque candidat.
 - On mesure la similarité cosinus avec le profil utilisateur.
 - On garde les meilleurs scores.
+
+### 4) Diversité
+- On limite à **1 livre par auteur**.
+- On mélange **70% pertinents / 30% exploration** pour éviter les répétitions.
 
 ## Similarité cosinus (intuitif)
 Le cosinus compare “l’angle” entre deux vecteurs :

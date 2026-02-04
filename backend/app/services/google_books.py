@@ -7,8 +7,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_BOOKS_API_KEY") 
 logger = logging.getLogger(__name__)
+_CACHE_TTL_SECONDS = 300
+_CACHE: dict[tuple, dict] = {}
 
 
 def _format_book(item):
@@ -67,6 +69,16 @@ def search_books(
 ):
     safe_start = max(0, start_index)
     safe_max = max(1, min(max_results, 100))
+    cache_key = (
+        query,
+        safe_start,
+        safe_max,
+        tuple(sorted((extra_params or {}).items())),
+    )
+    cached = _CACHE.get(cache_key)
+    if cached and (time.time() - cached["ts"] < _CACHE_TTL_SECONDS):
+        return cached["data"]
+
     remaining = safe_max
     current_index = safe_start
     books = []
@@ -91,9 +103,11 @@ def search_books(
         if total_items is not None and current_index >= total_items:
             break
 
-    return {
+    result = {
         "items": books,
         "total_items": total_items or 0,
         "start_index": safe_start,
         "max_results": safe_max,
     }
+    _CACHE[cache_key] = {"ts": time.time(), "data": result}
+    return result
