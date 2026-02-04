@@ -86,7 +86,15 @@ def search_books(
 
     while remaining > 0:
         batch_size = min(40, remaining)
-        data = _fetch_page(query, current_index, batch_size, extra_params=extra_params)
+        if extra_params:
+            data = _fetch_page(
+                query,
+                current_index,
+                batch_size,
+                extra_params=extra_params,
+            )
+        else:
+            data = _fetch_page(query, current_index, batch_size)
 
         if total_items is None:
             total_items = data.get("totalItems", 0)
