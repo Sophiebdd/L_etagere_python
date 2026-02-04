@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { redirectToLogin } from "../utils/auth";
+import CoverPlaceholder from "../assets/cover-placeholder.svg";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -11,9 +12,7 @@ export default function BookCard({ book }) {
   const title = volume.title || "Titre inconnu";
   const authors = volume.authors ? volume.authors.join(", ") : "Auteur inconnu";
   const genre = volume.categories?.[0] || null;
-  const cover =
-    volume.imageLinks?.thumbnail ||
-    "https://via.placeholder.com/128x200?text=Pas+d'image";
+  const cover = volume.imageLinks?.thumbnail || CoverPlaceholder;
 
   const rawDescription = volume.description || "";
   const description =

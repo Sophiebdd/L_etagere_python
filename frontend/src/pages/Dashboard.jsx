@@ -5,8 +5,10 @@ import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import Footer from "../components/Footer";
 import { redirectToLogin } from "../utils/auth";
+import CoverPlaceholder from "../assets/cover-placeholder.svg";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const PLACEHOLDER_HOST = "via.placeholder.com";
 
 const toPlainText = (html) => {
   if (!html) return "";
@@ -250,8 +252,7 @@ export default function Dashboard() {
       >
         <img
           src={
-            book.cover_image ||
-            "https://via.placeholder.com/160x240?text=Pas+d'image"
+                book.cover_image || CoverPlaceholder
           }
           alt={book.title}
           className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.03] sm:h-52 lg:h-60"
@@ -269,6 +270,13 @@ export default function Dashboard() {
     </div>
   );
 
+  const resolveCover = (coverUrl) => {
+    if (!coverUrl || coverUrl.includes(PLACEHOLDER_HOST)) {
+      return CoverPlaceholder;
+    }
+    return coverUrl;
+  };
+
   const renderRecommendationCard = (book) => {
     const recKey = book.external_id || `${book.title}-${book.author}`;
     const isAdding = Boolean(addingRecommendations[recKey]);
@@ -283,10 +291,7 @@ export default function Dashboard() {
           >
             <div className="h-44 w-full overflow-hidden sm:h-52 lg:h-60">
               <img
-                src={
-                  book.cover_image ||
-                  "https://via.placeholder.com/160x240?text=Pas+d'image"
-                }
+                src={resolveCover(book.cover_image)}
                 alt={book.title}
                 className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
               />
@@ -548,10 +553,7 @@ export default function Dashboard() {
             >
               <div className="flex flex-col gap-6 sm:flex-row">
                 <img
-                  src={
-                    selectedBook.cover_image ||
-                    "https://via.placeholder.com/200x300?text=Pas+d'image"
-                  }
+                  src={resolveCover(selectedBook.cover_image)}
                   alt={selectedBook.title}
                   className="h-60 w-40 flex-shrink-0 rounded-xl object-cover shadow-lg"
                 />

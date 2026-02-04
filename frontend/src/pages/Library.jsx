@@ -6,9 +6,11 @@ import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import { redirectToLogin } from "../utils/auth";
+import CoverPlaceholder from "../assets/cover-placeholder.svg";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const STATUS_OPTIONS = ["À lire", "En cours", "Lu"];
+const PLACEHOLDER_HOST = "via.placeholder.com";
 
 export default function Library() {
   const [books, setBooks] = useState([]);
@@ -45,6 +47,13 @@ export default function Library() {
       return cleaned;
     }
     return `${cleaned.slice(0, maxLength).trim()}...`;
+  };
+
+  const resolveCover = (coverUrl) => {
+    if (!coverUrl || coverUrl.includes(PLACEHOLDER_HOST)) {
+      return CoverPlaceholder;
+    }
+    return coverUrl;
   };
 
   useEffect(() => {
@@ -483,8 +492,7 @@ export default function Library() {
       >
         <img
           src={
-            book.cover_image ||
-            "https://via.placeholder.com/200x300?text=Pas+d'image"
+            resolveCover(book.cover_image)
           }
           alt={book.title}
           className="h-56 w-full object-cover"
@@ -724,8 +732,7 @@ export default function Library() {
             <div className="flex flex-col gap-6 sm:flex-row">
               <img
                 src={
-                  selectedBook.cover_image ||
-                  "https://via.placeholder.com/200x300?text=Pas+d'image"
+                  resolveCover(selectedBook.cover_image)
                 }
                 alt={selectedBook.title}
                 className="h-60 w-40 flex-shrink-0 rounded-xl object-cover shadow-lg"
