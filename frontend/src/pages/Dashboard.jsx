@@ -265,44 +265,48 @@ export default function Dashboard() {
           {highlightSections.map((section) => (
             <div
               key={section.key}
-              className="rounded-3xl bg-gradient-to-br from-violet-900/70 via-indigo-900/70 to-slate-900/70 px-4 py-4 text-white shadow-xl ring-1 ring-white/10 backdrop-blur sm:px-6 sm:py-5"
+              className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 px-4 py-4 text-white shadow-xl ring-1 ring-white/10 backdrop-blur sm:px-6 sm:py-5"
             >
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-semibold">{section.title}</h2>
-                  <p className="text-sm text-white/60">
-                    {section.total} livre{section.total > 1 ? "s" : ""}
-                  </p>
+              <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,rgba(244,194,255,0.35),transparent_55%),radial-gradient(circle_at_bottom,rgba(124,77,255,0.3),transparent_60%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.2),transparent_35%)] opacity-60" />
+              <div className="relative z-10">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-semibold">{section.title}</h2>
+                    <p className="text-sm text-white/60">
+                      {section.total} livre{section.total > 1 ? "s" : ""}
+                    </p>
+                  </div>
                 </div>
+                {section.items.length === 0 ? (
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/10 p-6 text-sm text-white/70">
+                    <span>Aucun livre dans cette section pour le moment.</span>
+                    <Link
+                      to={`/library?status=${encodeURIComponent(section.status)}`}
+                      className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white"
+                    >
+                      Tout voir →
+                    </Link>
+                  </div>
+                ) : (
+                  <div
+                    className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain overscroll-y-none sm:gap-4 sm:pb-4"
+                    onWheel={handleHorizontalWheel}
+                  >
+                    {section.items.map((book) => (
+                      <div key={book.id} className="shrink-0">
+                        {renderPoster(book)}
+                      </div>
+                    ))}
+                    <Link
+                      to={`/library?status=${encodeURIComponent(section.status)}`}
+                      className="flex h-44 w-28 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-[10px] font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white sm:h-52 sm:w-36 sm:text-xs lg:h-60 lg:w-40"
+                    >
+                      Tout voir →
+                    </Link>
+                  </div>
+                )}
               </div>
-              {section.items.length === 0 ? (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/10 p-6 text-sm text-white/70">
-                  <span>Aucun livre dans cette section pour le moment.</span>
-                  <Link
-                    to={`/library?status=${encodeURIComponent(section.status)}`}
-                    className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white"
-                  >
-                    Tout voir →
-                  </Link>
-                </div>
-              ) : (
-                <div
-                  className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain overscroll-y-none sm:gap-4 sm:pb-4"
-                  onWheel={handleHorizontalWheel}
-                >
-                  {section.items.map((book) => (
-                    <div key={book.id} className="shrink-0">
-                      {renderPoster(book)}
-                    </div>
-                  ))}
-                  <Link
-                    to={`/library?status=${encodeURIComponent(section.status)}`}
-                    className="flex h-44 w-28 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-[10px] font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white sm:h-52 sm:w-36 sm:text-xs lg:h-60 lg:w-40"
-                  >
-                    Tout voir →
-                  </Link>
-                </div>
-              )}
             </div>
           ))}
         </section>
