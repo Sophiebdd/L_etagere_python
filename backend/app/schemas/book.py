@@ -42,3 +42,16 @@ class BookPage(BaseModel):
     total_items: int
     page: int
     page_size: int
+
+
+class BookRecommendation(BaseModel):
+    external_id: Optional[str] = None
+    title: str
+    author: Optional[str] = None
+    description: Optional[str] = None
+    publication_date: Optional[str] = None
+    isbn: Optional[str] = None
+    cover_image: Optional[str] = None
+    genre: Optional[str] = None
+    language: Optional[str] = None
+    score: Optional[float] = None

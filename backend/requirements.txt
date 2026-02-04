@@ -38,3 +38,5 @@ urllib3==2.5.0
 uvicorn==0.38.0
 fpdf==1.7.2
 beautifulsoup4==4.12.3
+numpy==1.26.4
+sentence-transformers==2.7.0

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import Footer from "../components/Footer";
@@ -35,6 +36,9 @@ export default function Dashboard() {
   });
   const [recentChapters, setRecentChapters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recommendations, setRecommendations] = useState([]);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(true);
+  const [addingRecommendations, setAddingRecommendations] = useState({});
   const [selectedBook, setSelectedBook] = useState(null);
   const navigate = useNavigate();
 
@@ -129,6 +133,37 @@ export default function Dashboard() {
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
+  }, [navigate]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    setRecommendationsLoading(true);
+    fetch(`${API_BASE_URL}/books/recommendations?limit=12`, { headers })
+      .then(async (res) => {
+        if (res.status === 401) {
+          redirectToLogin(navigate);
+          throw new Error("Session expirée");
+        }
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || "Erreur lors du chargement des suggestions");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setRecommendations(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setRecommendationsLoading(false));
   }, [navigate]);
 
   useEffect(() => {
@@ -234,6 +269,118 @@ export default function Dashboard() {
     </div>
   );
 
+  const renderRecommendationCard = (book) => {
+    const recKey = book.external_id || `${book.title}-${book.author}`;
+    const isAdding = Boolean(addingRecommendations[recKey]);
+
+    return (
+      <div className="group relative w-36 shrink-0 snap-start sm:w-40 lg:w-44">
+        <div className="flex h-[18.5rem] flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/5 shadow-xl sm:h-[20.5rem] lg:h-[22rem]">
+          <button
+            type="button"
+            onClick={() => openBookModal(book)}
+            className="relative w-full overflow-hidden bg-black/10"
+          >
+            <div className="h-44 w-full overflow-hidden sm:h-52 lg:h-60">
+              <img
+                src={
+                  book.cover_image ||
+                  "https://via.placeholder.com/160x240?text=Pas+d'image"
+                }
+                alt={book.title}
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+              />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
+          </button>
+          <div className="flex flex-1 flex-col gap-2 p-3">
+            <div>
+              <p className="text-xs font-semibold text-white line-clamp-2">
+                {book.title}
+              </p>
+              <p className="text-[11px] text-white/70 line-clamp-1">
+                {book.author || "Auteur inconnu"}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleAddRecommendation(book)}
+              disabled={isAdding}
+              className="mt-auto rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isAdding ? "Ajout..." : "Ajouter"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const handleAddRecommendation = async (book) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      redirectToLogin(navigate);
+      return;
+    }
+
+    const recKey = book.external_id || `${book.title}-${book.author}`;
+    setAddingRecommendations((prev) => ({ ...prev, [recKey]: true }));
+
+    const payload = {
+      external_id: book.external_id || null,
+      title: book.title,
+      author: book.author || "Auteur inconnu",
+      description: book.description || "",
+      publication_date: book.publication_date || null,
+      isbn: book.isbn || null,
+      cover_image: book.cover_image || null,
+      genre: book.genre || null,
+      status: "À lire",
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/books/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.status === 401) {
+        redirectToLogin(navigate);
+        return;
+      }
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        const detail = err.detail;
+        if (Array.isArray(detail)) {
+          const messages = detail.map((item) => item.msg || JSON.stringify(item));
+          throw new Error(messages.join(", "));
+        }
+        throw new Error(detail || "Impossible d'ajouter le livre");
+      }
+
+      toast.success("📚 Livre ajouté à ta bibliothèque !");
+      setRecommendations((prev) =>
+        prev.filter(
+          (item) =>
+            (item.external_id || `${item.title}-${item.author}`) !== recKey
+        )
+      );
+    } catch (err) {
+      toast.error(err.message || "Impossible d'ajouter le livre");
+    } finally {
+      setAddingRecommendations((prev) => {
+        const next = { ...prev };
+        delete next[recKey];
+        return next;
+      });
+    }
+  };
+
   if (loading) {
     return (
       <AuroraBackground>
@@ -262,6 +409,54 @@ export default function Dashboard() {
         </div>
 
         <section className="space-y-8">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-900 via-rose-900 to-slate-900 px-4 py-4 text-white shadow-xl ring-1 ring-white/10 backdrop-blur sm:px-6 sm:py-5">
+            <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,rgba(255,214,165,0.35),transparent_55%),radial-gradient(circle_at_bottom,rgba(255,132,94,0.3),transparent_60%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.2),transparent_35%)] opacity-60" />
+            <div className="relative z-10">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-semibold">Suggestions pour toi</h2>
+                  <p className="text-sm text-white/60">
+                    Basées sur tes lectures et favoris
+                  </p>
+                </div>
+              </div>
+              {recommendationsLoading ? (
+                <div className="rounded-2xl bg-white/10 p-6 text-sm text-white/70">
+                  Chargement des suggestions...
+                </div>
+              ) : recommendations.length === 0 ? (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/10 p-6 text-sm text-white/70">
+                  <span>
+                    Ajoute quelques livres aimés ou lus pour activer les suggestions.
+                  </span>
+                  <Link
+                    to="/library"
+                    className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white"
+                  >
+                    Voir ma bibliothèque →
+                  </Link>
+                </div>
+              ) : (
+                <div
+                  className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain overscroll-y-none sm:gap-4 sm:pb-4"
+                  onWheel={handleHorizontalWheel}
+                >
+                  {recommendations.map((book) => (
+                    <div key={book.external_id || book.title} className="shrink-0">
+                      {renderRecommendationCard(book)}
+                    </div>
+                  ))}
+                  <Link
+                    to="/library"
+                    className="flex h-44 w-28 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-[10px] font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white sm:h-52 sm:w-36 sm:text-xs lg:h-60 lg:w-40"
+                  >
+                    Explorer →
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
           {highlightSections.map((section) => (
             <div
               key={section.key}

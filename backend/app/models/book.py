@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Date, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Text, Date, DateTime, ForeignKey, Boolean, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from app.database import Base
@@ -21,6 +21,7 @@ class Book(Base):
     cover_image = Column(String(255), nullable=True)
     external_id = Column(Text, nullable=True)
     genre = Column(String(255), nullable=True)
+    embedding = Column(JSON, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     is_favorite = Column(Boolean, nullable=False, default=False)
 

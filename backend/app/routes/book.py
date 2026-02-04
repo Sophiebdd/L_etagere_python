@@ -9,10 +9,13 @@ from app.schemas import (
     BookCreate,
     BookUpdate,
     BookPage,
+    BookRecommendation,
     BookNote as BookNoteSchema,
     BookNoteCreate,
 )
 from app.core.security import get_current_user
+from app.services.embeddings import build_book_text, embed_text
+from app.services.recommendations import recommend_books
 
 router = APIRouter(prefix="/books", tags=["Books"])
 
@@ -31,6 +34,13 @@ def _get_user_book_or_404(book_id: int, user_id: int, db: Session) -> Book:
 @router.post("/", response_model=BookSchema)
 def create_book(book: BookCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
     db_book = Book(**book.model_dump(), user_id=user.id)
+    book_text = build_book_text(
+        db_book.title,
+        db_book.author,
+        db_book.description,
+        db_book.genre,
+    )
+    db_book.embedding = embed_text(book_text) or None
     db.add(db_book)
     db.commit()
     db.refresh(db_book)
@@ -61,6 +71,15 @@ def update_book(book_id: int, book_update: BookUpdate, db: Session = Depends(get
     update_data = book_update.model_dump(exclude_unset=True, exclude_none=True)
     for field, value in update_data.items():
         setattr(book, field, value)
+
+    if {"title", "author", "description", "genre"} & set(update_data.keys()):
+        book_text = build_book_text(
+            book.title,
+            book.author,
+            book.description,
+            book.genre,
+        )
+        book.embedding = embed_text(book_text) or None
 
     db.commit()
     db.refresh(book)
@@ -107,6 +126,15 @@ def get_my_books(
         "page": page,
         "page_size": page_size,
     }
+
+
+@router.get("/recommendations", response_model=list[BookRecommendation])
+def get_recommendations(
+    limit: int = Query(12, ge=1, le=40),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    return recommend_books(db, user.id, limit=limit)
 
 
 @router.get("/{book_id}/notes", response_model=list[BookNoteSchema])

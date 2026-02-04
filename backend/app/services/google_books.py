@@ -23,12 +23,14 @@ def _format_book(item):
     }
 
 
-def _fetch_page(query: str, start_index: int, max_results: int):
+def _fetch_page(query: str, start_index: int, max_results: int, extra_params: dict | None = None):
     params = {
         "q": query,
         "startIndex": start_index,
         "maxResults": max_results,
     }
+    if extra_params:
+        params.update(extra_params)
     if GOOGLE_API_KEY:
         params["key"] = GOOGLE_API_KEY
 
@@ -42,7 +44,12 @@ def _fetch_page(query: str, start_index: int, max_results: int):
 
 
 # Exemple correct de structure pour Google Books
-def search_books(query: str, start_index: int = 0, max_results: int = 10):
+def search_books(
+    query: str,
+    start_index: int = 0,
+    max_results: int = 10,
+    extra_params: dict | None = None,
+):
     safe_start = max(0, start_index)
     safe_max = max(1, min(max_results, 100))
     remaining = safe_max
@@ -52,7 +59,7 @@ def search_books(query: str, start_index: int = 0, max_results: int = 10):
 
     while remaining > 0:
         batch_size = min(40, remaining)
-        data = _fetch_page(query, current_index, batch_size)
+        data = _fetch_page(query, current_index, batch_size, extra_params=extra_params)
 
         if total_items is None:
             total_items = data.get("totalItems", 0)
