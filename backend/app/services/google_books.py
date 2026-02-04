@@ -1,10 +1,14 @@
+import logging
 import os
+import time
+
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+logger = logging.getLogger(__name__)
 
 
 def _format_book(item):
@@ -34,13 +38,24 @@ def _fetch_page(query: str, start_index: int, max_results: int, extra_params: di
     if GOOGLE_API_KEY:
         params["key"] = GOOGLE_API_KEY
 
-    response = requests.get(
-        "https://www.googleapis.com/books/v1/volumes",
-        params=params,
-        timeout=10,
-    )
-    response.raise_for_status()
-    return response.json()
+    url = "https://www.googleapis.com/books/v1/volumes"
+    last_error: Exception | None = None
+    for attempt in range(3):
+        try:
+            response = requests.get(url, params=params, timeout=10)
+            if response.status_code in {429, 500, 502, 503, 504} and attempt < 2:
+                time.sleep(0.5 * (2 ** attempt))
+                continue
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as exc:
+            last_error = exc
+            if attempt < 2:
+                time.sleep(0.5 * (2 ** attempt))
+                continue
+            break
+    logger.warning("Google Books API request failed: %s", last_error)
+    return {"items": [], "totalItems": 0}
 
 
 # Exemple correct de structure pour Google Books
