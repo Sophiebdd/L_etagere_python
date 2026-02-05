@@ -1,7 +1,6 @@
 import logging
 import os
 import time
-import re
 
 import requests
 from dotenv import load_dotenv
@@ -30,13 +29,6 @@ def _format_book(item):
     }
 
 
-def _simplify_query(query: str) -> str:
-    simplified = re.sub(r'\b(inauthor|intitle|subject):', " ", query, flags=re.IGNORECASE)
-    simplified = simplified.replace('"', " ")
-    simplified = re.sub(r"\s+", " ", simplified)
-    return simplified.strip()
-
-
 def _fetch_page(query: str, start_index: int, max_results: int, extra_params: dict | None = None):
     params = {
         "q": query,
@@ -50,19 +42,12 @@ def _fetch_page(query: str, start_index: int, max_results: int, extra_params: di
 
     url = "https://www.googleapis.com/books/v1/volumes"
     last_error: Exception | None = None
-    attempted_simplified = False
     for attempt in range(3):
         try:
             response = requests.get(url, params=params, timeout=10)
             if response.status_code in {429, 500, 502, 503, 504} and attempt < 2:
                 time.sleep(0.5 * (2 ** attempt))
                 continue
-            if response.status_code == 400 and not attempted_simplified:
-                simplified = _simplify_query(query)
-                if simplified and simplified != query:
-                    params["q"] = simplified
-                    attempted_simplified = True
-                    continue
             response.raise_for_status()
             return response.json()
         except requests.RequestException as exc:

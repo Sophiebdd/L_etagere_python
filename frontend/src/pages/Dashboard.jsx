@@ -251,9 +251,7 @@ export default function Dashboard() {
         className="relative w-full overflow-hidden rounded-xl shadow-xl ring-1 ring-white/10"
       >
         <img
-          src={
-                book.cover_image || CoverPlaceholder
-          }
+          src={resolveCover(book.cover_image)}
           alt={book.title}
           className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.03] sm:h-52 lg:h-60"
         />
@@ -414,8 +412,8 @@ export default function Dashboard() {
         </div>
 
         <section className="space-y-8">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-900 via-rose-900 to-slate-900 px-4 py-4 text-white shadow-xl ring-1 ring-white/10 backdrop-blur sm:px-6 sm:py-5">
-            <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,rgba(255,214,165,0.35),transparent_55%),radial-gradient(circle_at_bottom,rgba(255,132,94,0.3),transparent_60%)]" />
+          <div className="relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_15%,#8ec9ff,transparent_55%),radial-gradient(circle_at_85%_10%,#b9dcff,transparent_45%),radial-gradient(circle_at_70%_85%,#f7b0db,transparent_50%),radial-gradient(circle_at_15%_80%,#e1a1f0,transparent_55%),radial-gradient(circle_at_55%_50%,#f6b4df,transparent_58%)] px-4 py-4 text-white shadow-xl ring-1 ring-white/10 backdrop-blur sm:px-6 sm:py-5">
+            <div className="absolute inset-0 opacity-45 bg-[radial-gradient(circle_at_top,rgba(170,220,255,0.55),transparent_55%),radial-gradient(circle_at_bottom,rgba(255,170,220,0.48),transparent_60%)]" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.2),transparent_35%)] opacity-60" />
             <div className="relative z-10">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
