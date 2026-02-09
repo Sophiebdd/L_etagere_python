@@ -3,9 +3,26 @@
 @tailwind utilities;
 
 body {
-  background: linear-gradient(135deg, #312e81, #4c1d95, #0f172a);
+  background:
+    radial-gradient(1200px 700px at 15% 10%, rgba(252, 165, 165, 0.18), transparent 60%),
+    radial-gradient(900px 600px at 85% 20%, rgba(216, 180, 254, 0.2), transparent 55%),
+    radial-gradient(800px 600px at 50% 80%, rgba(167, 139, 250, 0.18), transparent 60%),
+    linear-gradient(135deg, #f472b6 0%, #a855f7 45%, #312e81 80%, #0f172a 100%);
   background-attachment: fixed;
+  background-repeat: no-repeat;
   overflow-x: hidden;
+}
+
+.header-glow::before {
+  content: "";
+  position: absolute;
+  inset: -25% -15% auto;
+  height: 520px;
+  background: radial-gradient(70% 75% at 50% 40%, rgba(253, 164, 175, 0.4), rgba(216, 180, 254, 0.22) 55%, transparent 80%);
+  filter: blur(16px);
+  opacity: 0.95;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {

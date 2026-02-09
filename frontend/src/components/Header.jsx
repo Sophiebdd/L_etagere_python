@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 export default function Header({ showNavigation = true, onLogout = null }) {
   return (
-    <header className="relative overflow-hidden bg-transparent text-white">
+    <header className="header-glow relative overflow-hidden bg-transparent text-white">
       {onLogout && (
         <button
           type="button"
@@ -34,7 +34,7 @@ export default function Header({ showNavigation = true, onLogout = null }) {
           <img
             src="/titre.png"
             alt="L'étagère"
-            className="h-16 w-auto drop-shadow sm:h-20"
+            className="h-24 w-auto drop-shadow sm:h-28"
           />
         </div>
         
