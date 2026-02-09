@@ -402,82 +402,35 @@ export default function Dashboard() {
       <div className="flex min-h-screen flex-col">
         <Header onLogout={handleLogout} />
         <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 pb-32 pt-12">
-        <div className="mb-8">
-          <Link
-            to="/library"
-            className="text-3xl font-semibold text-purple-900 transition hover:text-purple-700"
-          >
-            Ma bibliothèque
-          </Link>
-        </div>
 
         <section className="space-y-8">
-          <div className="relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_15%,#8ec9ff,transparent_55%),radial-gradient(circle_at_85%_10%,#b9dcff,transparent_45%),radial-gradient(circle_at_70%_85%,#f7b0db,transparent_50%),radial-gradient(circle_at_15%_80%,#e1a1f0,transparent_55%),radial-gradient(circle_at_55%_50%,#f6b4df,transparent_58%)] px-4 py-4 text-white shadow-xl ring-1 ring-white/10 backdrop-blur sm:px-6 sm:py-5">
-            <div className="absolute inset-0 opacity-45 bg-[radial-gradient(circle_at_top,rgba(170,220,255,0.55),transparent_55%),radial-gradient(circle_at_bottom,rgba(255,170,220,0.48),transparent_60%)]" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.2),transparent_35%)] opacity-60" />
-            <div className="relative z-10">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-semibold">Suggestions pour toi</h2>
-                  <p className="text-sm text-white/60">
-                    Basées sur tes lectures et favoris
-                  </p>
-                </div>
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-white">
+              <div>
+                <h2 className="text-xl font-semibold">Suggestions pour toi</h2>
+                <p className="text-sm text-white/60">
+                  Basées sur tes lectures et favoris
+                </p>
               </div>
-              {recommendationsLoading ? (
-                <div className="rounded-2xl bg-white/10 p-6 text-sm text-white/70">
-                  Chargement des suggestions...
-                </div>
-              ) : recommendations.length === 0 ? (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/10 p-6 text-sm text-white/70">
-                  <span>
-                    Ajoute quelques livres aimés ou lus pour activer les suggestions.
-                  </span>
-                  <Link
-                    to="/library"
-                    className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white"
-                  >
-                    Voir ma bibliothèque →
-                  </Link>
-                </div>
-              ) : (
-                <div
-                  className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain overscroll-y-none sm:gap-4 sm:pb-4"
-                  onWheel={handleHorizontalWheel}
-                >
-                  {recommendations.map((book) => (
-                    <div key={book.external_id || book.title} className="shrink-0">
-                      {renderRecommendationCard(book)}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
-          </div>
-          {highlightSections.map((section) => (
-            <div
-              key={section.key}
-              className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 px-4 py-4 text-white shadow-xl ring-1 ring-white/10 backdrop-blur sm:px-6 sm:py-5"
-            >
-              <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top,rgba(244,194,255,0.35),transparent_55%),radial-gradient(circle_at_bottom,rgba(124,77,255,0.3),transparent_60%)]" />
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.2),transparent_35%)] opacity-60" />
+            <div className="relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_15%,#8ec9ff,transparent_55%),radial-gradient(circle_at_85%_10%,#b9dcff,transparent_45%),radial-gradient(circle_at_70%_85%,#f7b0db,transparent_50%),radial-gradient(circle_at_15%_80%,#e1a1f0,transparent_55%),radial-gradient(circle_at_55%_50%,#f6b4df,transparent_58%)] px-4 py-4 text-white shadow-xl ring-1 ring-white/10 backdrop-blur sm:px-6 sm:py-5">
+              <div className="absolute inset-0 opacity-45 bg-[radial-gradient(circle_at_top,rgba(170,220,255,0.55),transparent_55%),radial-gradient(circle_at_bottom,rgba(255,170,220,0.48),transparent_60%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.2),transparent_35%)] opacity-60" />
               <div className="relative z-10">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h2 className="text-xl font-semibold">{section.title}</h2>
-                    <p className="text-sm text-white/60">
-                      {section.total} livre{section.total > 1 ? "s" : ""}
-                    </p>
+                {recommendationsLoading ? (
+                  <div className="rounded-2xl bg-white/10 p-6 text-sm text-white/70">
+                    Chargement des suggestions...
                   </div>
-                </div>
-                {section.items.length === 0 ? (
+                ) : recommendations.length === 0 ? (
                   <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/10 p-6 text-sm text-white/70">
-                    <span>Aucun livre dans cette section pour le moment.</span>
+                    <span>
+                      Ajoute quelques livres aimés ou lus pour activer les suggestions.
+                    </span>
                     <Link
-                      to={`/library?status=${encodeURIComponent(section.status)}`}
+                      to="/library"
                       className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white"
                     >
-                      Tout voir →
+                      Voir ma bibliothèque →
                     </Link>
                   </div>
                 ) : (
@@ -485,59 +438,60 @@ export default function Dashboard() {
                     className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain overscroll-y-none sm:gap-4 sm:pb-4"
                     onWheel={handleHorizontalWheel}
                   >
-                    {section.items.map((book) => (
-                      <div key={book.id} className="shrink-0">
-                        {renderPoster(book)}
+                    {recommendations.map((book) => (
+                      <div key={book.external_id || book.title} className="shrink-0">
+                        {renderRecommendationCard(book)}
                       </div>
                     ))}
-                    <Link
-                      to={`/library?status=${encodeURIComponent(section.status)}`}
-                      className="flex h-44 w-28 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-[10px] font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white sm:h-52 sm:w-36 sm:text-xs lg:h-60 lg:w-40"
-                    >
-                      Tout voir →
-                    </Link>
                   </div>
                 )}
               </div>
             </div>
-          ))}
-        </section>
-
-        <section className="mt-12">
-          <div className="mb-4">
-            <Link
-              to="/manuscrits"
-              className="text-3xl font-semibold text-purple-900 transition hover:text-purple-700"
-            >
-              Mes manuscrits
-            </Link>
           </div>
-          {recentChapters.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-purple-200 bg-white/80 p-8 text-center text-sm text-purple-600 shadow-inner">
-              Pas encore de chapitre rédigé. Rejoins l'atelier pour écrire le premier !
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {recentChapters.map((chapter) => {
-                const plainText = toPlainText(chapter.content);
-                const excerpt =
-                  plainText.length > 260 ? `${plainText.slice(0, 260)}…` : plainText;
-                return (
-                  <article
-                    key={chapter.id}
-                    className="rounded-2xl border border-purple-100 bg-white p-5 shadow-lg"
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
-                      {chapter.manuscript?.title || "Manuscrit en brouillon"}
-                    </p>
-                    <h3 className="mt-1 text-lg font-semibold text-purple-900">{chapter.title}</h3>
-                    <p className="text-xs text-gray-500">{formatChapterDate(chapter.created_at)}</p>
-                    <p className="mt-3 text-sm text-gray-600">{excerpt || "Chapitre enregistré."}</p>
-                  </article>
-                );
-              })}
+          {highlightSections.map((section) => (
+            <div key={section.key} className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 text-white">
+                <div>
+                  <h2 className="text-xl font-semibold">{section.title}</h2>
+                  <p className="text-sm text-white/60">
+                    {section.total} livre{section.total > 1 ? "s" : ""}
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/10 px-4 py-4 text-white shadow-xl backdrop-blur-md sm:px-6 sm:py-5">
+                <div className="relative z-10">
+                  {section.items.length === 0 ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/10 p-6 text-sm text-white/70">
+                      <span>Aucun livre dans cette section pour le moment.</span>
+                      <Link
+                        to={`/library?status=${encodeURIComponent(section.status)}`}
+                        className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white"
+                      >
+                        Tout voir →
+                      </Link>
+                    </div>
+                  ) : (
+                    <div
+                      className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain overscroll-y-none sm:gap-4 sm:pb-4"
+                      onWheel={handleHorizontalWheel}
+                    >
+                      {section.items.map((book) => (
+                        <div key={book.id} className="shrink-0">
+                          {renderPoster(book)}
+                        </div>
+                      ))}
+                      <Link
+                        to={`/library?status=${encodeURIComponent(section.status)}`}
+                        className="flex h-44 w-28 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-[10px] font-semibold uppercase tracking-wider text-white/80 transition hover:bg-white/10 hover:text-white sm:h-52 sm:w-36 sm:text-xs lg:h-60 lg:w-40"
+                      >
+                        Tout voir →
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
+          ))}
         </section>
 
         {selectedBook && (

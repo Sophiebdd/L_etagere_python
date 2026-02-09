@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 body {
-  background-color: #f7f1ff;
+  background: linear-gradient(135deg, #312e81, #4c1d95, #0f172a);
+  background-attachment: fixed;
   overflow-x: hidden;
 }
 
