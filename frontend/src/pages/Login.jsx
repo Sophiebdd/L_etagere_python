@@ -46,7 +46,7 @@ export default function Login() {
       <Header showNavigation={false} />
       <main className="mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-12 sm:min-h-[70vh] sm:justify-center">
         <div className="w-full max-w-md rounded-2xl border border-white/15 bg-white/75 p-8 shadow-2xl backdrop-blur">
-          <h2 className="mb-6 text-center text-2xl font-semibold text-purple-700">
+          <h2 className="mb-6 text-center text-2xl font-semibold text-[#B8C5E5]">
             Se connecter 🔐
           </h2>
 
@@ -59,7 +59,7 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-md border border-purple-200/80 p-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                className="mt-1 w-full rounded-md border border-[#B8C5E5]/80 p-2 shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                 required
               />
             </div>
@@ -72,13 +72,13 @@ export default function Login() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-md border border-purple-200/80 p-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                className="mt-1 w-full rounded-md border border-[#B8C5E5]/80 p-2 shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                 required
               />
               <p className="mt-2 text-right text-sm">
                 <a
                   href="/forgot-password"
-                  className="font-medium text-purple-600 transition hover:text-purple-700 hover:underline"
+                  className="font-medium text-[#B8C5E5] transition hover:text-[#B8C5E5] hover:underline"
                 >
                   Mot de passe oublié ?
                 </a>
@@ -91,7 +91,7 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full rounded-md bg-purple-600 py-2 font-semibold text-white transition hover:bg-purple-700"
+              className="w-full rounded-md bg-[#B8C5E5] py-2 font-semibold text-white transition hover:bg-[#B8C5E5]"
             >
               Connexion
             </button>
@@ -101,7 +101,7 @@ export default function Login() {
             Pas encore de compte ?{" "}
             <a
               href="/signup"
-              className="font-medium text-purple-600 transition hover:text-purple-700 hover:underline"
+              className="font-medium text-[#B8C5E5] transition hover:text-[#B8C5E5] hover:underline"
             >
               S’inscrire
             </a>

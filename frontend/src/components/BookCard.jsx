@@ -75,14 +75,14 @@ export default function BookCard({ book }) {
         alt={title}
         className="rounded-md mb-3 h-56 object-cover"
       />
-      <h3 className="font-semibold text-violet-700 line-clamp-2">{title}</h3>
+      <h3 className="font-semibold text-[#B8C5E5] line-clamp-2">{title}</h3>
       <p className="text-sm text-gray-600 mb-2">{authors}</p>
-      {genre && <p className="text-xs text-violet-500 mb-2">{genre}</p>}
+      {genre && <p className="text-xs text-[#B8C5E5] mb-2">{genre}</p>}
       <p className="text-xs text-gray-500 flex-grow">{description}</p>
 
       <button
         onClick={handleAddBook}
-        className="mt-3 bg-violet-600 text-white rounded-lg py-2 hover:bg-violet-700 transition"
+        className="mt-3 bg-[#B8C5E5] text-white rounded-lg py-2 hover:bg-[#B8C5E5] transition"
       >
         📚 Ajouter
       </button>

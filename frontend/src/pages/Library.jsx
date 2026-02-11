@@ -486,7 +486,7 @@ export default function Library() {
             openBookModal(book);
           }
         }}
-        className={`w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-purple-100 bg-white shadow-xl transition hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 ${
+        className={`w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-[#B8C5E5] bg-white shadow-xl transition hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#B8C5E5] focus:ring-offset-2 ${
           isCompact ? "w-72 snap-start" : "w-full"
         }`}
       >
@@ -498,14 +498,14 @@ export default function Library() {
           className="h-56 w-full object-cover"
         />
         <div className="p-4">
-          <h3 className="truncate text-lg font-semibold text-purple-700">
+          <h3 className="truncate text-lg font-semibold text-[#B8C5E5]">
             {book.title}
           </h3>
           <p className="text-sm text-gray-600">
             {book.author || book.authors || "Auteur inconnu"}
           </p>
           {book.genre ? (
-            <span className="mt-2 inline-flex items-center rounded-full bg-purple-50 px-2.5 py-1 text-xs font-semibold text-purple-600">
+            <span className="mt-2 inline-flex items-center rounded-full bg-[#B8C5E5] px-2.5 py-1 text-xs font-semibold text-[#B8C5E5]">
               {book.genre}
             </span>
           ) : null}
@@ -517,7 +517,7 @@ export default function Library() {
             onClick={(event) => event.stopPropagation()}
           >
             <select
-              className="rounded-full border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-purple-700 shadow-sm transition focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full border border-[#B8C5E5] bg-white px-3 py-2 text-xs font-semibold text-[#B8C5E5] shadow-sm transition focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-60"
               value={
                 STATUS_OPTIONS.includes(book.status)
                   ? book.status
@@ -543,7 +543,7 @@ export default function Library() {
                 handleToggleFavorite(book.id, Boolean(book.is_favorite));
               }}
               className={`text-base transition ${
-                book.is_favorite ? "text-pink-600" : "text-pink-300 hover:text-pink-500"
+                book.is_favorite ? "text-[#B8C5E5]" : "text-[#B8C5E5] hover:text-[#B8C5E5]"
               }`}
               aria-pressed={book.is_favorite}
               aria-label={
@@ -558,7 +558,7 @@ export default function Library() {
                 event.stopPropagation();
                 openNotesModal(book.id);
               }}
-              className="rounded-full border border-purple-200 px-3 py-2 text-xs font-semibold text-purple-600 shadow-sm transition hover:bg-purple-50"
+              className="rounded-full border border-[#B8C5E5] px-3 py-2 text-xs font-semibold text-[#B8C5E5] shadow-sm transition hover:bg-[#B8C5E5]"
             >
               📝 Notes
             </button>
@@ -584,7 +584,7 @@ export default function Library() {
       <AuroraBackground>
         <Header onLogout={handleLogout} />
         <div className="flex min-h-screen items-center justify-center px-4 pb-20 pt-12">
-          <p className="rounded-full border border-purple-200 bg-white/80 px-6 py-3 text-sm font-medium uppercase tracking-[0.28em] text-purple-600 shadow-lg">
+          <p className="rounded-full border border-[#B8C5E5] bg-white/80 px-6 py-3 text-sm font-medium uppercase tracking-[0.28em] text-[#B8C5E5] shadow-lg">
             Chargement...
           </p>
         </div>
@@ -600,10 +600,10 @@ export default function Library() {
         <div className="mb-8 space-y-3">
           <PageBreadcrumb items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Bibliothèque" }]} />
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-3xl font-semibold text-purple-900">Ma bibliothèque</h1>
+            <h1 className="text-3xl font-semibold text-[#B8C5E5]">Ma bibliothèque</h1>
             <Link
               to="/search"
-              className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50"
+              className="inline-flex items-center gap-2 rounded-full border border-[#B8C5E5] bg-white px-4 py-2 text-sm font-semibold text-[#B8C5E5] shadow-sm transition hover:bg-[#B8C5E5]"
             >
               🔍 Rechercher un livre
             </Link>
@@ -612,14 +612,14 @@ export default function Library() {
 
         <form
           onSubmit={handleFilterSubmit}
-          className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-purple-100 bg-white/80 p-4 shadow-lg backdrop-blur"
+          className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-[#B8C5E5] bg-white/80 p-4 shadow-lg backdrop-blur"
         >
           <input
             type="search"
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
             placeholder="Rechercher par titre ou auteur..."
-            className="w-full rounded-lg border border-purple-200 px-4 py-2 text-sm shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300 sm:min-w-[220px] sm:flex-1"
+            className="w-full rounded-lg border border-[#B8C5E5] px-4 py-2 text-sm shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5] sm:min-w-[220px] sm:flex-1"
           />
           <select
             value={statusFilter}
@@ -627,7 +627,7 @@ export default function Library() {
               setStatusFilter(event.target.value);
               setPage(1);
             }}
-            className="w-full rounded-full border border-purple-200 bg-white px-3 py-2 text-sm text-purple-700 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200 sm:w-auto"
+            className="w-full rounded-full border border-[#B8C5E5] bg-white px-3 py-2 text-sm text-[#B8C5E5] shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5] sm:w-auto"
           >
             {["Tous", ...STATUS_OPTIONS].map((option) => (
               <option key={option} value={option}>
@@ -642,7 +642,7 @@ export default function Library() {
               setPage(1);
             }}
             aria-pressed={favoritesOnly}
-            className="inline-flex w-full items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-600 transition hover:text-pink-500 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#B8C5E5] transition hover:text-[#B8C5E5] sm:w-auto"
           >
             <span className="text-base">{favoritesOnly ? "💜" : "🤍"}</span>
             Livres aimés
@@ -650,13 +650,13 @@ export default function Library() {
           <button
             type="button"
             onClick={handleResetFilters}
-            className="w-full rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-purple-500 transition hover:bg-purple-50 sm:w-auto"
+            className="w-full rounded-full border border-[#B8C5E5] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#B8C5E5] transition hover:bg-[#B8C5E5] sm:w-auto"
           >
             Réinitialiser
           </button>
         </form>
 
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-purple-700">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-[#B8C5E5]">
           <div>
             {totalItems} livre{totalItems > 1 ? "s" : ""}
           </div>
@@ -668,7 +668,7 @@ export default function Library() {
                 setPageSize(Number(event.target.value));
                 setPage(1);
               }}
-              className="rounded-full border border-purple-200 bg-white px-3 py-1 text-sm text-purple-700 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+              className="rounded-full border border-[#B8C5E5] bg-white px-3 py-1 text-sm text-[#B8C5E5] shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
             >
               {[10, 20, 50].map((option) => (
                 <option key={option} value={option}>
@@ -680,7 +680,7 @@ export default function Library() {
         </div>
 
         {books.length === 0 ? (
-          <p className="rounded-2xl border border-purple-100 bg-white/80 p-10 text-center text-purple-600 shadow-lg backdrop-blur">
+          <p className="rounded-2xl border border-[#B8C5E5] bg-white/80 p-10 text-center text-[#B8C5E5] shadow-lg backdrop-blur">
             Aucun livre ajouté pour le moment.
           </p>
         ) : (
@@ -693,12 +693,12 @@ export default function Library() {
               ))}
             </div>
             {totalPages > 1 && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-purple-700">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-[#B8C5E5]">
                 <button
                   type="button"
                   onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                   disabled={page === 1 || loading}
-                  className="rounded-full border border-purple-200 bg-white px-4 py-2 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-[#B8C5E5] bg-white px-4 py-2 shadow-sm transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Précédent
                 </button>
@@ -709,7 +709,7 @@ export default function Library() {
                   type="button"
                   onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={page >= totalPages || loading}
-                  className="rounded-full border border-purple-200 bg-white px-4 py-2 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-[#B8C5E5] bg-white px-4 py-2 shadow-sm transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Suivant
                 </button>
@@ -726,7 +726,7 @@ export default function Library() {
           onClick={closeBookModal}
         >
           <div
-            className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl"
+            className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[#B8C5E5] bg-white p-6 shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex flex-col gap-6 sm:flex-row">
@@ -740,7 +740,7 @@ export default function Library() {
 
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-2xl font-semibold text-purple-800">
+                  <h2 className="text-2xl font-semibold text-[#B8C5E5]">
                     {selectedBook.title}
                   </h2>
                   <p className="text-sm text-gray-600">
@@ -749,19 +749,19 @@ export default function Library() {
                 </div>
 
                 <div className="text-sm text-gray-700">
-                  <p className="font-semibold text-purple-700">Description</p>
+                  <p className="font-semibold text-[#B8C5E5]">Description</p>
                   <p className="mt-1 whitespace-pre-line">
                     {selectedBook.description || "Pas de description disponible."}
                   </p>
                 </div>
 
                 {selectedBook.status && (
-                  <div className="inline-flex rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
+                  <div className="inline-flex rounded-full bg-[#B8C5E5]/35 px-3 py-1 text-xs font-semibold text-[#6b4b35]">
                     Statut : {selectedBook.status}
                   </div>
                 )}
                 {selectedBook.genre && (
-                  <div className="inline-flex rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-600">
+                  <div className="inline-flex rounded-full bg-[#B8C5E5]/35 px-3 py-1 text-xs font-semibold text-[#6b4b35]">
                     {selectedBook.genre}
                   </div>
                 )}
@@ -776,15 +776,15 @@ export default function Library() {
           onClick={closeNotesModal}
         >
           <div
-            className="w-full max-w-xl rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl"
+            className="w-full max-w-xl rounded-3xl border border-[#B8C5E5] bg-white p-6 shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-purple-400">
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#B8C5E5]">
                   Appréciations
                 </p>
-                <h2 className="text-2xl font-bold text-purple-900">
+                <h2 className="text-2xl font-bold text-[#B8C5E5]">
                   {selectedNotesBook.title}
                 </h2>
                 <p className="text-sm text-gray-500">
@@ -794,7 +794,7 @@ export default function Library() {
               <button
                 type="button"
                 onClick={closeNotesModal}
-                className="rounded-full border border-purple-200 p-2 text-purple-700 transition hover:bg-purple-50"
+                className="rounded-full border border-[#B8C5E5] p-2 text-[#B8C5E5] transition hover:bg-[#B8C5E5]"
                 aria-label="Fermer"
               >
                 ✕
@@ -806,12 +806,12 @@ export default function Library() {
                 value={newNoteContent}
                 onChange={(event) => setNewNoteContent(event.target.value)}
                 placeholder="Ajoute une appréciation, une citation, une note..."
-                className="min-h-[100px] rounded-2xl border border-purple-100 bg-gray-50 px-4 py-3 text-sm text-gray-700 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                className="min-h-[100px] rounded-2xl border border-[#B8C5E5] bg-gray-50 px-4 py-3 text-sm text-gray-700 shadow-inner focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
               />
               <button
                 type="submit"
                 disabled={addingNote || !newNoteContent.trim()}
-                className="self-end rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
+                className="self-end rounded-full bg-[#B8C5E5] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:bg-[#B8C5E5]"
               >
                 {addingNote ? "Ajout..." : "Ajouter la note"}
               </button>
@@ -822,11 +822,11 @@ export default function Library() {
                 selectedNotesBook.notes.map((note) => (
                   <div
                     key={note.id}
-                    className="flex items-start justify-between rounded-2xl border border-purple-100 bg-purple-50/60 p-4 shadow-sm"
+                    className="flex items-start justify-between rounded-2xl border border-[#B8C5E5] bg-[#B8C5E5]/60 p-4 shadow-sm"
                   >
                     <div>
-                      <p className="text-sm text-purple-900">{note.content}</p>
-                      <p className="mt-1 text-xs text-purple-500">
+                      <p className="text-sm text-[#B8C5E5]">{note.content}</p>
+                      <p className="mt-1 text-xs text-[#B8C5E5]">
                         {new Date(note.created_at).toLocaleString()}
                       </p>
                     </div>
@@ -841,7 +841,7 @@ export default function Library() {
                   </div>
                 ))
               ) : (
-                <p className="rounded-2xl border border-dashed border-purple-200 bg-white p-6 text-center text-sm text-purple-500">
+                <p className="rounded-2xl border border-dashed border-[#B8C5E5] bg-white p-6 text-center text-sm text-[#B8C5E5]">
                   Pas encore d'appréciation pour ce livre. Partage ton ressenti ! ✨
                 </p>
               )}

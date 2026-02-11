@@ -172,7 +172,7 @@ export default function RichTextEditor({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-purple-100 bg-white/80 p-2 shadow-inner">
+      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#B8C5E5] bg-white/80 p-2 shadow-inner">
         <div className="flex flex-wrap items-center gap-2">
           {INLINE_ACTIONS.map((action) => (
             <button
@@ -180,10 +180,10 @@ export default function RichTextEditor({
               type="button"
               onClick={() => action.command(editor)}
               disabled={!editor}
-              className={`rounded-lg border border-purple-100 bg-white px-3 py-1 text-xs font-semibold transition ${
+              className={`rounded-lg border border-[#B8C5E5] bg-white px-3 py-1 text-xs font-semibold transition ${
                 editor && action.isActive(editor)
-                  ? "text-purple-900"
-                  : "text-purple-700 hover:bg-purple-50"
+                  ? "text-[#B8C5E5]"
+                  : "text-[#B8C5E5] hover:bg-[#B8C5E5]"
               } disabled:cursor-not-allowed disabled:opacity-50`}
               aria-pressed={editor ? action.isActive(editor) : false}
               aria-label={action.label}
@@ -192,17 +192,17 @@ export default function RichTextEditor({
               {action.icon}
             </button>
           ))}
-          <span className="mx-1 h-6 border-l border-purple-200" aria-hidden />
+          <span className="mx-1 h-6 border-l border-[#B8C5E5]" aria-hidden />
           {ALIGN_ACTIONS.map((action) => (
             <button
               key={action.label}
               type="button"
               onClick={() => action.command(editor)}
               disabled={!editor}
-              className={`rounded-lg border border-purple-100 bg-white px-3 py-1 text-xs font-semibold transition ${
+              className={`rounded-lg border border-[#B8C5E5] bg-white px-3 py-1 text-xs font-semibold transition ${
                 editor && action.isActive(editor)
-                  ? "text-purple-900"
-                  : "text-purple-700 hover:bg-purple-50"
+                  ? "text-[#B8C5E5]"
+                  : "text-[#B8C5E5] hover:bg-[#B8C5E5]"
               } disabled:cursor-not-allowed disabled:opacity-50`}
               aria-pressed={editor ? action.isActive(editor) : false}
               aria-label={action.label}
@@ -212,7 +212,7 @@ export default function RichTextEditor({
             </button>
           ))}
           <select
-            className="rounded-lg border border-purple-100 bg-white px-3 py-1 text-xs font-semibold text-purple-700 shadow-sm transition focus:border-purple-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg border border-[#B8C5E5] bg-white px-3 py-1 text-xs font-semibold text-[#B8C5E5] shadow-sm transition focus:border-[#B8C5E5] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             value={fontSizeValue}
             onChange={handleFontSizeChange}
             disabled={!editor}
@@ -236,7 +236,7 @@ export default function RichTextEditor({
         </div>
       </div>
 
-      <div className="rich-text-editor-content min-h-[320px] rounded-2xl border border-purple-100 bg-white/80 px-4 py-3 text-[12px] text-gray-700 shadow-inner">
+      <div className="rich-text-editor-content min-h-[320px] rounded-2xl border border-[#B8C5E5] bg-white/80 px-4 py-3 text-[12px] text-gray-700 shadow-inner">
         <EditorContent editor={editor} className="w-full" />
       </div>
     </div>

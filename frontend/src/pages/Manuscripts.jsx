@@ -551,7 +551,7 @@ export default function Manuscripts() {
       <AuroraBackground>
         <Header onLogout={handleLogout} />
         <div className="flex min-h-screen items-center justify-center px-4 pb-20 pt-12">
-          <p className="rounded-full border border-purple-200 bg-white/80 px-6 py-3 text-sm font-medium uppercase tracking-[0.28em] text-purple-600 shadow-lg">
+          <p className="rounded-full border border-[#B8C5E5] bg-white/80 px-6 py-3 text-sm font-medium uppercase tracking-[0.28em] text-[#B8C5E5] shadow-lg">
             Chargement...
           </p>
         </div>
@@ -567,12 +567,12 @@ export default function Manuscripts() {
         <div className="mb-8 space-y-3">
           <PageBreadcrumb items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Manuscrits" }]} />
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-3xl font-semibold text-purple-900">Mes manuscrits</h1>
+            <h1 className="text-3xl font-semibold text-[#B8C5E5]">Mes manuscrits</h1>
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => setIsNewManuscriptModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50"
+                className="inline-flex items-center gap-2 rounded-full border border-[#B8C5E5] bg-white px-4 py-2 text-sm font-semibold text-[#B8C5E5] shadow-sm transition hover:bg-[#B8C5E5]"
               >
                 ➕ Nouveau
               </button>
@@ -580,7 +580,7 @@ export default function Manuscripts() {
                 type="button"
                 onClick={() => setIsShareModalOpen(true)}
                 disabled={!selectedManuscript}
-                className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full border border-[#B8C5E5] bg-white px-4 py-2 text-sm font-semibold text-[#B8C5E5] shadow-sm transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 ✉️ Partager
               </button>
@@ -592,22 +592,22 @@ export default function Manuscripts() {
           <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1.35fr),minmax(0,0.65fr)]">
             <div className="w-full">
               {selectedManuscript ? (
-                <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
+                <section className="rounded-3xl border border-[#B8C5E5] bg-white/80 p-6 shadow-xl">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
+                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#B8C5E5]">
                         Manuscrit
                       </p>
-                      <h2 className="text-2xl font-bold text-purple-900">{selectedManuscript.title}</h2>
+                      <h2 className="text-2xl font-bold text-[#B8C5E5]">{selectedManuscript.title}</h2>
                       {editingSynopsis ? (
                         <form className="mt-4 space-y-3" onSubmit={handleUpdateSynopsis}>
-                          <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
+                          <label className="text-xs font-semibold uppercase tracking-widest text-[#B8C5E5]">
                             Synopsis
                           </label>
                           <textarea
                             value={synopsisDraft}
                             onChange={(event) => setSynopsisDraft(event.target.value)}
-                            className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                            className="mt-1 w-full rounded-2xl border border-[#B8C5E5] px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                             rows={4}
                             placeholder="Décris l'ambiance ou la trame principale de ton manuscrit..."
                           />
@@ -615,7 +615,7 @@ export default function Manuscripts() {
                             <button
                               type="submit"
                               disabled={savingSynopsis}
-                              className="rounded-full bg-purple-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
+                              className="rounded-full bg-[#B8C5E5] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white shadow-lg transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:bg-[#B8C5E5]"
                             >
                               {savingSynopsis ? "Enregistrement..." : "Sauvegarder"}
                             </button>
@@ -625,7 +625,7 @@ export default function Manuscripts() {
                                 setSynopsisDraft(selectedManuscript.description || "");
                                 setEditingSynopsis(false);
                               }}
-                              className="rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-purple-600 transition hover:border-purple-300 hover:text-purple-800"
+                              className="rounded-full border border-[#B8C5E5] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#B8C5E5] transition hover:border-[#B8C5E5] hover:text-[#B8C5E5]"
                             >
                               Annuler
                             </button>
@@ -641,7 +641,7 @@ export default function Manuscripts() {
                             <button
                               type="button"
                               onClick={() => setEditingSynopsis(true)}
-                              className="rounded-full border border-purple-200 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-purple-600 transition hover:border-purple-300 hover:text-purple-800"
+                              className="rounded-full border border-[#B8C5E5] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#B8C5E5] transition hover:border-[#B8C5E5] hover:text-[#B8C5E5]"
                             >
                               Modifier le synopsis
                             </button>
@@ -659,23 +659,23 @@ export default function Manuscripts() {
                         </>
                       )}
                     </div>
-                    <div className="rounded-2xl border border-purple-100 bg-purple-50/60 px-4 py-2 text-center text-sm font-semibold text-purple-700 shadow-inner">
+                    <div className="rounded-2xl border border-[#B8C5E5] bg-[#B8C5E5]/35 px-4 py-2 text-center text-sm font-semibold text-[#6b4b35] shadow-inner">
                       {selectedManuscript.chapters?.length || 0} chapitre
                       {selectedManuscript.chapters?.length > 1 ? "s" : ""}
                     </div>
                   </div>
                 </section>
               ) : (
-                <section className="rounded-3xl border border-dashed border-purple-200 bg-white/60 p-10 text-center text-purple-700 shadow-inner">
+                <section className="rounded-3xl border border-dashed border-[#B8C5E5] bg-white/60 p-10 text-center text-[#B8C5E5] shadow-inner">
                   <p className="text-lg font-semibold">Commence par créer ton premier manuscrit ✨</p>
                 </section>
               )}
             </div>
 
-            <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
-              <h2 className="text-lg font-semibold text-purple-800">Mes manuscrits</h2>
+            <section className="rounded-3xl border border-[#B8C5E5] bg-white/80 p-6 shadow-xl">
+              <h2 className="text-lg font-semibold text-[#B8C5E5]">Mes manuscrits</h2>
               {manuscripts.length === 0 ? (
-                <p className="mt-3 rounded-2xl border border-dashed border-purple-200 bg-purple-50/60 p-4 text-sm text-purple-700">
+                <p className="mt-3 rounded-2xl border border-dashed border-[#B8C5E5] bg-[#B8C5E5]/60 p-4 text-sm text-[#B8C5E5]">
                   Aucun manuscrit pour l'instant. Commence par en créer un pour débloquer ton espace d'écriture.
                 </p>
               ) : (
@@ -684,7 +684,7 @@ export default function Manuscripts() {
                     <select
                       value={selectedManuscript?.id || ""}
                       onChange={(event) => setSelectedManuscriptId(Number(event.target.value))}
-                      className="w-full appearance-none rounded-2xl border border-purple-100 bg-white px-4 py-3 text-sm font-semibold text-purple-900 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                      className="w-full appearance-none rounded-2xl border border-[#B8C5E5] bg-white px-4 py-3 text-sm font-semibold text-[#B8C5E5] shadow-inner focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                     >
                       {manuscripts.map((manuscript) => (
                         <option key={manuscript.id} value={manuscript.id}>
@@ -693,7 +693,7 @@ export default function Manuscripts() {
                         </option>
                       ))}
                     </select>
-                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-purple-400">
+                    <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#B8C5E5]">
                       ▾
                     </span>
                   </div>
@@ -704,13 +704,13 @@ export default function Manuscripts() {
 
           {selectedManuscript && (
             <>
-              <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
+              <section className="rounded-3xl border border-[#B8C5E5] bg-white/80 p-6 shadow-xl">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#B8C5E5]">
                       {editingChapterId ? "Modifier le chapitre" : "Nouveau chapitre"}
                     </p>
-                    <h3 className="text-xl font-semibold text-purple-900">
+                    <h3 className="text-xl font-semibold text-[#B8C5E5]">
                       {editingChapterId ? "Tu ajustes ton texte" : "Pose les premières lignes"}
                     </h3>
                   </div>
@@ -721,7 +721,7 @@ export default function Manuscripts() {
                         setChapterForm({ title: "", content: "" });
                         setEditingChapterId(null);
                       }}
-                      className="text-sm font-semibold text-purple-600 transition hover:text-purple-800"
+                      className="text-sm font-semibold text-[#B8C5E5] transition hover:text-[#B8C5E5]"
                     >
                       Annuler la modification
                     </button>
@@ -730,7 +730,7 @@ export default function Manuscripts() {
 
                 <form className="mt-4 space-y-4" onSubmit={handleChapterSubmit}>
                   <div>
-                    <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
+                    <label className="text-xs font-semibold uppercase tracking-widest text-[#B8C5E5]">
                       Titre du chapitre
                     </label>
                     <input
@@ -739,7 +739,7 @@ export default function Manuscripts() {
                       onChange={(event) =>
                         setChapterForm((current) => ({ ...current, title: event.target.value }))
                       }
-                      className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                      className="mt-1 w-full rounded-2xl border border-[#B8C5E5] px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                       placeholder="Chapitre 1 - La rencontre"
                     />
                   </div>
@@ -752,7 +752,7 @@ export default function Manuscripts() {
                   <button
                     type="submit"
                     disabled={savingChapter}
-                    className="rounded-2xl bg-purple-600 px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
+                    className="rounded-2xl bg-[#B8C5E5] px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:bg-[#B8C5E5]"
                   >
                     {savingChapter
                       ? "Enregistrement..."
@@ -763,12 +763,12 @@ export default function Manuscripts() {
                 </form>
               </section>
 
-              <section className="rounded-3xl border border-purple-100 bg-white/80 p-6 shadow-xl">
+              <section className="rounded-3xl border border-[#B8C5E5] bg-white/80 p-6 shadow-xl">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#6b4b35]">
                     Progression
                   </p>
-                  <h3 className="text-xl font-semibold text-purple-900">
+                  <h3 className="text-xl font-semibold text-[#6b4b35]">
                     {selectedManuscript.chapters?.length || 0} chapitre
                     {selectedManuscript.chapters?.length > 1 ? "s" : ""}
                   </h3>
@@ -779,21 +779,21 @@ export default function Manuscripts() {
                     {selectedManuscript.chapters.map((chapter) => (
                       <article
                         key={chapter.id}
-                        className="rounded-2xl border border-purple-100 bg-white/90 p-4 shadow hover:border-purple-200"
+                        className="rounded-2xl border border-[#B8C5E5] bg-white/90 p-4 shadow hover:border-[#B8C5E5]"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-400">
+                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B8C5E5]">
                               Chapitre {chapter.order_index ?? "?"}
                             </p>
-                            <h4 className="text-lg font-semibold text-purple-900">{chapter.title}</h4>
+                            <h4 className="text-lg font-semibold text-[#B8C5E5]">{chapter.title}</h4>
                             <p className="text-xs text-gray-500">Rédigé le {formatDate(chapter.created_at)}</p>
                           </div>
                           <div className="flex gap-4 text-sm font-semibold">
                             <button
                               type="button"
                               onClick={() => handleEditChapter(chapter)}
-                              className="text-purple-600 transition hover:text-purple-800"
+                              className="text-[#B8C5E5] transition hover:text-[#B8C5E5]"
                             >
                               Modifier
                             </button>
@@ -813,7 +813,7 @@ export default function Manuscripts() {
                         <button
                           type="button"
                           onClick={() => openChapterPreview(chapter)}
-                          className="mt-3 text-sm font-semibold text-purple-600 transition hover:text-purple-800"
+                          className="mt-3 text-sm font-semibold text-[#B8C5E5] transition hover:text-[#B8C5E5]"
                         >
                           Voir le chapitre →
                         </button>
@@ -821,7 +821,7 @@ export default function Manuscripts() {
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-4 rounded-2xl border border-dashed border-purple-200 bg-purple-50/60 p-6 text-center text-sm text-purple-700">
+                  <p className="mt-4 rounded-2xl border border-dashed border-[#B8C5E5] bg-[#B8C5E5]/30 p-6 text-center text-sm text-[#6b4b35]">
                     Pas encore de chapitre pour ce manuscrit. Ton espace d'écriture est prêt !
                   </p>
                 )}
@@ -838,19 +838,19 @@ export default function Manuscripts() {
           onClick={() => setIsNewManuscriptModalOpen(false)}
         >
           <div
-            className="w-full max-w-2xl rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl"
+            className="w-full max-w-2xl rounded-3xl border border-[#B8C5E5] bg-white p-6 shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">Nouveau manuscrit</p>
-                <h2 className="text-2xl font-semibold text-purple-900">Lance une nouvelle histoire</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#B8C5E5]">Nouveau manuscrit</p>
+                <h2 className="text-2xl font-semibold text-[#B8C5E5]">Lance une nouvelle histoire</h2>
                 <p className="text-sm text-gray-500">Donne un titre et une intention, tu pourras ensuite ajouter tes chapitres.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsNewManuscriptModalOpen(false)}
-                className="rounded-full border border-purple-200 p-2 text-purple-700 transition hover:bg-purple-50"
+                className="rounded-full border border-[#B8C5E5] p-2 text-[#B8C5E5] transition hover:bg-[#B8C5E5]"
                 aria-label="Fermer"
               >
                 ✕
@@ -858,7 +858,7 @@ export default function Manuscripts() {
             </div>
             <form className="mt-6 space-y-4" onSubmit={handleCreateManuscript}>
               <div>
-                <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
+                <label className="text-xs font-semibold uppercase tracking-widest text-[#B8C5E5]">
                   Titre
                 </label>
                 <input
@@ -867,12 +867,12 @@ export default function Manuscripts() {
                   onChange={(event) =>
                     setFormValues((current) => ({ ...current, title: event.target.value }))
                   }
-                  className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  className="mt-1 w-full rounded-2xl border border-[#B8C5E5] px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                   placeholder="Mon prochain roman..."
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">
+                <label className="text-xs font-semibold uppercase tracking-widest text-[#B8C5E5]">
                   Synopsis
                 </label>
                 <textarea
@@ -883,7 +883,7 @@ export default function Manuscripts() {
                       description: event.target.value,
                     }))
                   }
-                  className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  className="mt-1 w-full rounded-2xl border border-[#B8C5E5] px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                   rows={4}
                   placeholder="Une idée, une ambiance, une discussion avec ton personnage principal..."
                 />
@@ -892,14 +892,14 @@ export default function Manuscripts() {
                 <button
                   type="button"
                   onClick={() => setIsNewManuscriptModalOpen(false)}
-                  className="rounded-full border border-purple-200 px-4 py-2 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
+                  className="rounded-full border border-[#B8C5E5] px-4 py-2 text-sm font-semibold text-[#B8C5E5] transition hover:bg-[#B8C5E5]"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={savingManuscript}
-                  className="rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
+                  className="rounded-full bg-[#B8C5E5] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:bg-[#B8C5E5]"
                 >
                   {savingManuscript ? "Création..." : "Créer le manuscrit"}
                 </button>
@@ -914,19 +914,19 @@ export default function Manuscripts() {
           onClick={() => setIsShareModalOpen(false)}
         >
           <div
-            className="w-full max-w-2xl rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl"
+            className="w-full max-w-2xl rounded-3xl border border-[#B8C5E5] bg-white p-6 shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">Partager</p>
-                <h2 className="text-2xl font-semibold text-purple-900">{selectedManuscript.title}</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#B8C5E5]">Partager</p>
+                <h2 className="text-2xl font-semibold text-[#B8C5E5]">{selectedManuscript.title}</h2>
                 <p className="text-sm text-gray-500">Prépare ton envoi par e-mail.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsShareModalOpen(false)}
-                className="rounded-full border border-purple-200 p-2 text-purple-700 transition hover:bg-purple-50"
+                className="rounded-full border border-[#B8C5E5] p-2 text-[#B8C5E5] transition hover:bg-[#B8C5E5]"
                 aria-label="Fermer"
               >
                 ✕
@@ -934,40 +934,40 @@ export default function Manuscripts() {
             </div>
             <form onSubmit={handleShareSubmit} className="mt-6 space-y-4">
               <div>
-                <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">Destinataires</label>
+                <label className="text-xs font-semibold uppercase tracking-widest text-[#B8C5E5]">Destinataires</label>
                 <input
                   type="text"
                   value={shareRecipients}
                   onChange={(event) => setShareRecipients(event.target.value)}
                   placeholder="email1@example.com, autreadresse@mail.com"
-                  className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  className="mt-1 w-full rounded-2xl border border-[#B8C5E5] px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                 />
                 <p className="mt-1 text-xs text-gray-500">Sépare les adresses avec une virgule ou un espace.</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">Sujet</label>
+                  <label className="text-xs font-semibold uppercase tracking-widest text-[#B8C5E5]">Sujet</label>
                   <input
                     type="text"
                     value={shareSubject}
                     onChange={(event) => setShareSubject(event.target.value)}
                     placeholder={`Partage de ${selectedManuscript.title}`}
-                    className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                    className="mt-1 w-full rounded-2xl border border-[#B8C5E5] px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-widest text-purple-500">Message</label>
+                  <label className="text-xs font-semibold uppercase tracking-widest text-[#B8C5E5]">Message</label>
                   <input
                     type="text"
                     value={shareMessage}
                     onChange={(event) => setShareMessage(event.target.value)}
                     placeholder="Quelques mots pour présenter ton texte"
-                    className="mt-1 w-full rounded-2xl border border-purple-100 px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                    className="mt-1 w-full rounded-2xl border border-[#B8C5E5] px-3 py-2 text-sm text-gray-800 shadow-inner focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                   />
                 </div>
               </div>
-              <div className="space-y-2 rounded-2xl border border-purple-100 p-4 text-sm">
-                <label className="flex items-center gap-2 font-semibold text-purple-800">
+              <div className="space-y-2 rounded-2xl border border-[#B8C5E5] p-4 text-sm">
+                <label className="flex items-center gap-2 font-semibold text-[#B8C5E5]">
                   <input type="radio" checked={shareIncludeAll} onChange={() => setShareIncludeAll(true)} />
                   Tout le manuscrit
                 </label>
@@ -976,7 +976,7 @@ export default function Manuscripts() {
                   Sélectionner des chapitres
                 </label>
                 {!shareIncludeAll && (
-                  <div className="mt-3 max-h-48 space-y-2 overflow-y-auto rounded-2xl border border-dashed border-purple-200 p-3">
+                  <div className="mt-3 max-h-48 space-y-2 overflow-y-auto rounded-2xl border border-dashed border-[#B8C5E5] p-3">
                     {selectedManuscript.chapters.length === 0 && (
                       <p className="text-xs text-gray-500">Ce manuscrit n&apos;a pas encore de chapitre.</p>
                     )}
@@ -998,14 +998,14 @@ export default function Manuscripts() {
                 <button
                   type="button"
                   onClick={() => setIsShareModalOpen(false)}
-                  className="rounded-full border border-purple-200 px-4 py-2 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
+                  className="rounded-full border border-[#B8C5E5] px-4 py-2 text-sm font-semibold text-[#B8C5E5] transition hover:bg-[#B8C5E5]"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={sharing}
-                  className="rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-300"
+                  className="rounded-full bg-[#B8C5E5] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:bg-[#B8C5E5]"
                 >
                   {sharing ? "Envoi..." : "Envoyer"}
                 </button>
@@ -1020,21 +1020,21 @@ export default function Manuscripts() {
           onClick={closeChapterPreview}
         >
           <div
-            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-purple-100 bg-white p-6 shadow-2xl no-scrollbar"
+            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-[#B8C5E5] bg-white p-6 shadow-2xl no-scrollbar"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#B8C5E5]">
                   Chapitre {previewChapter.order_index ?? "?"}
                 </p>
-                <h2 className="text-2xl font-semibold text-purple-900">{previewChapter.title}</h2>
+                <h2 className="text-2xl font-semibold text-[#B8C5E5]">{previewChapter.title}</h2>
                 <p className="text-xs text-gray-500">Rédigé le {formatDate(previewChapter.created_at)}</p>
               </div>
               <button
                 type="button"
                 onClick={closeChapterPreview}
-                className="rounded-full border border-purple-200 p-2 text-purple-700 transition hover:bg-purple-50"
+                className="rounded-full border border-[#B8C5E5] p-2 text-[#B8C5E5] transition hover:bg-[#B8C5E5]"
                 aria-label="Fermer"
               >
                 ✕

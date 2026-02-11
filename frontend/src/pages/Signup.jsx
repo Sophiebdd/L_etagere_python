@@ -58,7 +58,7 @@ export default function Signup() {
       <Header showNavigation={false} />
       <main className="mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-12 sm:min-h-[70vh] sm:justify-center">
         <div className="w-full max-w-md rounded-2xl border border-white/15 bg-white/80 p-8 shadow-2xl backdrop-blur">
-          <h1 className="mb-6 text-center text-2xl font-semibold text-violet-700">
+          <h1 className="mb-6 text-center text-2xl font-semibold text-[#B8C5E5]">
             Créer un compte 📚
           </h1>
 
@@ -73,7 +73,7 @@ export default function Signup() {
                 value={formData.username}
                 onChange={handleChange}
                 required
-                className="mt-1 w-full rounded-lg border border-violet-200 px-3 py-2 shadow-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-300"
+                className="mt-1 w-full rounded-lg border border-[#B8C5E5] px-3 py-2 shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
               />
             </div>
 
@@ -87,7 +87,7 @@ export default function Signup() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="mt-1 w-full rounded-lg border border-violet-200 px-3 py-2 shadow-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-300"
+                className="mt-1 w-full rounded-lg border border-[#B8C5E5] px-3 py-2 shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
               />
             </div>
 
@@ -101,7 +101,7 @@ export default function Signup() {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="mt-1 w-full rounded-lg border border-violet-200 px-3 py-2 shadow-sm focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-300"
+                className="mt-1 w-full rounded-lg border border-[#B8C5E5] px-3 py-2 shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
               />
             </div>
 
@@ -110,8 +110,8 @@ export default function Signup() {
               disabled={loading}
               className={`mt-2 w-full rounded-lg py-2 font-semibold text-white transition ${
                 loading
-                  ? "cursor-not-allowed bg-violet-300"
-                  : "bg-violet-500 hover:bg-violet-600"
+                  ? "cursor-not-allowed bg-[#B8C5E5]"
+                  : "bg-[#B8C5E5] hover:bg-[#B8C5E5]"
               }`}
             >
               {loading ? "Création..." : "S'inscrire"}

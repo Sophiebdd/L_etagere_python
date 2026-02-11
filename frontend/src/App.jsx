@@ -60,10 +60,10 @@ function App() {
         position="top-right"
         toastOptions={{
           className:
-            "rounded-2xl border border-purple-100 bg-white/90 text-purple-900 shadow-xl backdrop-blur px-4 py-3",
+            "rounded-2xl border border-[#B8C5E5] bg-white/90 text-[#B8C5E5] shadow-xl backdrop-blur px-4 py-3",
           success: {
             iconTheme: {
-              primary: "#7c3aed",
+              primary: "#B8C5E5",
               secondary: "#ffffff",
             },
           },

@@ -88,33 +88,33 @@ export default function BookSearch() {
               { label: "Recherche" },
             ]}
           />
-          <h1 className="text-3xl font-semibold text-purple-900">
+          <h1 className="text-3xl font-semibold text-[#B8C5E5]">
             🔍 Rechercher un livre (Google Books)
           </h1>
         </div>
 
         <form
           onSubmit={handleSearch}
-          className="mb-6 flex w-full flex-col gap-3 rounded-2xl border border-purple-100 bg-white/80 p-4 shadow-lg backdrop-blur sm:flex-row"
+          className="mb-6 flex w-full flex-col gap-3 rounded-2xl border border-[#B8C5E5] bg-white/80 p-4 shadow-lg backdrop-blur sm:flex-row"
         >
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Entrez un titre ou un auteur..."
-            className="flex-grow rounded-lg border border-purple-200 px-4 py-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            className="flex-grow rounded-lg border border-[#B8C5E5] px-4 py-2 shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
           />
           <button
             type="submit"
             disabled={loading}
-            className="rounded-lg bg-purple-600 px-5 py-2 font-semibold text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-purple-400"
+            className="rounded-lg bg-[#B8C5E5] px-5 py-2 font-semibold text-white transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:bg-[#B8C5E5]"
           >
             {loading ? "Recherche..." : "Rechercher"}
           </button>
         </form>
 
         {(activeQuery || loading) && (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-purple-700">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-sm text-[#B8C5E5]">
             <div>
               {loading
                 ? "Recherche..."
@@ -131,7 +131,7 @@ export default function BookSearch() {
                   setPageSize(Number(e.target.value));
                   setPage(1);
                 }}
-                className="rounded-full border border-purple-200 bg-white px-3 py-1 text-sm text-purple-700 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                className="rounded-full border border-[#B8C5E5] bg-white px-3 py-1 text-sm text-[#B8C5E5] shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
               >
                 {[20, 50, 100].map((option) => (
                   <option key={option} value={option}>
@@ -151,12 +151,12 @@ export default function BookSearch() {
               ))}
             </div>
             {totalPages > 1 && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-purple-700">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-[#B8C5E5]">
                 <button
                   type="button"
                   onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                   disabled={page === 1 || loading}
-                  className="rounded-full border border-purple-200 bg-white px-4 py-2 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-[#B8C5E5] bg-white px-4 py-2 shadow-sm transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Précédent
                 </button>
@@ -171,7 +171,7 @@ export default function BookSearch() {
                     )
                   }
                   disabled={page >= totalPages || loading}
-                  className="rounded-full border border-purple-200 bg-white px-4 py-2 shadow-sm transition hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-[#B8C5E5] bg-white px-4 py-2 shadow-sm transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Suivant
                 </button>
@@ -180,7 +180,7 @@ export default function BookSearch() {
           </>
         ) : (
           !loading && (
-            <p className="w-full rounded-2xl border border-purple-100 bg-white/80 p-10 text-center text-purple-600 shadow-lg backdrop-blur">
+            <p className="w-full rounded-2xl border border-[#B8C5E5] bg-white/80 p-10 text-center text-[#B8C5E5] shadow-lg backdrop-blur">
               Saisissez un mot-clé pour commencer la recherche.
             </p>
           )

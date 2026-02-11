@@ -60,7 +60,7 @@ export default function ResetPassword() {
       <Header showNavigation={false} />
       <main className="mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-12 sm:min-h-[70vh] sm:justify-center">
         <div className="w-full max-w-md rounded-2xl border border-white/15 bg-white/75 p-8 shadow-2xl backdrop-blur">
-          <h2 className="mb-6 text-center text-2xl font-semibold text-purple-700">
+          <h2 className="mb-6 text-center text-2xl font-semibold text-[#B8C5E5]">
             Définir un nouveau mot de passe
           </h2>
 
@@ -78,7 +78,7 @@ export default function ResetPassword() {
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-purple-200/80 p-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                  className="mt-1 w-full rounded-md border border-[#B8C5E5]/80 p-2 shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                   required
                   minLength={8}
                 />
@@ -92,7 +92,7 @@ export default function ResetPassword() {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-purple-200/80 p-2 shadow-sm focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                  className="mt-1 w-full rounded-md border border-[#B8C5E5]/80 p-2 shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
                   required
                   minLength={8}
                 />
@@ -103,7 +103,7 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full rounded-md bg-purple-600 py-2 font-semibold text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="w-full rounded-md bg-[#B8C5E5] py-2 font-semibold text-white transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSubmitting ? "Mise à jour..." : "Mettre à jour le mot de passe"}
               </button>
@@ -113,7 +113,7 @@ export default function ResetPassword() {
           <p className="mt-6 text-center text-sm text-gray-600">
             <a
               href="/forgot-password"
-              className="font-medium text-purple-600 transition hover:text-purple-700 hover:underline"
+              className="font-medium text-[#B8C5E5] transition hover:text-[#B8C5E5] hover:underline"
             >
               Besoin d&apos;un nouveau lien ?
             </a>

@@ -1,0 +1,39 @@
+<svg width="320" height="240" viewBox="0 0 320 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Corps -->
+  <ellipse cx="150" cy="135" rx="85" ry="65" fill="#F6B8B8"/>
+
+  <!-- Tête -->
+  <circle cx="120" cy="105" r="45" fill="#B8C5E5"/>
+
+  <!-- Ventre doux -->
+  <ellipse cx="145" cy="150" rx="60" ry="45" fill="#FFDCDC" opacity="0.7"/>
+
+  <!-- Aile -->
+  <path d="M165 115 
+           Q210 120 220 155 
+           Q195 170 160 150 Z" 
+        fill="#A8B6D9"/>
+
+  <!-- Détails aile -->
+  <ellipse cx="190" cy="135" rx="6" ry="4" fill="#FAD6A5"/>
+  <ellipse cx="200" cy="145" rx="5" ry="3" fill="#FFE9B8"/>
+  <ellipse cx="180" cy="145" rx="5" ry="3" fill="#FAD6A5"/>
+
+  <!-- Queue -->
+  <path d="M230 150 
+           L270 165 
+           L235 175 Z" 
+        fill="#9AA7C7"/>
+
+  <!-- Bec -->
+  <polygon points="70,110 95,120 75,130" fill="#444"/>
+
+  <!-- Oeil -->
+  <circle cx="110" cy="105" r="6" fill="#2E2E2E"/>
+
+  <!-- Pattes -->
+  <line x1="140" y1="195" x2="135" y2="210" stroke="#444" stroke-width="3" stroke-linecap="round"/>
+  <line x1="160" y1="195" x2="155" y2="210" stroke="#444" stroke-width="3" stroke-linecap="round"/>
+
+</svg>

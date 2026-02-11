@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 export default function Header({ showNavigation = true, onLogout = null }) {
   return (
-    <header className="header-glow relative overflow-hidden bg-transparent text-white">
+    <header className="header-glow relative overflow-hidden bg-white/90 text-[#B8C5E5] shadow-inner backdrop-blur">
       {onLogout && (
         <button
           type="button"
           onClick={onLogout}
-          className="absolute right-4 top-4 z-20 inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 p-2 text-white/80 transition hover:bg-white/20 hover:text-white sm:right-6 sm:top-6"
+          className="absolute right-4 top-4 z-20 inline-flex items-center justify-center rounded-full border border-[#B8C5E5]/70 bg-white/80 p-2 text-[#6b4b35] transition hover:bg-[#B8C5E5] hover:text-[#6b4b35] sm:right-6 sm:top-6"
           title="Se déconnecter"
           aria-label="Se déconnecter"
         >
@@ -27,28 +27,35 @@ export default function Header({ showNavigation = true, onLogout = null }) {
         </button>
       )}
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 py-12 text-center">
-        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-200/80 sm:tracking-[0.45em]">
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7a5a44]/80 sm:tracking-[0.45em]">
           Cabinet de curiosités littéraires
         </span>
-        <div className="mt-6 flex flex-col items-center gap-1">
+        <div className="mt-6 flex flex-col items-center gap-1 relative">
+          <h1
+            className="text-5xl font-bold text-[#6b4b35] sm:text-6xl"
+            style={{ fontFamily: '"Amatic SC", cursive' }}
+          >
+            L&apos;Étagère
+          </h1>
           <img
-            src="/titre.png"
-            alt="L'étagère"
-            className="h-24 w-auto drop-shadow sm:h-28"
+            src="/bird.svg"
+            alt=""
+            aria-hidden="true"
+            className="bird-orbit absolute h-10 w-auto sm:h-12"
           />
         </div>
         
         {showNavigation && (
-          <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs font-medium uppercase tracking-[0.2em] text-white/70 sm:tracking-[0.28em]">
+          <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs font-medium uppercase tracking-[0.2em] text-[#B8C5E5]/80 sm:tracking-[0.28em]">
             <Link
               to="/library"
-              className="rounded-full border border-white/20 bg-white/10 px-5 py-2 transition hover:bg-white/20 hover:text-white"
+              className="rounded-full border border-[#B8C5E5]/70 bg-white/80 px-5 py-2 text-[#6b4b35] transition hover:bg-[#B8C5E5] hover:text-[#6b4b35]"
             >
               Ma bibliothèque
             </Link>
             <Link
               to="/manuscrits"
-              className="rounded-full border border-white/20 bg-white/10 px-5 py-2 transition hover:bg-white/20 hover:text-white"
+              className="rounded-full border border-[#B8C5E5]/70 bg-white/80 px-5 py-2 text-[#6b4b35] transition hover:bg-[#B8C5E5] hover:text-[#6b4b35]"
             >
               Mes manuscrits
             </Link>
