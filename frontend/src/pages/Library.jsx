@@ -505,7 +505,7 @@ export default function Library() {
             {book.author || book.authors || "Auteur inconnu"}
           </p>
           {book.genre ? (
-            <span className="mt-2 inline-flex items-center rounded-full bg-[#B8C5E5] px-2.5 py-1 text-xs font-semibold text-[#B8C5E5]">
+            <span className="mt-2 inline-flex items-center rounded-full bg-[#B8C5E5] px-2.5 py-1 text-xs font-semibold text-white">
               {book.genre}
             </span>
           ) : null}
