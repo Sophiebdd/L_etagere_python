@@ -104,13 +104,7 @@ export default function Dashboard() {
         });
 
         setHighlights(nextHighlights);
-        const safeChapters = Array.isArray(chaptersData)
-          ? chaptersData.map((chapter) => ({
-              ...chapter,
-              manuscript: chapter.manuscript ?? null,
-            }))
-          : [];
-        setRecentChapters(safeChapters);
+        void chaptersData;
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
