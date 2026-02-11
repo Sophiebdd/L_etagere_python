@@ -10,33 +10,12 @@ import CoverPlaceholder from "../assets/cover-placeholder.svg";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const PLACEHOLDER_HOST = "via.placeholder.com";
 
-const toPlainText = (html) => {
-  if (!html) return "";
-  return html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-};
-
-const formatChapterDate = (date) => {
-  if (!date) return "";
-  try {
-    return new Date(date).toLocaleString("fr-FR", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-  } catch {
-    return "";
-  }
-};
-
 export default function Dashboard() {
   const [highlights, setHighlights] = useState({
     toRead: { items: [], total: 0 },
     inProgress: { items: [], total: 0 },
     done: { items: [], total: 0 },
   });
-  const [recentChapters, setRecentChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [recommendations, setRecommendations] = useState([]);
   const [recommendationsLoading, setRecommendationsLoading] = useState(true);
