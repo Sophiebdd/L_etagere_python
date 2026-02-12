@@ -5,7 +5,7 @@ import CoverPlaceholder from "../assets/cover-placeholder.svg";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
-export default function BookCard({ book }) {
+export default function BookCard({ book, isInLibrary = false, onAdded }) {
   const navigate = useNavigate();
   const item = book || {};
   const volume = item.volumeInfo || {};
@@ -20,6 +20,7 @@ export default function BookCard({ book }) {
     (rawDescription.length > 150 ? "..." : "");
 
   const handleAddBook = async () => {
+    if (isInLibrary) return;
     const token = localStorage.getItem("token");
     if (!token) {
       redirectToLogin(navigate);
@@ -56,12 +57,17 @@ export default function BookCard({ book }) {
 
     if (response.ok) {
       toast.success("📚 Livre ajouté à ta bibliothèque !");
+      if (item.id && typeof onAdded === "function") {
+        onAdded(item.id);
+      }
     } else {
       const err = await response.json().catch(() => ({}));
       // Gérer les erreurs de validation Pydantic
       if (err.detail && Array.isArray(err.detail)) {
         const messages = err.detail.map(e => e.msg || JSON.stringify(e)).join(", ");
         toast.error(`Erreur: ${messages}`);
+      } else if (response.status === 409) {
+        toast.error("Déjà dans ta bibliothèque.");
       } else {
         toast.error(err.detail || "Impossible d'ajouter le livre");
       }
@@ -82,9 +88,10 @@ export default function BookCard({ book }) {
 
       <button
         onClick={handleAddBook}
-        className="mt-3 bg-[#B8C5E5] text-white rounded-lg py-2 hover:bg-[#B8C5E5] transition"
+        disabled={isInLibrary}
+        className="mt-3 rounded-lg bg-[#B8C5E5] py-2 text-white transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-70"
       >
-        📚 Ajouter
+        {isInLibrary ? "Dans ma bibliothèque" : "📚 Ajouter"}
       </button>
     </div>
   );

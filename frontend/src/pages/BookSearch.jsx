@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import BookCard from "../components/BookCard";
@@ -7,6 +7,7 @@ import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import useCurrentUser from "../hooks/useCurrentUser";
+import { redirectToLogin } from "../utils/auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -18,6 +19,7 @@ export default function BookSearch() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [libraryExternalIds, setLibraryExternalIds] = useState(new Set());
   const navigate = useNavigate();
   const { isAdmin } = useCurrentUser(navigate);
   const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0;
@@ -76,6 +78,47 @@ export default function BookSearch() {
     if (!activeQuery) return;
     fetchResults(activeQuery, page, pageSize);
   }, [activeQuery, page, pageSize]);
+
+  const fetchLibraryIds = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    const res = await fetch(`${API_BASE_URL}/books/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.status === 401) {
+      redirectToLogin(navigate);
+      return;
+    }
+    if (!res.ok) return;
+    const data = await res.json();
+    const ids = Array.isArray(data)
+      ? data.map((book) => book.external_id).filter(Boolean)
+      : [];
+    setLibraryExternalIds(new Set(ids));
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchLibraryIds();
+  }, [fetchLibraryIds]);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchLibraryIds();
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchLibraryIds();
+      }
+    };
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchLibraryIds]);
 
   return (
     <AuroraBackground>
@@ -153,7 +196,18 @@ export default function BookSearch() {
           <>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
               {results.map((book) => (
-                <BookCard key={book.id} book={book} />
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  isInLibrary={libraryExternalIds.has(book.id)}
+                  onAdded={(externalId) =>
+                    setLibraryExternalIds((prev) => {
+                      const next = new Set(prev);
+                      next.add(externalId);
+                      return next;
+                    })
+                  }
+                />
               ))}
             </div>
             {totalPages > 1 && (

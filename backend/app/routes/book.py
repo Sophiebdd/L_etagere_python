@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 from app.database import get_db
 from app.models.book import Book   # ✅ import direct de la classe Book
@@ -33,6 +34,18 @@ def _get_user_book_or_404(book_id: int, user_id: int, db: Session) -> Book:
 
 @router.post("/", response_model=BookSchema)
 def create_book(book: BookCreate, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    if book.external_id:
+        existing = (
+            db.query(Book)
+            .filter(Book.user_id == user.id, Book.external_id == book.external_id)
+            .first()
+        )
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Livre déjà dans la bibliothèque",
+            )
+
     db_book = Book(**book.model_dump(), user_id=user.id)
     book_text = build_book_text(
         db_book.title,
@@ -42,7 +55,14 @@ def create_book(book: BookCreate, db: Session = Depends(get_db), user=Depends(ge
     )
     db_book.embedding = embed_text(book_text) or None
     db.add(db_book)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Livre déjà dans la bibliothèque",
+        )
     db.refresh(db_book)
     return db_book
 
