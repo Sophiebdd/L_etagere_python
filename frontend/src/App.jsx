@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Library from "./pages/Library";
 import Manuscripts from "./pages/Manuscripts";
 import BookSearch from "./pages/BookSearch";
+import AdminUsers from "./pages/AdminUsers";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 
 function App() {
@@ -51,6 +52,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <BookSearch />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <AdminUsers />
               </ProtectedRoute>
             }
           />

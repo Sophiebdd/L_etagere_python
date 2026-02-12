@@ -6,6 +6,7 @@ import AuroraBackground from "../components/AuroraBackground";
 import Footer from "../components/Footer";
 import { redirectToLogin } from "../utils/auth";
 import CoverPlaceholder from "../assets/cover-placeholder.svg";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const PLACEHOLDER_HOST = "via.placeholder.com";
@@ -22,6 +23,7 @@ export default function Dashboard() {
   const [addingRecommendations, setAddingRecommendations] = useState({});
   const [selectedBook, setSelectedBook] = useState(null);
   const navigate = useNavigate();
+  const { isAdmin } = useCurrentUser(navigate);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -360,7 +362,11 @@ export default function Dashboard() {
   if (loading) {
     return (
       <AuroraBackground>
-        <Header onLogout={handleLogout} />
+        <Header
+          onLogout={handleLogout}
+          showAdmin={isAdmin}
+          onAdmin={() => navigate("/admin/users")}
+        />
         <div className="flex min-h-screen items-center justify-center px-4 pb-20 pt-12">
           <p className="rounded-full border border-[#B8C5E5] bg-white/80 px-6 py-3 text-sm font-medium uppercase tracking-[0.28em] text-[#B8C5E5] shadow-lg">
             Chargement...
@@ -373,7 +379,11 @@ export default function Dashboard() {
   return (
     <AuroraBackground>
       <div className="flex min-h-screen flex-col">
-        <Header onLogout={handleLogout} />
+        <Header
+          onLogout={handleLogout}
+          showAdmin={isAdmin}
+          onAdmin={() => navigate("/admin/users")}
+        />
         <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 pb-32 pt-12">
 
         <section className="space-y-8">

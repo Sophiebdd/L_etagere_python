@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, func
 from app.database import Base
 from sqlalchemy.orm import relationship
 
@@ -13,6 +13,8 @@ class User(Base):
     reset_token_hash = Column(String(128), nullable=True, index=True)
     reset_token_expires_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    is_admin = Column(Boolean, nullable=False, default=False)
+    is_active = Column(Boolean, nullable=False, default=True)
 
     books = relationship("Book", back_populates="user")
     manuscripts = relationship(

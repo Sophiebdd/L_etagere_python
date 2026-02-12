@@ -7,6 +7,7 @@ import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import { redirectToLogin } from "../utils/auth";
 import CoverPlaceholder from "../assets/cover-placeholder.svg";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const STATUS_OPTIONS = ["À lire", "En cours", "Lu"];
@@ -32,6 +33,7 @@ export default function Library() {
   const [deletingNoteId, setDeletingNoteId] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin } = useCurrentUser(navigate);
   const selectedNotesBook = useMemo(
     () => books.find((book) => book.id === notesModalBookId) || null,
     [books, notesModalBookId]
@@ -582,7 +584,11 @@ export default function Library() {
   if (loading && books.length === 0) {
     return (
       <AuroraBackground>
-        <Header onLogout={handleLogout} />
+        <Header
+          onLogout={handleLogout}
+          showAdmin={isAdmin}
+          onAdmin={() => navigate("/admin/users")}
+        />
         <div className="flex min-h-screen items-center justify-center px-4 pb-20 pt-12">
           <p className="rounded-full border border-[#B8C5E5] bg-white/80 px-6 py-3 text-sm font-medium uppercase tracking-[0.28em] text-[#B8C5E5] shadow-lg">
             Chargement...
@@ -595,7 +601,11 @@ export default function Library() {
   return (
     <AuroraBackground>
       <div className="flex min-h-screen flex-col">
-        <Header onLogout={handleLogout} />
+        <Header
+          onLogout={handleLogout}
+          showAdmin={isAdmin}
+          onAdmin={() => navigate("/admin/users")}
+        />
         <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 pb-32 pt-12">
         <div className="mb-8 space-y-3">
           <PageBreadcrumb items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Bibliothèque" }]} />

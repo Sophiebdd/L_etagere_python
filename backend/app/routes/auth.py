@@ -8,7 +8,8 @@ from pydantic import BaseModel, EmailStr, constr
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
-from app.core.security import verify_password, create_access_token, hash_password
+from app.core.security import verify_password, create_access_token, hash_password, get_current_user
+from app.schemas.user import UserRead
 from app.services.email import send_email, EmailError
 
 RESET_TOKEN_EXPIRE_MINUTES = int(os.getenv("RESET_TOKEN_EXPIRE_MINUTES", "30"))
@@ -46,10 +47,17 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 
     if not user or not verify_password(request.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Identifiants invalides")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Compte désactivé")
 
     access_token = create_access_token(data={"sub": str(user.id)})
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/me", response_model=UserRead)
+def me(user: User = Depends(get_current_user)):
+    return user
 
 
 @router.post("/forgot-password", status_code=status.HTTP_202_ACCEPTED)

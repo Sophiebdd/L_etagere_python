@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
+import useCurrentUser from "../hooks/useCurrentUser";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -18,6 +19,7 @@ export default function BookSearch() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const navigate = useNavigate();
+  const { isAdmin } = useCurrentUser(navigate);
   const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0;
 
   const fetchResults = async (searchQuery, pageNumber, size) => {
@@ -78,7 +80,11 @@ export default function BookSearch() {
   return (
     <AuroraBackground>
       <div className="flex min-h-screen flex-col">
-        <Header onLogout={handleLogout} />
+        <Header
+          onLogout={handleLogout}
+          showAdmin={isAdmin}
+          onAdmin={() => navigate("/admin/users")}
+        />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-32 pt-12">
         <div className="mb-6 space-y-2">
           <PageBreadcrumb
