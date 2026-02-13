@@ -92,7 +92,15 @@ body {
 }
 
 .bird-orbit {
-  animation: bird-orbit 7.5s linear infinite;
+  --bird-perch-x: -20px;
+  --bird-perch-y: -36px;
+  --bird-perch-rot: -3deg;
+  transform: translate(-50%, -50%) translateX(var(--bird-perch-x)) translateY(var(--bird-perch-y)) rotate(var(--bird-perch-rot));
+  animation:
+    bird-takeoff 4s linear 0s both,
+    bird-orbit 7.5s linear 1 4s,
+    bird-land 3s linear 11.5s forwards,
+    bird-perch-bob 3.2s ease-in-out 14.5s infinite;
   transform-origin: center;
   opacity: 0.9;
   left: 50%;
@@ -131,7 +139,9 @@ body {
 
 .bird-orbit svg,
 .bird-orbit img {
-  animation: bird-flap 0.9s ease-in-out infinite;
+  animation:
+    bird-flap 0.9s ease-in-out 0s 18,
+    bird-perched 2.8s ease-in-out 14.5s infinite;
   transform-origin: center;
 }
 
@@ -147,5 +157,90 @@ body {
   }
   100% {
     transform: scaleY(1) rotate(0deg);
+  }
+}
+
+@keyframes bird-land {
+  0% {
+    transform: translate(-50%, -50%) translateX(140px) translateY(0) rotate(4deg);
+  }
+  30% {
+    transform: translate(-50%, -50%) translateX(105px) translateY(18px) rotate(3deg);
+  }
+  60% {
+    transform: translate(-50%, -50%) translateX(70px) translateY(32px) rotate(1deg);
+  }
+  82% {
+    transform: translate(-50%, -50%) translateX(calc(var(--bird-perch-x) + 12px)) translateY(calc(var(--bird-perch-y) - 8px)) rotate(calc(var(--bird-perch-rot) + 2deg));
+  }
+  100% {
+    transform: translate(-50%, -50%) translateX(var(--bird-perch-x)) translateY(var(--bird-perch-y)) rotate(var(--bird-perch-rot));
+  }
+}
+
+@keyframes bird-takeoff {
+  0% {
+    transform: translate(-50%, -50%) translateX(var(--bird-perch-x)) translateY(var(--bird-perch-y)) rotate(var(--bird-perch-rot));
+  }
+  10% {
+    transform: translate(-50%, -50%) translateX(calc(var(--bird-perch-x) + 1px)) translateY(calc(var(--bird-perch-y) - 12px)) rotate(-2deg);
+  }
+  20% {
+    transform: translate(-50%, -50%) translateX(calc(var(--bird-perch-x) + 3px)) translateY(calc(var(--bird-perch-y) - 24px)) rotate(-2deg);
+  }
+  30% {
+    transform: translate(-50%, -50%) translateX(calc(var(--bird-perch-x) + 8px)) translateY(calc(var(--bird-perch-y) - 34px)) rotate(-1deg);
+  }
+  40% {
+    transform: translate(-50%, -50%) translateX(18px) translateY(-52px) rotate(-0.5deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateX(32px) translateY(-60px) rotate(0deg);
+  }
+  60% {
+    transform: translate(-50%, -50%) translateX(50px) translateY(-58px) rotate(0.5deg);
+  }
+  70% {
+    transform: translate(-50%, -50%) translateX(70px) translateY(-50px) rotate(1deg);
+  }
+  80% {
+    transform: translate(-50%, -50%) translateX(92px) translateY(-36px) rotate(2deg);
+  }
+  90% {
+    transform: translate(-50%, -50%) translateX(118px) translateY(-18px) rotate(3deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) translateX(140px) translateY(0) rotate(4deg);
+  }
+}
+
+@keyframes bird-perch-bob {
+  0% {
+    transform: translate(-50%, -50%) translateX(var(--bird-perch-x)) translateY(var(--bird-perch-y)) rotate(var(--bird-perch-rot));
+  }
+  50% {
+    transform: translate(-50%, -50%) translateX(var(--bird-perch-x)) translateY(calc(var(--bird-perch-y) + 3px)) rotate(calc(var(--bird-perch-rot) + 1deg));
+  }
+  100% {
+    transform: translate(-50%, -50%) translateX(var(--bird-perch-x)) translateY(var(--bird-perch-y)) rotate(var(--bird-perch-rot));
+  }
+}
+
+@keyframes bird-perched {
+  0% {
+    transform: scaleY(1) rotate(0deg);
+  }
+  50% {
+    transform: scaleY(0.98) rotate(-1deg);
+  }
+  100% {
+    transform: scaleY(1) rotate(0deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .bird-orbit {
+    --bird-perch-x: 18px;
+    --bird-perch-y: 4px;
   }
 }
