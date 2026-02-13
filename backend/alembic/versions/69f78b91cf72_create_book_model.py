@@ -31,7 +31,7 @@ def upgrade() -> None:
     sa.Column('publication_date', sa.Date(), nullable=True),
     sa.Column('isbn', sa.String(length=255), nullable=True),
     sa.Column('cover_image', sa.String(length=255), nullable=True),
-    sa.Column('external_id', sa.Text(), nullable=True),
+    sa.Column('external_id', sa.String(length=255), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')

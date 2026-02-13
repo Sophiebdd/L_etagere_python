@@ -20,6 +20,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
+    op.alter_column(
+        "books",
+        "external_id",
+        existing_type=sa.Text(),
+        type_=sa.String(length=255),
+        existing_nullable=True,
+    )
     op.create_unique_constraint(
         "uq_books_user_external_id",
         "books",
@@ -33,4 +40,11 @@ def downgrade() -> None:
         "uq_books_user_external_id",
         "books",
         type_="unique",
+    )
+    op.alter_column(
+        "books",
+        "external_id",
+        existing_type=sa.String(length=255),
+        type_=sa.Text(),
+        existing_nullable=True,
     )

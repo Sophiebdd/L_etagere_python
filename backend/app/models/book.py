@@ -22,7 +22,7 @@ class Book(Base):
     publication_date = Column(Date, nullable=True)
     isbn = Column(String(255), nullable=True)
     cover_image = Column(String(255), nullable=True)
-    external_id = Column(Text, nullable=True)
+    external_id = Column(String(255), nullable=True)
     genre = Column(String(255), nullable=True)
     embedding = Column(JSON, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
