@@ -18,14 +18,17 @@ jobs:
           script: |
             set -euo pipefail
             cd ${{ secrets.DEPLOY_PATH }}
+            compose() {
+              docker compose --env-file backend/.env.prod -f docker-compose.prod.yml "$@"
+            }
             git pull
-            docker compose -f docker-compose.prod.yml up -d --build
-            CURRENT_REV=$(docker compose -f docker-compose.prod.yml exec -T backend alembic current | grep -Eo '[0-9a-f]+' | head -n1 || true)
-            HEAD_REV=$(docker compose -f docker-compose.prod.yml exec -T backend alembic heads | grep -Eo '[0-9a-f]+' | head -n1 || true)
+            compose up -d --build
+            CURRENT_REV=$(compose exec -T backend alembic current | grep -Eo '[0-9a-f]+' | head -n1 || true)
+            HEAD_REV=$(compose exec -T backend alembic heads | grep -Eo '[0-9a-f]+' | head -n1 || true)
             if [ -z "$CURRENT_REV" ] || [ "$CURRENT_REV" != "$HEAD_REV" ]; then
               DB_USER="root"
-              DB_PASS=$(docker compose -f docker-compose.prod.yml exec -T db sh -c 'printf "%s" "$MYSQL_ROOT_PASSWORD"')
-              DB_NAME=$(docker compose -f docker-compose.prod.yml exec -T db sh -c 'printf "%s" "$MYSQL_DATABASE"')
+              DB_PASS=$(compose exec -T db sh -c 'printf "%s" "$MYSQL_ROOT_PASSWORD"')
+              DB_NAME=$(compose exec -T db sh -c 'printf "%s" "$MYSQL_DATABASE"')
               if [ -z "$DB_PASS" ] || [ -z "$DB_NAME" ]; then
                 echo "Database env is missing required parts; aborting backup."
                 exit 1
@@ -33,10 +36,10 @@ jobs:
               BACKUP_DIR="/home/ubuntu/backups"
               mkdir -p "$BACKUP_DIR"
               BACKUP_FILE="$BACKUP_DIR/letagere_$(date +%Y%m%d_%H%M%S).sql.gz"
-              docker compose -f docker-compose.prod.yml exec -T db \
+              compose exec -T db \
                 sh -c "mysqldump -u '$DB_USER' -p'$DB_PASS' '$DB_NAME'" | gzip > "$BACKUP_FILE"
               ls -1t "$BACKUP_DIR"/letagere_*.sql.gz | tail -n +3 | xargs -r rm -f
-              docker compose -f docker-compose.prod.yml exec -T backend alembic upgrade head
+              compose exec -T backend alembic upgrade head
             else
               echo "No pending migrations."
             fi
