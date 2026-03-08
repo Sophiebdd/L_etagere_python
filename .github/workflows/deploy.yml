@@ -19,7 +19,7 @@ jobs:
             set -euo pipefail
             cd ${{ secrets.DEPLOY_PATH }}
             compose() {
-              docker compose --env-file backend/.env.prod -f docker-compose.prod.yml "$@"
+              docker compose --env-file .env.prod -f docker-compose.prod.yml "$@"
             }
             git pull
             compose up -d --build

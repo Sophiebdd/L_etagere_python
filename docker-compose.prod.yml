@@ -2,7 +2,7 @@ services:
   db:
     image: mysql:8.0
     env_file:
-      - backend/.env.prod
+      - ./.env.prod
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -20,7 +20,7 @@ services:
   backend:
     build: ./backend
     env_file:
-      - ./backend/.env.prod
+      - ./.env.prod
     environment:
       DATABASE_URL: mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
     depends_on:

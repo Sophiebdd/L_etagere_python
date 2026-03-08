@@ -17,7 +17,7 @@ services:
   backend:
     build: ./backend
     env_file:
-      - ./backend/.env
+      - ./.env
     environment:
       DATABASE_URL: mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
     ports:
