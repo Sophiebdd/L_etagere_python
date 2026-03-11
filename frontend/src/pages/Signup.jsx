@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // ✅ import indispensable
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import Footer from "../components/Footer";
+import { isValidPassword, PASSWORD_POLICY_MESSAGE } from "../utils/passwordValidation";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -22,6 +23,11 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isValidPassword(formData.password)) {
+      setMessage(`❌ Erreur : ${PASSWORD_POLICY_MESSAGE}`);
+      return;
+    }
+
     setLoading(true);
     setMessage("");
 
@@ -101,8 +107,10 @@ export default function Signup() {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                minLength={8}
                 className="mt-1 w-full rounded-lg border border-[#B8C5E5] px-3 py-2 shadow-sm focus:border-[#B8C5E5] focus:outline-none focus:ring-2 focus:ring-[#B8C5E5]"
               />
+              <p className="mt-1 text-xs text-gray-500">{PASSWORD_POLICY_MESSAGE}</p>
             </div>
 
             <button

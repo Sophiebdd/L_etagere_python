@@ -9,7 +9,7 @@ def test_forgot_password_sets_reset_token(client, db_session, monkeypatch):
     user = User(
         username="sophie",
         email="sophie@example.com",
-        hashed_password=hash_password("secret123"),
+        hashed_password=hash_password("Secret123"),
     )
     db_session.add(user)
     db_session.commit()
@@ -32,7 +32,7 @@ def test_reset_password_clears_token_and_allows_login(client, db_session):
     user = User(
         username="sophie",
         email="sophie@example.com",
-        hashed_password=hash_password("oldpassword123"),
+        hashed_password=hash_password("Oldpassword123"),
         reset_token_hash=auth_routes._hash_reset_token(raw_token),
         reset_token_expires_at=datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=10),
     )
@@ -41,7 +41,7 @@ def test_reset_password_clears_token_and_allows_login(client, db_session):
 
     response = client.post(
         "/auth/reset-password",
-        json={"token": raw_token, "new_password": "newpassword123"},
+        json={"token": raw_token, "new_password": "Newpassword123"},
     )
 
     assert response.status_code == 200
@@ -51,6 +51,29 @@ def test_reset_password_clears_token_and_allows_login(client, db_session):
 
     login = client.post(
         "/auth/login",
-        json={"email": "sophie@example.com", "password": "newpassword123"},
+        json={"email": "sophie@example.com", "password": "Newpassword123"},
     )
     assert login.status_code == 200
+
+
+def test_reset_password_rejects_weak_password(client, db_session):
+    raw_token = "test-token"
+    user = User(
+        username="sophie",
+        email="sophie@example.com",
+        hashed_password=hash_password("Oldpassword123"),
+        reset_token_hash=auth_routes._hash_reset_token(raw_token),
+        reset_token_expires_at=datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(minutes=10),
+    )
+    db_session.add(user)
+    db_session.commit()
+
+    response = client.post(
+        "/auth/reset-password",
+        json={"token": raw_token, "new_password": "weakpass"},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == (
+        "Le mot de passe doit contenir au moins 8 caracteres, une minuscule, une majuscule et un chiffre"
+    )

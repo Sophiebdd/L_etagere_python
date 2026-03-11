@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from app.core.passwords import validate_password_policy
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
@@ -23,6 +24,8 @@ def list_users(
 
 @router.post("/", response_model=UserRead)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    validate_password_policy(user.password)
+
     # Vérifie si email déjà utilisé
     existing = db.query(User).filter(User.email == user.email).first()
     if existing:

@@ -6,14 +6,14 @@ def test_login_returns_token(client, db_session):
     user = User(
         username="sophie",
         email="sophie@example.com",
-        hashed_password=hash_password("secret123"),
+        hashed_password=hash_password("Secret123"),
     )
     db_session.add(user)
     db_session.commit()
 
     response = client.post(
         "/auth/login",
-        json={"email": "sophie@example.com", "password": "secret123"},
+        json={"email": "sophie@example.com", "password": "Secret123"},
     )
 
     assert response.status_code == 200

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
+import { isValidPassword, PASSWORD_POLICY_MESSAGE } from "../utils/passwordValidation";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -26,6 +27,11 @@ export default function ResetPassword() {
 
     if (newPassword !== confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    if (!isValidPassword(newPassword)) {
+      setError(PASSWORD_POLICY_MESSAGE);
       return;
     }
 
@@ -82,6 +88,7 @@ export default function ResetPassword() {
                   required
                   minLength={8}
                 />
+                <p className="mt-1 text-xs text-gray-500">{PASSWORD_POLICY_MESSAGE}</p>
               </div>
 
               <div>

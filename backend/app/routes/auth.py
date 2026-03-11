@@ -4,8 +4,9 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException, Depends, status
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
+from app.core.passwords import validate_password_policy
 from app.database import get_db
 from app.models.user import User
 from app.core.security import verify_password, create_access_token, hash_password, get_current_user
@@ -29,7 +30,7 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     token: str
-    new_password: constr(min_length=8)
+    new_password: str
 
 
 
@@ -100,6 +101,7 @@ def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db
 
 @router.post("/reset-password")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    validate_password_policy(request.new_password)
     token_hash = _hash_reset_token(request.token)
     user = (
         db.query(User)
