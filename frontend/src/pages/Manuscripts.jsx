@@ -6,7 +6,7 @@ import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import RichTextEditor from "../components/RichTextEditor";
-import { redirectToLogin } from "../utils/auth";
+import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 import useCurrentUser from "../hooks/useCurrentUser";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
@@ -63,26 +63,10 @@ export default function Manuscripts() {
     );
   }, [manuscripts, selectedManuscriptId]);
 
-  const getTokenOrRedirect = useCallback(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirectToLogin(navigate);
-      return null;
-    }
-    return token;
-  }, [navigate]);
-
   const loadManuscripts = useCallback(async () => {
-    const token = getTokenOrRedirect();
-    if (!token) return;
-
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/manuscripts/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiFetch(`${API_BASE_URL}/manuscripts/`);
 
       if (response.status === 401) {
         redirectToLogin(navigate);
@@ -118,7 +102,7 @@ export default function Manuscripts() {
     } finally {
       setLoading(false);
     }
-  }, [getTokenOrRedirect, navigate]);
+  }, [navigate]);
 
   useEffect(() => {
     loadManuscripts();
@@ -161,8 +145,7 @@ export default function Manuscripts() {
   }, [isShareModalOpen]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login", { replace: true });
+    void logout(navigate);
   };
 
   const handleCreateManuscript = async (event) => {
@@ -172,16 +155,12 @@ export default function Manuscripts() {
       return;
     }
 
-    const token = getTokenOrRedirect();
-    if (!token) return;
-
     setSavingManuscript(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/manuscripts/`, {
+      const response = await apiFetch(`${API_BASE_URL}/manuscripts/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           title: formValues.title.trim(),
@@ -215,9 +194,6 @@ export default function Manuscripts() {
   };
 
   const handleDeleteManuscript = async (manuscriptId) => {
-    const token = getTokenOrRedirect();
-    if (!token) return;
-
     toast((t) => (
       <div className="flex flex-col gap-3">
         <p className="font-medium">Supprimer définitivement ce manuscrit et ses chapitres ?</p>
@@ -233,7 +209,7 @@ export default function Manuscripts() {
           <button
             onClick={() => {
               toast.dismiss(t.id);
-              confirmDeleteManuscript(manuscriptId, token);
+              confirmDeleteManuscript(manuscriptId);
             }}
             className="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
           >
@@ -244,14 +220,11 @@ export default function Manuscripts() {
     ), { duration: Infinity });
   };
 
-  const confirmDeleteManuscript = async (manuscriptId, token) => {
+  const confirmDeleteManuscript = async (manuscriptId) => {
     setDeletingManuscriptId(manuscriptId);
     try {
-      const response = await fetch(`${API_BASE_URL}/manuscripts/${manuscriptId}`, {
+      const response = await apiFetch(`${API_BASE_URL}/manuscripts/${manuscriptId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (response.status === 401) {
@@ -294,20 +267,16 @@ export default function Manuscripts() {
       return;
     }
 
-    const token = getTokenOrRedirect();
-    if (!token) return;
-
     setSavingChapter(true);
     try {
       const endpoint = editingChapterId
         ? `${API_BASE_URL}/manuscripts/chapters/${editingChapterId}`
         : `${API_BASE_URL}/manuscripts/${selectedManuscript.id}/chapters`;
 
-      const response = await fetch(endpoint, {
+      const response = await apiFetch(endpoint, {
         method: editingChapterId ? "PATCH" : "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           title: chapterForm.title.trim(),
@@ -354,9 +323,6 @@ export default function Manuscripts() {
   };
 
   const handleDeleteChapter = async (chapterId) => {
-    const token = getTokenOrRedirect();
-    if (!token) return;
-
     toast((t) => (
       <div className="flex flex-col gap-3">
         <p className="font-medium">Supprimer ce chapitre ?</p>
@@ -372,7 +338,7 @@ export default function Manuscripts() {
           <button
             onClick={() => {
               toast.dismiss(t.id);
-              confirmDeleteChapter(chapterId, token);
+              confirmDeleteChapter(chapterId);
             }}
             className="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
           >
@@ -383,14 +349,11 @@ export default function Manuscripts() {
     ), { duration: Infinity });
   };
 
-  const confirmDeleteChapter = async (chapterId, token) => {
+  const confirmDeleteChapter = async (chapterId) => {
     setDeletingChapterId(chapterId);
     try {
-      const response = await fetch(`${API_BASE_URL}/manuscripts/chapters/${chapterId}`, {
+      const response = await apiFetch(`${API_BASE_URL}/manuscripts/chapters/${chapterId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (response.status === 401) {
@@ -425,16 +388,12 @@ export default function Manuscripts() {
     event.preventDefault();
     if (!selectedManuscript) return;
 
-    const token = getTokenOrRedirect();
-    if (!token) return;
-
     setSavingSynopsis(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/manuscripts/${selectedManuscript.id}`, {
+      const response = await apiFetch(`${API_BASE_URL}/manuscripts/${selectedManuscript.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           description: synopsisDraft.trim(),
@@ -493,9 +452,6 @@ export default function Manuscripts() {
       toast.error("Sélectionne un manuscrit à partager");
       return;
     }
-    const token = getTokenOrRedirect();
-    if (!token) return;
-
     const recipients = shareRecipients
       .split(/[,;\s]+/)
       .map((email) => email.trim())
@@ -520,11 +476,10 @@ export default function Manuscripts() {
 
     setSharing(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/manuscripts/${selectedManuscript.id}/share`, {
+      const response = await apiFetch(`${API_BASE_URL}/manuscripts/${selectedManuscript.id}/share`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });

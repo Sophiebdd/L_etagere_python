@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { redirectToLogin } from "../utils/auth";
+import { apiFetch, redirectToLogin } from "../utils/auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -8,18 +8,9 @@ export default function useCurrentUser(navigate) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirectToLogin(navigate);
-      return;
-    }
-
     const controller = new AbortController();
 
-    fetch(`${API_BASE_URL}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    apiFetch(`${API_BASE_URL}/auth/me`, {
       signal: controller.signal,
     })
       .then(async (res) => {

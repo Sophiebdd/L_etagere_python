@@ -19,6 +19,7 @@ export default function Login() {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -29,10 +30,7 @@ export default function Login() {
         throw new Error("Identifiants invalides");
       }
 
-      const data = await response.json();
-
-      // Sauvegarder le token JWT
-      localStorage.setItem("token", data.access_token);
+      await response.json();
 
       // Rediriger vers la page d'accueil
       navigate("/dashboard");

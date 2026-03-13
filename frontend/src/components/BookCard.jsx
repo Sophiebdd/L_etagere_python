@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { redirectToLogin } from "../utils/auth";
+import { apiFetch, redirectToLogin } from "../utils/auth";
 import CoverPlaceholder from "../assets/cover-placeholder.svg";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
@@ -21,11 +21,6 @@ export default function BookCard({ book, isInLibrary = false, onAdded }) {
 
   const handleAddBook = async () => {
     if (isInLibrary) return;
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirectToLogin(navigate);
-      return;
-    }
 
     const bookData = {
       external_id: item.id,
@@ -41,11 +36,10 @@ export default function BookCard({ book, isInLibrary = false, onAdded }) {
       status: "À lire",
     };
 
-    const response = await fetch(`${API_BASE_URL}/books/`, {
+    const response = await apiFetch(`${API_BASE_URL}/books/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(bookData),
     });

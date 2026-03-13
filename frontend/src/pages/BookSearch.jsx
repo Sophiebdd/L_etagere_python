@@ -7,7 +7,7 @@ import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import useCurrentUser from "../hooks/useCurrentUser";
-import { redirectToLogin } from "../utils/auth";
+import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -33,7 +33,10 @@ export default function BookSearch() {
       const res = await fetch(
         `${API_BASE_URL}/google/search?q=${encodeURIComponent(
           searchQuery
-        )}&start_index=${startIndex}&max_results=${size}`
+        )}&start_index=${startIndex}&max_results=${size}`,
+        {
+          credentials: "include",
+        }
       );
       if (!res.ok) throw new Error("Erreur lors de la recherche");
       const data = await res.json();
@@ -57,8 +60,7 @@ export default function BookSearch() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login", { replace: true });
+    void logout(navigate);
   };
 
   const handleSearch = async (e) => {
@@ -81,13 +83,7 @@ export default function BookSearch() {
   }, [activeQuery, page, pageSize]);
 
   const fetchLibraryIds = useCallback(async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    const res = await fetch(`${API_BASE_URL}/books/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await apiFetch(`${API_BASE_URL}/books/`);
     if (res.status === 401) {
       redirectToLogin(navigate);
       return;

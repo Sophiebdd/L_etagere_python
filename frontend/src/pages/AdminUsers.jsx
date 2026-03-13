@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import Footer from "../components/Footer";
-import { redirectToLogin } from "../utils/auth";
+import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 import useCurrentUser from "../hooks/useCurrentUser";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
@@ -18,14 +18,8 @@ export default function AdminUsers() {
   const [query, setQuery] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
 
-  const headers = useMemo(() => {
-    const token = localStorage.getItem("token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }, []);
-
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login", { replace: true });
+    void logout(navigate);
   };
 
   useEffect(() => {
@@ -43,7 +37,7 @@ export default function AdminUsers() {
     const url = `${API_BASE_URL}/users${params.toString() ? `?${params.toString()}` : ""}`;
 
     setLoading(true);
-    fetch(url, { headers })
+    apiFetch(url)
       .then(async (res) => {
         if (res.status === 401) {
           redirectToLogin(navigate);
@@ -65,7 +59,7 @@ export default function AdminUsers() {
         toast.error(err.message || "Erreur lors du chargement");
       })
       .finally(() => setLoading(false));
-  }, [headers, isAdmin, navigate, query, user, userLoading]);
+  }, [isAdmin, navigate, query, user, userLoading]);
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
@@ -73,18 +67,11 @@ export default function AdminUsers() {
   };
 
   const toggleActive = async (target) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirectToLogin(navigate);
-      return;
-    }
-
     setUpdatingId(target.id);
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${target.id}/status`, {
+      const response = await apiFetch(`${API_BASE_URL}/users/${target.id}/status`, {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ is_active: !target.is_active }),

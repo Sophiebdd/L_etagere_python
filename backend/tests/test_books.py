@@ -1,8 +1,8 @@
-from app.core.security import create_access_token, hash_password
+from app.core.security import hash_password
 from app.models.user import User
 
 
-def _auth_headers_for_user(db_session):
+def _auth_headers_for_user(client, db_session):
     user = User(
         username="sophie",
         email="sophie@example.com",
@@ -10,12 +10,15 @@ def _auth_headers_for_user(db_session):
     )
     db_session.add(user)
     db_session.commit()
-    token = create_access_token({"sub": str(user.id)})
-    return {"Authorization": f"Bearer {token}"}
+    login_response = client.post(
+        "/auth/login",
+        json={"email": "sophie@example.com", "password": "secret123"},
+    )
+    return {"X-CSRF-Token": login_response.cookies["csrf_token"]}
 
 
 def test_create_and_list_books(client, db_session):
-    headers = _auth_headers_for_user(db_session)
+    headers = _auth_headers_for_user(client, db_session)
 
     create_response = client.post(
         "/books/",
@@ -39,7 +42,7 @@ def test_create_and_list_books(client, db_session):
 
 
 def test_create_book_accepts_year_only_publication_date(client, db_session):
-    headers = _auth_headers_for_user(db_session)
+    headers = _auth_headers_for_user(client, db_session)
 
     response = client.post(
         "/books/",
@@ -58,7 +61,7 @@ def test_create_book_accepts_year_only_publication_date(client, db_session):
 
 
 def test_create_book_accepts_year_month_only_publication_date(client, db_session):
-    headers = _auth_headers_for_user(db_session)
+    headers = _auth_headers_for_user(client, db_session)
 
     response = client.post(
         "/books/",
@@ -77,7 +80,7 @@ def test_create_book_accepts_year_month_only_publication_date(client, db_session
 
 
 def test_create_book_accepts_datetime_publication_date(client, db_session):
-    headers = _auth_headers_for_user(db_session)
+    headers = _auth_headers_for_user(client, db_session)
 
     response = client.post(
         "/books/",

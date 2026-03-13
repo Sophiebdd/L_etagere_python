@@ -12,6 +12,8 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     reset_token_hash = Column(String(128), nullable=True, index=True)
     reset_token_expires_at = Column(DateTime(timezone=True), nullable=True)
+    refresh_token_hash = Column(String(128), nullable=True, index=True)
+    refresh_token_expires_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_admin = Column(Boolean, nullable=False, default=False)
     is_active = Column(Boolean, nullable=False, default=True)

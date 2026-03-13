@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import Footer from "../components/Footer";
-import { redirectToLogin } from "../utils/auth";
+import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 import CoverPlaceholder from "../assets/cover-placeholder.svg";
 import useCurrentUser from "../hooks/useCurrentUser";
 
@@ -27,21 +27,10 @@ export default function Dashboard() {
   const { isAdmin } = useCurrentUser(navigate);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login", { replace: true });
+    void logout(navigate);
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-
     const sections = [
       { key: "toRead", status: "À lire" },
       { key: "inProgress", status: "En cours" },
@@ -58,11 +47,9 @@ export default function Dashboard() {
 
     Promise.all([
       ...sections.map((section) =>
-        fetch(`${API_BASE_URL}/books/mine?${buildParams(section.status)}`, {
-          headers,
-        })
+        apiFetch(`${API_BASE_URL}/books/mine?${buildParams(section.status)}`)
       ),
-      fetch(`${API_BASE_URL}/manuscripts/chapters/recent`, { headers }),
+      apiFetch(`${API_BASE_URL}/manuscripts/chapters/recent`),
     ])
       .then(async (responses) => {
         const chaptersRes = responses[responses.length - 1];
@@ -114,18 +101,8 @@ export default function Dashboard() {
   }, [navigate]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-
     setRecommendationsLoading(true);
-    fetch(`${API_BASE_URL}/books/recommendations?limit=12`, { headers })
+    apiFetch(`${API_BASE_URL}/books/recommendations?limit=12`)
       .then(async (res) => {
         if (res.status === 401) {
           redirectToLogin(navigate);
@@ -321,12 +298,6 @@ export default function Dashboard() {
   );
 
   const handleAddRecommendation = async (book) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirectToLogin(navigate);
-      return;
-    }
-
     const recKey = book.external_id || `${book.title}-${book.author}`;
     setAddingRecommendations((prev) => ({ ...prev, [recKey]: true }));
 
@@ -343,11 +314,10 @@ export default function Dashboard() {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/books/`, {
+      const response = await apiFetch(`${API_BASE_URL}/books/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Query, Request, HTTPException, Depends
-from jose import JWTError, jwt
+from jose import JWTError
 from sqlalchemy.orm import Session
 
-from app.core.security import ALGORITHM, SECRET_KEY
+from app.core.security import decode_access_token, get_access_token_from_request
 from app.database import get_db
 from app.models.api_log import ApiLog
 from app.services.google_books import search_books
@@ -10,14 +10,11 @@ from app.services.google_books import search_books
 router = APIRouter(prefix="/google", tags=["google-books"])
 
 def _extract_user_id(request: Request) -> int | None:
-    if not SECRET_KEY:
+    token = get_access_token_from_request(request)
+    if not token:
         return None
-    auth = request.headers.get("Authorization")
-    if not auth or not auth.startswith("Bearer "):
-        return None
-    token = auth.split(" ", 1)[1]
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = decode_access_token(token)
     except JWTError:
         return None
     user_id = payload.get("sub")

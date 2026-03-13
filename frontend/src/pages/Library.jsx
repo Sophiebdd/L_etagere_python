@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import AuroraBackground from "../components/AuroraBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
-import { redirectToLogin } from "../utils/auth";
+import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 import CoverPlaceholder from "../assets/cover-placeholder.svg";
 import useCurrentUser from "../hooks/useCurrentUser";
 
@@ -79,17 +79,10 @@ export default function Library() {
   }, [location.search]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login", { replace: true });
+    void logout(navigate);
   };
 
   const fetchBooks = useCallback(async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
     const params = new URLSearchParams();
     params.set("page", String(page));
     params.set("page_size", String(pageSize));
@@ -105,11 +98,7 @@ export default function Library() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/books/mine?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await apiFetch(`${API_BASE_URL}/books/mine?${params.toString()}`);
       if (res.status === 401) {
         redirectToLogin(navigate);
         throw new Error("Session expirée");
@@ -154,12 +143,6 @@ export default function Library() {
   }, [fetchBooks, filtersReady]);
 
   const handleStatusChange = async (bookId, newStatus) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
     const previousBooks = books;
     setUpdatingStatusId(bookId);
     setBooks((current) =>
@@ -169,11 +152,10 @@ export default function Library() {
     );
 
     try {
-      const response = await fetch(`${API_BASE_URL}/books/${bookId}`, {
+      const response = await apiFetch(`${API_BASE_URL}/books/${bookId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: newStatus }),
       });
@@ -212,12 +194,6 @@ export default function Library() {
   };
 
   const handleToggleFavorite = async (bookId, currentValue) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirectToLogin(navigate);
-      return;
-    }
-
     const previousBooks = books;
     const nextValue = !currentValue;
     setBooks((current) =>
@@ -227,11 +203,10 @@ export default function Library() {
     );
 
     try {
-      const response = await fetch(`${API_BASE_URL}/books/${bookId}`, {
+      const response = await apiFetch(`${API_BASE_URL}/books/${bookId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ is_favorite: nextValue }),
       });
@@ -269,12 +244,6 @@ export default function Library() {
   };
 
   const handleDelete = async (bookId) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
     toast((t) => (
       <div className="flex flex-col gap-3">
         <p className="font-medium">Supprimer ce livre de ta bibliothèque ?</p>
@@ -290,7 +259,7 @@ export default function Library() {
           <button
             onClick={() => {
               toast.dismiss(t.id);
-              confirmDelete(bookId, token);
+              confirmDelete(bookId);
             }}
             className="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
           >
@@ -301,7 +270,7 @@ export default function Library() {
     ), { duration: Infinity });
   };
 
-  const confirmDelete = async (bookId, token) => {
+  const confirmDelete = async (bookId) => {
     const previousBooks = books;
     setDeletingBookId(bookId);
       setBooks((current) => current.filter((book) => book.id !== bookId));
@@ -310,11 +279,8 @@ export default function Library() {
       }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/books/${bookId}`, {
+      const response = await apiFetch(`${API_BASE_URL}/books/${bookId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (response.status === 401) {
@@ -374,21 +340,14 @@ export default function Library() {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirectToLogin(navigate);
-      return;
-    }
-
     setAddingNote(true);
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `${API_BASE_URL}/books/${selectedNotesBook.id}/notes`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ content: newNoteContent.trim() }),
         }
@@ -425,21 +384,12 @@ export default function Library() {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirectToLogin(navigate);
-      return;
-    }
-
     setDeletingNoteId(noteId);
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `${API_BASE_URL}/books/${selectedNotesBook.id}/notes/${noteId}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 

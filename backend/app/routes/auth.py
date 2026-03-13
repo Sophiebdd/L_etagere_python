@@ -3,13 +3,28 @@ import os
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
+
 from app.core.passwords import validate_password_policy
+from app.core.security import (
+    create_csrf_token,
+    create_access_token,
+    create_refresh_token,
+    get_current_user,
+    get_refresh_token_from_request,
+    hash_password,
+    hash_token,
+    set_auth_cookies,
+    clear_auth_cookies,
+    set_csrf_cookie,
+    verify_password,
+    REFRESH_TOKEN_EXPIRE_DAYS,
+)
 from app.database import get_db
 from app.models.user import User
-from app.core.security import verify_password, create_access_token, hash_password, get_current_user
 from app.schemas.user import UserRead
 from app.services.email import send_email, EmailError
 
@@ -42,8 +57,37 @@ def _hash_reset_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
+def _issue_session(response: Response, user: User, db: Session) -> None:
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token()
+    csrf_token = create_csrf_token()
+    user.refresh_token_hash = hash_token(refresh_token)
+    user.refresh_token_expires_at = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(
+        days=REFRESH_TOKEN_EXPIRE_DAYS
+    )
+    db.add(user)
+    db.commit()
+    set_auth_cookies(response, access_token, refresh_token)
+    set_csrf_cookie(response, csrf_token)
+
+
+def _clear_user_refresh_token(user: User | None, db: Session) -> None:
+    if not user:
+        return
+    user.refresh_token_hash = None
+    user.refresh_token_expires_at = None
+    db.add(user)
+    db.commit()
+
+
+def _clear_session_response(status_code: int, detail: str) -> JSONResponse:
+    response = JSONResponse(status_code=status_code, content={"detail": detail})
+    clear_auth_cookies(response)
+    return response
+
+
 @router.post("/login")
-def login(request: LoginRequest, db: Session = Depends(get_db)):
+def login(request: LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.email).first()
 
     if not user or not verify_password(request.password, user.hashed_password):
@@ -51,14 +95,55 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Compte désactivé")
 
-    access_token = create_access_token(data={"sub": str(user.id)})
-
-    return {"access_token": access_token, "token_type": "bearer"}
+    _issue_session(response, user, db)
+    return {"message": "Connexion réussie"}
 
 
 @router.get("/me", response_model=UserRead)
 def me(user: User = Depends(get_current_user)):
     return user
+
+
+@router.post("/refresh")
+def refresh_session(request: Request, response: Response, db: Session = Depends(get_db)):
+    raw_refresh_token = get_refresh_token_from_request(request)
+    if not raw_refresh_token:
+        return _clear_session_response(status.HTTP_401_UNAUTHORIZED, "Session expirée")
+
+    token_hash = hash_token(raw_refresh_token)
+    user = (
+        db.query(User)
+        .filter(User.refresh_token_hash == token_hash)
+        .first()
+    )
+
+    if (
+        not user
+        or not user.refresh_token_expires_at
+        or user.refresh_token_expires_at < datetime.now(timezone.utc).replace(tzinfo=None)
+    ):
+        if user:
+            _clear_user_refresh_token(user, db)
+        return _clear_session_response(status.HTTP_401_UNAUTHORIZED, "Session expirée")
+
+    if not user.is_active:
+        _clear_user_refresh_token(user, db)
+        return _clear_session_response(status.HTTP_403_FORBIDDEN, "Compte désactivé")
+
+    _issue_session(response, user, db)
+    return {"message": "Session rafraîchie"}
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(request: Request, response: Response, db: Session = Depends(get_db)):
+    raw_refresh_token = get_refresh_token_from_request(request)
+    if raw_refresh_token:
+        token_hash = hash_token(raw_refresh_token)
+        user = db.query(User).filter(User.refresh_token_hash == token_hash).first()
+        if user:
+            _clear_user_refresh_token(user, db)
+    clear_auth_cookies(response)
+    response.status_code = status.HTTP_204_NO_CONTENT
 
 
 @router.post("/forgot-password", status_code=status.HTTP_202_ACCEPTED)
@@ -119,6 +204,8 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
     user.hashed_password = hash_password(request.new_password)
     user.reset_token_hash = None
     user.reset_token_expires_at = None
+    user.refresh_token_hash = None
+    user.refresh_token_expires_at = None
 
     db.commit()
 
