@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
@@ -22,6 +22,7 @@ export default function Dashboard() {
   const [recommendationsLoading, setRecommendationsLoading] = useState(true);
   const [addingRecommendations, setAddingRecommendations] = useState({});
   const [selectedBook, setSelectedBook] = useState(null);
+  const carouselRefs = useRef({});
   const navigate = useNavigate();
   const { isAdmin } = useCurrentUser(navigate);
 
@@ -201,21 +202,25 @@ export default function Dashboard() {
     },
   ];
 
-  const handleHorizontalWheel = (event) => {
-    const container = event.currentTarget;
-    if (container.scrollWidth <= container.clientWidth) {
+  const setCarouselRef = (key) => (node) => {
+    if (node) {
+      carouselRefs.current[key] = node;
       return;
     }
-    if (event.deltaY === 0 && event.deltaX === 0) {
+    delete carouselRefs.current[key];
+  };
+
+  const scrollCarousel = (key, direction) => {
+    const container = carouselRefs.current[key];
+    if (!container) {
       return;
     }
-    const dominantDelta =
-      Math.abs(event.deltaX) > Math.abs(event.deltaY)
-        ? event.deltaX
-        : event.deltaY;
-    container.scrollLeft += dominantDelta;
-    event.preventDefault();
-    event.stopPropagation();
+
+    const amount = Math.max(container.clientWidth * 0.85, 240);
+    container.scrollBy({
+      left: direction * amount,
+      behavior: "smooth",
+    });
   };
 
   const renderPoster = (book) => (
@@ -293,6 +298,27 @@ export default function Dashboard() {
       </div>
     );
   };
+
+  const renderCarouselControls = (key, label) => (
+    <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-20 hidden lg:block">
+      <button
+        type="button"
+        aria-label={`Faire défiler ${label} vers la gauche`}
+        onClick={() => scrollCarousel(key, -1)}
+        className="pointer-events-auto absolute left-2 top-1/2 flex h-20 w-12 -translate-y-1/2 items-center justify-center text-6xl font-light text-[#6b4b35] opacity-0 drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)] transition duration-200 group-hover:opacity-100"
+      >
+        ‹
+      </button>
+      <button
+        type="button"
+        aria-label={`Faire défiler ${label} vers la droite`}
+        onClick={() => scrollCarousel(key, 1)}
+        className="pointer-events-auto absolute right-2 top-1/2 flex h-20 w-12 -translate-y-1/2 items-center justify-center text-6xl font-light text-[#6b4b35] opacity-0 drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)] transition duration-200 group-hover:opacity-100"
+      >
+        ›
+      </button>
+    </div>
+  );
 
   const handleAddRecommendation = async (book) => {
     const token = localStorage.getItem("token");
@@ -396,7 +422,7 @@ export default function Dashboard() {
                 </p>
               </div>
             </div>
-            <div className="relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_15%,#d7def0,transparent_55%),radial-gradient(circle_at_85%_10%,#c2cde7,transparent_45%),radial-gradient(circle_at_70%_85%,#e6ebf7,transparent_50%),radial-gradient(circle_at_15%_80%,#b8c5e5,transparent_55%),radial-gradient(circle_at_55%_50%,#cfd8ee,transparent_58%)] px-4 py-4 text-[#6b4b35] shadow-xl ring-1 ring-white/20 backdrop-blur sm:px-6 sm:py-5">
+            <div className="group relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_15%,#d7def0,transparent_55%),radial-gradient(circle_at_85%_10%,#c2cde7,transparent_45%),radial-gradient(circle_at_70%_85%,#e6ebf7,transparent_50%),radial-gradient(circle_at_15%_80%,#b8c5e5,transparent_55%),radial-gradient(circle_at_55%_50%,#cfd8ee,transparent_58%)] px-4 py-4 text-[#6b4b35] shadow-xl ring-1 ring-white/20 backdrop-blur sm:px-6 sm:py-5">
               <div className="absolute inset-0 opacity-45 bg-[radial-gradient(circle_at_top,rgba(226,233,247,0.7),transparent_55%),radial-gradient(circle_at_bottom,rgba(184,197,229,0.6),transparent_60%)]" />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.35),transparent_35%)] opacity-60" />
               <div className="relative z-10">
@@ -417,16 +443,19 @@ export default function Dashboard() {
                     </Link>
                   </div>
                 ) : (
-                  <div
-                    className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain overscroll-y-none sm:gap-4 sm:pb-4"
-                    onWheel={handleHorizontalWheel}
-                  >
-                    {recommendations.map((book) => (
-                      <div key={book.external_id || book.title} className="shrink-0">
-                        {renderRecommendationCard(book)}
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    {renderCarouselControls("recommendations", "les suggestions")}
+                    <div
+                      ref={setCarouselRef("recommendations")}
+                      className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain sm:gap-4 sm:pb-4"
+                    >
+                      {recommendations.map((book) => (
+                        <div key={book.external_id || book.title} className="shrink-0">
+                          {renderRecommendationCard(book)}
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -441,7 +470,7 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-white/20 px-4 py-4 text-[#6b4b35] shadow-lg backdrop-blur-md sm:px-6 sm:py-5">
+              <div className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/20 px-4 py-4 text-[#6b4b35] shadow-lg backdrop-blur-md sm:px-6 sm:py-5">
                 <div className="pointer-events-none absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.65),transparent_65%),radial-gradient(circle_at_bottom,rgba(255,255,255,0.4),transparent_70%)]" />
                 <div className="relative z-10">
                   {section.items.length === 0 ? (
@@ -455,22 +484,25 @@ export default function Dashboard() {
                       </Link>
                     </div>
                   ) : (
-                    <div
-                      className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain overscroll-y-none sm:gap-4 sm:pb-4"
-                      onWheel={handleHorizontalWheel}
-                    >
-                      {section.items.map((book) => (
-                        <div key={book.id} className="shrink-0">
-                          {renderPoster(book)}
-                        </div>
-                      ))}
-                      <Link
-                        to={`/library?status=${encodeURIComponent(section.status)}`}
-                        className="flex h-44 w-28 shrink-0 items-center justify-center rounded-xl border border-[#B8C5E5] bg-white/70 text-[10px] font-semibold uppercase tracking-wider text-[#6b4b35] transition hover:bg-white hover:text-[#5a3f2d] sm:h-52 sm:w-36 sm:text-xs lg:h-60 lg:w-40"
+                    <>
+                      {renderCarouselControls(section.key, section.title.toLowerCase())}
+                      <div
+                        ref={setCarouselRef(section.key)}
+                        className="no-scrollbar flex items-end gap-3 overflow-x-auto pb-3 pr-2 snap-x snap-mandatory overscroll-x-contain sm:gap-4 sm:pb-4"
                       >
-                        Tout voir →
-                      </Link>
-                    </div>
+                        {section.items.map((book) => (
+                          <div key={book.id} className="shrink-0">
+                            {renderPoster(book)}
+                          </div>
+                        ))}
+                        <Link
+                          to={`/library?status=${encodeURIComponent(section.status)}`}
+                          className="flex h-44 w-28 shrink-0 items-center justify-center rounded-xl border border-[#B8C5E5] bg-white/70 text-[10px] font-semibold uppercase tracking-wider text-[#6b4b35] transition hover:bg-white hover:text-[#5a3f2d] sm:h-52 sm:w-36 sm:text-xs lg:h-60 lg:w-40"
+                        >
+                          Tout voir →
+                        </Link>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
