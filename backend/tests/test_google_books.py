@@ -36,7 +36,8 @@ def test_search_books_filters_non_french_items(monkeypatch):
         extra_params={"langRestrict": "fr"},
     )
 
-    assert results["total_items"] == 2
+    assert results["total_items"] == 1
+    assert results["has_more"] is False
     assert len(results["items"]) == 1
     assert results["items"][0]["id"] == "fr-book"
     assert results["items"][0]["volumeInfo"]["language"] == "fr"
