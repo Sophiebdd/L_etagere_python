@@ -38,7 +38,12 @@ def google_search(
     status_code = 200
     error_message = None
     try:
-        return search_books(q, start_index, max_results)
+        return search_books(
+            q,
+            start_index,
+            max_results,
+            extra_params={"printType": "books", "orderBy": "relevance", "langRestrict": "fr"},
+        )
     except HTTPException as exc:
         status_code = exc.status_code
         error_message = str(exc.detail)

@@ -1,25 +1,42 @@
 from app.services import google_books
 
 
-def test_google_search_returns_items(client, monkeypatch):
-    def fake_fetch_page(query: str, start_index: int, max_results: int):
-        assert query == "python"
-        assert start_index == 0
-        assert max_results == 2
+def test_search_books_filters_non_french_items(monkeypatch):
+    def fake_fetch_page(query, start_index, max_results, extra_params=None):
         return {
-            "totalItems": 2,
             "items": [
-                {"id": "1", "volumeInfo": {"title": "Book A", "authors": ["A"]}},
-                {"id": "2", "volumeInfo": {"title": "Book B", "authors": ["B"]}},
+                {
+                    "id": "fr-book",
+                    "volumeInfo": {
+                        "title": "Livre FR",
+                        "authors": ["Auteur FR"],
+                        "language": "fr",
+                        "publishedDate": "2020-01-01",
+                    },
+                },
+                {
+                    "id": "en-book",
+                    "volumeInfo": {
+                        "title": "English Book",
+                        "authors": ["English Author"],
+                        "language": "en",
+                        "publishedDate": "2020-01-01",
+                    },
+                },
             ],
+            "totalItems": 2,
         }
 
     monkeypatch.setattr(google_books, "_fetch_page", fake_fetch_page)
 
-    response = client.get("/google/search?q=python&start_index=0&max_results=2")
+    results = google_books.search_books(
+        "roman",
+        start_index=0,
+        max_results=10,
+        extra_params={"langRestrict": "fr"},
+    )
 
-    assert response.status_code == 200
-    data = response.json()
-    assert data["total_items"] == 2
-    assert len(data["items"]) == 2
-    assert data["items"][0]["id"] == "1"
+    assert results["total_items"] == 2
+    assert len(results["items"]) == 1
+    assert results["items"][0]["id"] == "fr-book"
+    assert results["items"][0]["volumeInfo"]["language"] == "fr"

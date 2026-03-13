@@ -16,6 +16,9 @@ from app.services.embeddings import (
 from app.services.google_books import search_books
 
 _STATUS_READ = "Lu"
+_CANDIDATE_FETCH_SIZE = 100
+_MAX_RECOMMENDATION_QUERIES = 5
+_QUERY_PAGE_SIZE = 40
 _STOPWORDS = {
     "alors",
     "avec",
@@ -184,6 +187,39 @@ def _ensure_embedding(book: Book) -> tuple[list[float], bool]:
     return embedding, bool(embedding)
 
 
+def _candidate_identity(item: dict) -> tuple[str, str]:
+    volume = item.get("volumeInfo", {}) or {}
+    title = (volume.get("title") or "").strip().lower()
+    authors = ", ".join(volume.get("authors") or []).strip().lower()
+    external_id = (item.get("id") or "").strip().lower()
+    return external_id or title, authors
+
+
+def _collect_candidates(queries: list[str], limit: int) -> list[dict]:
+    candidates: list[dict] = []
+    seen_candidates: set[tuple[str, str]] = set()
+    page_starts = range(0, max(limit * 8, _CANDIDATE_FETCH_SIZE), _QUERY_PAGE_SIZE)
+
+    for q in queries[:_MAX_RECOMMENDATION_QUERIES]:
+        for start_index in page_starts:
+            results = search_books(
+                q,
+                start_index=start_index,
+                max_results=_QUERY_PAGE_SIZE,
+                extra_params={"printType": "books", "orderBy": "relevance", "langRestrict": "fr"},
+            )
+            items = results.get("items", [])
+            if not items:
+                break
+            for item in items:
+                candidate_id = _candidate_identity(item)
+                if candidate_id in seen_candidates:
+                    continue
+                seen_candidates.add(candidate_id)
+                candidates.append(item)
+    return candidates
+
+
 def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
     favorite_books = (
         db.query(Book)
@@ -226,26 +262,12 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
     if not queries:
         queries = [query]
 
-    candidates: list[dict] = []
-    for q in queries[:2]:
-        results = search_books(
-            q,
-            start_index=0,
-            max_results=max(limit * 3, 40),
-            extra_params={"printType": "books", "orderBy": "relevance", "langRestrict": "fr"},
-        )
-        candidates.extend(results.get("items", []))
+    candidates = _collect_candidates(queries, limit)
 
     if not candidates:
         fallback_query = _build_query(seed_books[:3]) or query
         if fallback_query and fallback_query not in queries:
-            results = search_books(
-                fallback_query,
-                start_index=0,
-                max_results=max(limit * 3, 40),
-                extra_params={"printType": "books", "orderBy": "relevance", "langRestrict": "fr"},
-            )
-            candidates = results.get("items", [])
+            candidates = _collect_candidates([fallback_query], limit)
 
     user_books = db.query(Book).filter(Book.user_id == user_id).all()
     existing_ids = {book.external_id for book in user_books if book.external_id}
@@ -259,7 +281,7 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
     fallback: list[dict] = []
     for item in candidates:
         candidate = _format_candidate(item)
-        if candidate.get("language") and candidate["language"] not in {"fr", "en"}:
+        if candidate.get("language") != "fr":
             continue
         title_lower = (candidate["title"] or "").strip().lower()
         if title_lower in {"kindle", "kindle edition"}:
@@ -287,8 +309,6 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
             fallback.append(candidate)
             continue
         score = cosine_similarity(profile, candidate_embedding)
-        if candidate.get("language") == "fr":
-            score *= 1.05
         candidate["score"] = score
         scored.append((score, candidate))
 

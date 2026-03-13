@@ -25,8 +25,16 @@ def _format_book(item):
             "imageLinks": volume.get("imageLinks", {}),
             "publishedDate": volume.get("publishedDate"),
             "industryIdentifiers": volume.get("industryIdentifiers", []),
+            "language": volume.get("language"),
         },
     }
+
+
+def _matches_language(item: dict, expected_language: str | None) -> bool:
+    if not expected_language:
+        return True
+    volume = item.get("volumeInfo", {}) or {}
+    return (volume.get("language") or "").lower() == expected_language.lower()
 
 
 def _fetch_page(query: str, start_index: int, max_results: int, extra_params: dict | None = None):
@@ -79,43 +87,50 @@ def search_books(
     if cached and (time.time() - cached["ts"] < _CACHE_TTL_SECONDS):
         return cached["data"]
 
-    remaining = safe_max
-    current_index = safe_start
-    books = []
+    expected_language = (extra_params or {}).get("langRestrict")
+    target_count = safe_start + safe_max + 1
+    collected_items: list[dict] = []
+    raw_start = 0
     total_items = None
 
-    while remaining > 0:
-        batch_size = min(40, remaining)
+    while len(collected_items) < target_count:
+        batch_size = min(40, target_count - len(collected_items))
         if extra_params:
             data = _fetch_page(
                 query,
-                current_index,
+                raw_start,
                 batch_size,
                 extra_params=extra_params,
             )
         else:
-            data = _fetch_page(query, current_index, batch_size)
+            data = _fetch_page(query, raw_start, batch_size)
 
         if total_items is None:
             total_items = data.get("totalItems", 0)
 
-        items = data.get("items", [])
-        if not items:
+        raw_items = data.get("items", [])
+        if not raw_items:
             break
 
-        books.extend(_format_book(item) for item in items)
-        fetched = len(items)
-        remaining -= fetched
-        current_index += fetched
+        if expected_language:
+            raw_items = [item for item in raw_items if _matches_language(item, expected_language)]
 
-        if total_items is not None and current_index >= total_items:
+        collected_items.extend(raw_items)
+        raw_start += batch_size
+
+        if total_items is not None and raw_start >= total_items:
             break
+
+    page_items = collected_items[safe_start:safe_start + safe_max]
+    books = [_format_book(item) for item in page_items]
+    has_more = len(collected_items) > safe_start + safe_max
 
     result = {
         "items": books,
-        "total_items": total_items or 0,
+        "total_items": len(books),
         "start_index": safe_start,
         "max_results": safe_max,
+        "has_more": has_more,
     }
     _CACHE[cache_key] = {"ts": time.time(), "data": result}
     return result

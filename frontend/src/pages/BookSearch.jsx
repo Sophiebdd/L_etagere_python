@@ -15,14 +15,14 @@ export default function BookSearch() {
   const [query, setQuery] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
   const [results, setResults] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
+  const [displayedCount, setDisplayedCount] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [libraryExternalIds, setLibraryExternalIds] = useState(new Set());
   const navigate = useNavigate();
   const { isAdmin } = useCurrentUser(navigate);
-  const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0;
 
   const fetchResults = async (searchQuery, pageNumber, size) => {
     if (!searchQuery.trim()) return;
@@ -40,12 +40,13 @@ export default function BookSearch() {
 
       if (Array.isArray(data)) {
         setResults(data);
-        setTotalItems(data.length);
+        setDisplayedCount(data.length);
+        setHasMore(false);
       } else {
-        setResults(Array.isArray(data.items) ? data.items : []);
-        setTotalItems(
-          Number.isFinite(data.total_items) ? data.total_items : 0
-        );
+        const nextResults = Array.isArray(data.items) ? data.items : [];
+        setResults(nextResults);
+        setDisplayedCount(nextResults.length);
+        setHasMore(Boolean(data.has_more));
       }
     } catch (err) {
       console.error(err);
@@ -167,9 +168,10 @@ export default function BookSearch() {
             <div>
               {loading
                 ? "Recherche..."
-                : totalItems > 0
-                  ? `${totalItems} résultat${totalItems > 1 ? "s" : ""}`
+                : displayedCount > 0
+                  ? `${displayedCount} résultat${displayedCount > 1 ? "s" : ""} affiché${displayedCount > 1 ? "s" : ""}`
                   : "Aucun résultat"}
+              {!loading && hasMore ? " • d'autres pages sont disponibles" : ""}
               {activeQuery ? ` pour “${activeQuery}”` : ""}
             </div>
             <label className="flex items-center gap-2">
@@ -210,7 +212,7 @@ export default function BookSearch() {
                 />
               ))}
             </div>
-            {totalPages > 1 && (
+            {(page > 1 || hasMore) && (
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-[#B8C5E5]">
                 <button
                   type="button"
@@ -220,17 +222,11 @@ export default function BookSearch() {
                 >
                   Précédent
                 </button>
-                <span>
-                  Page {page} / {totalPages}
-                </span>
+                <span>Page {page}</span>
                 <button
                   type="button"
-                  onClick={() =>
-                    setPage((prev) =>
-                      Math.min(totalPages, prev + 1)
-                    )
-                  }
-                  disabled={page >= totalPages || loading}
+                  onClick={() => setPage((prev) => prev + 1)}
+                  disabled={!hasMore || loading}
                   className="rounded-full border border-[#B8C5E5] bg-white px-4 py-2 shadow-sm transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Suivant
@@ -241,7 +237,9 @@ export default function BookSearch() {
         ) : (
           !loading && (
             <p className="w-full rounded-2xl border border-[#B8C5E5] bg-white/80 p-10 text-center text-[#B8C5E5] shadow-lg backdrop-blur">
-              Saisissez un mot-clé pour commencer la recherche.
+              {activeQuery
+                ? `Aucun résultat français pour “${activeQuery}”.`
+                : "Saisissez un mot-clé pour commencer la recherche."}
             </p>
           )
         )}

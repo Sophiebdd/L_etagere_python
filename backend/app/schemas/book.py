@@ -1,7 +1,10 @@
-from pydantic import BaseModel, ConfigDict
 from datetime import date, datetime
 from typing import Optional, List
+
+from pydantic import BaseModel, ConfigDict, field_validator
+
 from .note import BookNote as BookNoteSchema
+
 
 class BookBase(BaseModel):
     title: str
@@ -14,6 +17,28 @@ class BookBase(BaseModel):
     external_id: Optional[str] = None
     genre: Optional[str] = None
     is_favorite: Optional[bool] = False
+
+    @field_validator("publication_date", mode="before")
+    @classmethod
+    def normalize_publication_date(cls, value):
+        if value in (None, ""):
+            return None
+        if isinstance(value, date) and not isinstance(value, datetime):
+            return value
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, str):
+            raw_value = value.strip()
+            if not raw_value:
+                return None
+            if len(raw_value) == 4:
+                return date.fromisoformat(f"{raw_value}-01-01")
+            if len(raw_value) == 7:
+                return date.fromisoformat(f"{raw_value}-01")
+            if "T" in raw_value:
+                return datetime.fromisoformat(raw_value.replace("Z", "+00:00")).date()
+            return date.fromisoformat(raw_value)
+        return value
 
 
 class BookCreate(BookBase):
