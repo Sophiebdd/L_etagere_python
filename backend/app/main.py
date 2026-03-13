@@ -32,7 +32,7 @@ def _is_csrf_exempt(method: str, path: str) -> bool:
         ("POST", "/auth/login"),
         ("POST", "/auth/forgot-password"),
         ("POST", "/auth/reset-password"),
-        ("POST", "/users/"),
+        ("POST", "/users"),
     }
 
 

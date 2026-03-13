@@ -9,7 +9,7 @@ from app.core.security import hash_password, get_current_admin
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.get("/", response_model=list[UserAdminRead], dependencies=[Depends(get_current_admin)])
+@router.get("", response_model=list[UserAdminRead], dependencies=[Depends(get_current_admin)])
 def list_users(
     q: str | None = Query(default=None, min_length=1, max_length=100),
     db: Session = Depends(get_db),
@@ -22,7 +22,7 @@ def list_users(
         )
     return query.order_by(User.created_at.desc()).all()
 
-@router.post("/", response_model=UserRead)
+@router.post("", response_model=UserRead)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     validate_password_policy(user.password)
 

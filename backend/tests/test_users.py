@@ -1,6 +1,6 @@
 def test_create_user(client):
     response = client.post(
-        "/users/",
+        "/users",
         json={
             "username": "sophie",
             "email": "sophie@example.com",
@@ -17,7 +17,7 @@ def test_create_user(client):
 
 def test_create_user_rejects_weak_password(client):
     response = client.post(
-        "/users/",
+        "/users",
         json={
             "username": "sophie",
             "email": "sophie@example.com",
