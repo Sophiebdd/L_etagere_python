@@ -19,7 +19,5 @@ class Chapter(Base):
     created_at = Column(DateTime, default=utcnow)
     updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
     manuscript_id = Column(Integer, ForeignKey("manuscripts.id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     manuscript = relationship("Manuscript", back_populates="chapters")
-    author = relationship("User", back_populates="chapters")

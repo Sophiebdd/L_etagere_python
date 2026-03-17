@@ -24,9 +24,4 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
-    chapters = relationship(
-        "Chapter",
-        back_populates="author",
-        cascade="all, delete-orphan",
-    )
     api_logs = relationship("ApiLog", back_populates="user")

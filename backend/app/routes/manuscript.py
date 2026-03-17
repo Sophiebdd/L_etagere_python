@@ -39,8 +39,9 @@ def _get_user_chapter_or_404(chapter_id: int, user_id: int, db: Session) -> Chap
     """Récupère un chapitre appartenant à l'utilisateur ou lève une 404."""
     chapter = (
         db.query(Chapter)
+        .join(Manuscript, Chapter.manuscript_id == Manuscript.id)
         .options(selectinload(Chapter.manuscript))
-        .filter(Chapter.id == chapter_id, Chapter.user_id == user_id)
+        .filter(Chapter.id == chapter_id, Manuscript.user_id == user_id)
         .first()
     )
     if not chapter:
@@ -173,7 +174,6 @@ def create_chapter(
         content=chapter.content,
         order_index=order_index,
         manuscript_id=manuscript_id,
-        user_id=user.id,
     )
     db.add(db_chapter)
     db.commit()
@@ -208,8 +208,9 @@ def delete_chapter(chapter_id: int, db: Session = Depends(get_db), user=Depends(
 def list_recent_chapters(db: Session = Depends(get_db), user=Depends(get_current_user)):
     return (
         db.query(Chapter)
+        .join(Manuscript, Chapter.manuscript_id == Manuscript.id)
         .options(selectinload(Chapter.manuscript))
-        .filter(Chapter.user_id == user.id)
+        .filter(Manuscript.user_id == user.id)
         .order_by(Chapter.created_at.desc())
         .limit(6)
         .all()
