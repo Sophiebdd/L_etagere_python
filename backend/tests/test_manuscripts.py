@@ -53,12 +53,6 @@ def test_user_cannot_access_another_users_chapter(client, db_session):
         email="owner@example.com",
         username="owner",
     )
-    intruder_headers = _auth_headers_for_user(
-        client,
-        db_session,
-        email="intruder@example.com",
-        username="intruder",
-    )
 
     manuscript_response = client.post(
         "/manuscripts/",
@@ -73,6 +67,13 @@ def test_user_cannot_access_another_users_chapter(client, db_session):
         json={"title": "Chapitre secret", "content": "<p>Confidentiel</p>"},
     )
     chapter_id = chapter_response.json()["id"]
+
+    intruder_headers = _auth_headers_for_user(
+        client,
+        db_session,
+        email="intruder@example.com",
+        username="intruder",
+    )
 
     intruder_update = client.patch(
         f"/manuscripts/chapters/{chapter_id}",
