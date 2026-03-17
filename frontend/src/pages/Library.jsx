@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
-import AuroraBackground from "../components/AuroraBackground";
+import PageBackground from "../components/PageBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import { apiFetch, logout, redirectToLogin } from "../utils/auth";
@@ -510,7 +510,7 @@ export default function Library() {
                 event.stopPropagation();
                 openNotesModal(book.id);
               }}
-              className="rounded-full border border-[#B8C5E5] px-3 py-2 text-xs font-semibold text-[#B8C5E5] shadow-sm transition hover:bg-[#B8C5E5]"
+              className="rounded-full border border-[#B8C5E5] px-3 py-2 text-xs font-semibold text-[#B8C5E5] shadow-sm transition"
             >
               📝 Notes
             </button>
@@ -533,7 +533,7 @@ export default function Library() {
 
   if (loading && books.length === 0) {
     return (
-      <AuroraBackground>
+      <PageBackground>
         <Header
           onLogout={handleLogout}
           showAdmin={isAdmin}
@@ -544,12 +544,12 @@ export default function Library() {
             Chargement...
           </p>
         </div>
-      </AuroraBackground>
+      </PageBackground>
     );
   }
 
   return (
-    <AuroraBackground>
+    <PageBackground>
       <div className="flex min-h-screen flex-col">
         <Header
           onLogout={handleLogout}
@@ -563,7 +563,7 @@ export default function Library() {
             <h1 className="text-3xl font-semibold text-[#B8C5E5]">Ma bibliothèque</h1>
             <Link
               to="/search"
-              className="inline-flex items-center gap-2 rounded-full border border-[#B8C5E5] bg-white px-4 py-2 text-sm font-semibold text-[#B8C5E5] shadow-sm transition hover:bg-[#B8C5E5]"
+              className="inline-flex items-center gap-2 rounded-full border border-[#B8C5E5] bg-white px-4 py-2 text-sm font-semibold text-[#B8C5E5] shadow-sm transition"
             >
               🔍 Rechercher un livre
             </Link>
@@ -610,7 +610,7 @@ export default function Library() {
           <button
             type="button"
             onClick={handleResetFilters}
-            className="w-full rounded-full border border-[#B8C5E5] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#B8C5E5] transition hover:bg-[#B8C5E5] sm:w-auto"
+            className="w-full rounded-full border border-[#B8C5E5] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#B8C5E5] transition sm:w-auto"
           >
             Réinitialiser
           </button>
@@ -809,6 +809,6 @@ export default function Library() {
           </div>
         </div>
       )}
-    </AuroraBackground>
+    </PageBackground>
   );
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
-import AuroraBackground from "../components/AuroraBackground";
+import PageBackground from "../components/PageBackground";
 import Footer from "../components/Footer";
 import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 import useCurrentUser from "../hooks/useCurrentUser";
@@ -102,20 +102,20 @@ export default function AdminUsers() {
 
   if (userLoading) {
     return (
-      <AuroraBackground>
+      <PageBackground>
         <Header onLogout={handleLogout} />
         <div className="flex min-h-screen items-center justify-center px-4 pb-20 pt-12">
           <p className="rounded-full border border-[#B8C5E5] bg-white/80 px-6 py-3 text-sm font-medium uppercase tracking-[0.28em] text-[#B8C5E5] shadow-lg">
             Chargement...
           </p>
         </div>
-      </AuroraBackground>
+      </PageBackground>
     );
   }
 
   if (!isAdmin) {
     return (
-      <AuroraBackground>
+      <PageBackground>
         <Header onLogout={handleLogout} />
         <main className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-4 pb-20 pt-12 text-center">
           <div className="rounded-3xl border border-white/20 bg-white/80 p-10 text-[#6b4b35] shadow-2xl">
@@ -133,12 +133,12 @@ export default function AdminUsers() {
           </div>
         </main>
         <Footer />
-      </AuroraBackground>
+      </PageBackground>
     );
   }
 
   return (
-    <AuroraBackground>
+    <PageBackground>
       <Header onLogout={handleLogout} showAdmin={isAdmin} onAdmin={() => navigate("/admin/users")} />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-32 pt-12">
         <div className="mb-10 space-y-3 text-center">
@@ -218,6 +218,6 @@ export default function AdminUsers() {
         </section>
       </main>
       <Footer />
-    </AuroraBackground>
+    </PageBackground>
   );
 }

@@ -23,7 +23,7 @@ export default function PageBreadcrumb({ items = [] }) {
           <div key={item.label} className="flex items-center gap-2">
             <Link
               to={item.to}
-              className="rounded-full border border-[#B8C5E5]/70 bg-white/60 px-3 py-1 transition hover:bg-[#B8C5E5] hover:text-[#B8C5E5]"
+              className="rounded-full border border-[#B8C5E5]/70 bg-white/60 px-3 py-1 transition"
             >
               {item.label}
             </Link>

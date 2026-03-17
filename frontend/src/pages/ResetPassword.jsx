@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
-import AuroraBackground from "../components/AuroraBackground";
+import PageBackground from "../components/PageBackground";
 import { isValidPassword, PASSWORD_POLICY_MESSAGE } from "../utils/passwordValidation";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
@@ -62,7 +62,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <AuroraBackground>
+    <PageBackground>
       <Header showNavigation={false} />
       <main className="mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-12 sm:min-h-[70vh] sm:justify-center">
         <div className="w-full max-w-md rounded-2xl border border-white/15 bg-white/75 p-8 shadow-2xl backdrop-blur">
@@ -127,6 +127,6 @@ export default function ResetPassword() {
           </p>
         </div>
       </main>
-    </AuroraBackground>
+    </PageBackground>
   );
 }

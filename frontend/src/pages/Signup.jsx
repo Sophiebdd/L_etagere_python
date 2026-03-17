@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // ✅ import indispensable
 import Header from "../components/Header";
-import AuroraBackground from "../components/AuroraBackground";
+import PageBackground from "../components/PageBackground";
 import Footer from "../components/Footer";
 import { isValidPassword, PASSWORD_POLICY_MESSAGE } from "../utils/passwordValidation";
 
@@ -60,7 +60,7 @@ export default function Signup() {
   };
 
   return (
-    <AuroraBackground>
+    <PageBackground>
       <Header showNavigation={false} />
       <main className="mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-12 sm:min-h-[70vh] sm:justify-center">
         <div className="w-full max-w-md rounded-2xl border border-white/15 bg-white/80 p-8 shadow-2xl backdrop-blur">
@@ -142,6 +142,6 @@ export default function Signup() {
         </div>
       </main>
       <Footer />
-    </AuroraBackground>
+    </PageBackground>
   );
 }

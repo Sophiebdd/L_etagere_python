@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import BookCard from "../components/BookCard";
 import Header from "../components/Header";
-import AuroraBackground from "../components/AuroraBackground";
+import PageBackground from "../components/PageBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import useCurrentUser from "../hooks/useCurrentUser";
@@ -118,7 +118,7 @@ export default function BookSearch() {
   }, [fetchLibraryIds]);
 
   return (
-    <AuroraBackground>
+    <PageBackground>
       <div className="flex min-h-screen flex-col">
         <Header
           onLogout={handleLogout}
@@ -242,6 +242,6 @@ export default function BookSearch() {
       </main>
       </div>
       <Footer />
-    </AuroraBackground>
+    </PageBackground>
   );
 }

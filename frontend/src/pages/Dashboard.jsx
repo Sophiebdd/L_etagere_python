@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
-import AuroraBackground from "../components/AuroraBackground";
+import PageBackground from "../components/PageBackground";
 import Footer from "../components/Footer";
 import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 import CoverPlaceholder from "../assets/cover-placeholder.svg";
@@ -357,7 +357,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <AuroraBackground>
+      <PageBackground>
         <Header
           onLogout={handleLogout}
           showAdmin={isAdmin}
@@ -368,12 +368,12 @@ export default function Dashboard() {
             Chargement...
           </p>
         </div>
-      </AuroraBackground>
+      </PageBackground>
     );
   }
 
   return (
-    <AuroraBackground>
+    <PageBackground>
       <div className="flex min-h-screen flex-col">
         <Header
           onLogout={handleLogout}
@@ -526,6 +526,6 @@ export default function Dashboard() {
       </main>
       </div>
       <Footer />
-    </AuroraBackground>
+    </PageBackground>
   );
 }

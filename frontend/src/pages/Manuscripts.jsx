@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
-import AuroraBackground from "../components/AuroraBackground";
+import PageBackground from "../components/PageBackground";
 import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import RichTextEditor from "../components/RichTextEditor";
@@ -505,7 +505,7 @@ export default function Manuscripts() {
 
   if (loading) {
     return (
-      <AuroraBackground>
+      <PageBackground>
         <Header
           onLogout={handleLogout}
           showAdmin={isAdmin}
@@ -516,12 +516,12 @@ export default function Manuscripts() {
             Chargement...
           </p>
         </div>
-      </AuroraBackground>
+      </PageBackground>
     );
   }
 
   return (
-    <AuroraBackground>
+    <PageBackground>
       <div className="flex min-h-screen flex-col">
         <Header
           onLogout={handleLogout}
@@ -537,7 +537,7 @@ export default function Manuscripts() {
               <button
                 type="button"
                 onClick={() => setIsNewManuscriptModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-[#B8C5E5] bg-white px-4 py-2 text-sm font-semibold text-[#B8C5E5] shadow-sm transition hover:bg-[#B8C5E5]"
+                className="inline-flex items-center gap-2 rounded-full border border-[#B8C5E5] bg-white px-4 py-2 text-sm font-semibold text-[#B8C5E5] shadow-sm transition"
               >
                 ➕ Nouveau
               </button>
@@ -545,7 +545,7 @@ export default function Manuscripts() {
                 type="button"
                 onClick={() => setIsShareModalOpen(true)}
                 disabled={!selectedManuscript}
-                className="inline-flex items-center gap-2 rounded-full border border-[#B8C5E5] bg-white px-4 py-2 text-sm font-semibold text-[#B8C5E5] shadow-sm transition hover:bg-[#B8C5E5] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full border border-[#B8C5E5] bg-white px-4 py-2 text-sm font-semibold text-[#B8C5E5] shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 ✉️ Partager
               </button>
@@ -857,7 +857,7 @@ export default function Manuscripts() {
                 <button
                   type="button"
                   onClick={() => setIsNewManuscriptModalOpen(false)}
-                  className="rounded-full border border-[#B8C5E5] px-4 py-2 text-sm font-semibold text-[#B8C5E5] transition hover:bg-[#B8C5E5]"
+                  className="rounded-full border border-[#B8C5E5] px-4 py-2 text-sm font-semibold text-[#B8C5E5] transition"
                 >
                   Annuler
                 </button>
@@ -963,7 +963,7 @@ export default function Manuscripts() {
                 <button
                   type="button"
                   onClick={() => setIsShareModalOpen(false)}
-                  className="rounded-full border border-[#B8C5E5] px-4 py-2 text-sm font-semibold text-[#B8C5E5] transition hover:bg-[#B8C5E5]"
+                  className="rounded-full border border-[#B8C5E5] px-4 py-2 text-sm font-semibold text-[#B8C5E5] transition"
                 >
                   Annuler
                 </button>
@@ -999,7 +999,7 @@ export default function Manuscripts() {
               <button
                 type="button"
                 onClick={closeChapterPreview}
-                className="rounded-full border border-[#B8C5E5] p-2 text-[#B8C5E5] transition hover:bg-[#B8C5E5]"
+                className="rounded-full border border-[#B8C5E5] p-2 text-[#B8C5E5] transition"
                 aria-label="Fermer"
               >
                 ✕
@@ -1012,6 +1012,6 @@ export default function Manuscripts() {
           </div>
         </div>
       )}
-    </AuroraBackground>
+    </PageBackground>
   );
 }
