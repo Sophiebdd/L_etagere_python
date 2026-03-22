@@ -237,8 +237,8 @@ export default function Dashboard() {
     const isAdding = Boolean(addingRecommendations[recKey]);
 
     return (
-      <div className="group relative w-36 shrink-0 snap-start sm:w-40 lg:w-44">
-        <div className="flex h-[18.5rem] flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/5 shadow-xl sm:h-[20.5rem] lg:h-[22rem]">
+	      <div className="group relative w-36 shrink-0 snap-start sm:w-40 lg:w-44">
+	        <div className="flex h-[18.5rem] flex-col overflow-hidden rounded-2xl border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.42),rgba(214,224,243,0.94))] shadow-xl sm:h-[20.5rem] lg:h-[22rem]">
           <button
             type="button"
             onClick={() => openBookModal(book)}
@@ -253,20 +253,20 @@ export default function Dashboard() {
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
           </button>
-          <div className="flex flex-1 flex-col gap-2 p-3">
-            <div>
-              <p className="text-xs font-semibold text-white line-clamp-2">
-                {book.title}
-              </p>
-              <p className="text-[11px] text-white/70 line-clamp-1">
-                {book.author || "Auteur inconnu"}
-              </p>
-            </div>
+	          <div className="flex flex-1 flex-col gap-2 bg-[linear-gradient(180deg,rgba(214,224,243,0.72),rgba(232,238,249,0.94))] p-3">
+	            <div>
+	              <p className="text-xs font-semibold text-[#5d4637] line-clamp-2">
+	                {book.title}
+	              </p>
+	              <p className="text-[11px] text-[#8a7768] line-clamp-1">
+	                {book.author || "Auteur inconnu"}
+	              </p>
+	            </div>
             <button
               type="button"
               onClick={() => handleAddRecommendation(book)}
               disabled={isAdding}
-              className="mt-auto rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60"
+	              className="mt-auto rounded-full border border-[#c7d3ea] bg-white/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#6b4b35] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isAdding ? "Ajout..." : "Ajouter"}
             </button>
@@ -337,6 +337,7 @@ export default function Dashboard() {
         throw new Error(detail || "Impossible d'ajouter le livre");
       }
 
+      // ajout réussi
       toast.success("📚 Livre ajouté à ta bibliothèque !");
       setRecommendations((prev) =>
         prev.filter(
@@ -392,9 +393,8 @@ export default function Dashboard() {
                 </p>
               </div>
             </div>
-            <div className="group relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_15%,#d7def0,transparent_55%),radial-gradient(circle_at_85%_10%,#c2cde7,transparent_45%),radial-gradient(circle_at_70%_85%,#e6ebf7,transparent_50%),radial-gradient(circle_at_15%_80%,#b8c5e5,transparent_55%),radial-gradient(circle_at_55%_50%,#cfd8ee,transparent_58%)] px-4 py-4 text-[#6b4b35] shadow-xl ring-1 ring-white/20 backdrop-blur sm:px-6 sm:py-5">
-              <div className="absolute inset-0 opacity-45 bg-[radial-gradient(circle_at_top,rgba(226,233,247,0.7),transparent_55%),radial-gradient(circle_at_bottom,rgba(184,197,229,0.6),transparent_60%)]" />
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.35),transparent_35%)] opacity-60" />
+		            <div className="group relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_20%_15%,#cfdbf3,transparent_55%),radial-gradient(circle_at_80%_15%,#bfd0ee,transparent_45%),radial-gradient(circle_at_60%_85%,#d9e4f7,transparent_52%),linear-gradient(180deg,rgba(232,238,250,0.97),rgba(214,223,242,0.92))] px-4 py-4 text-[#5e4738] shadow-xl sm:px-6 sm:py-5">
+		              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.34),transparent_45%)] opacity-70" />
               <div className="relative z-10">
                 {recommendationsLoading ? (
                   <div className="rounded-2xl bg-white/15 p-6 text-sm text-[#6b4b35]/80">

@@ -17,7 +17,7 @@ from app.services.google_books import search_books
 
 _STATUS_READ = "Lu"
 _CANDIDATE_FETCH_SIZE = 100
-_MAX_RECOMMENDATION_QUERIES = 5
+_MAX_RECOMMENDATION_QUERIES = 6
 _QUERY_PAGE_SIZE = 40
 _STOPWORDS = {
     "alors",
@@ -139,37 +139,48 @@ def _build_query(books: list[Book]) -> str:
     genres = [book.genre for book in books if book.genre]
     authors = [book.author for book in books if book.author]
     titles = [book.title for book in books if book.title]
+    # Fonction qui extrait les mots-clés les plus fréquents des descriptions des livres en excluant les stopwords
     keywords = _extract_keywords(books)
 
     parts: list[str] = []
     if genres:
+        # Les 2 genres les plus fréquents dans les seed books
         for genre, _ in Counter(genres).most_common(2):
             parts.append(f"subject:{_quote_term(genre)}")
     if authors:
+        # Les 2 auteurs les plus fréquents dans les seed books
         for author, _ in Counter(authors).most_common(2):
             parts.append(f"inauthor:{_quote_term(author)}")
     if not parts and titles:
+        # les 2 titres les plus fréquents dans les seed books (en dernier recours)
         for title, _ in Counter(titles).most_common(2):
             parts.append(f"intitle:{_quote_term(title)}")
     if not parts and keywords:
+        # Si pas de genre/auteur/titre, on utilise les mots-clés extraits des descriptions
         for keyword in keywords:
             parts.append(_quote_term(keyword))
     return " OR ".join(parts[:8]).strip()
 
 
 def _build_queries(books: list[Book]) -> list[str]:
+    # Construction d'un ensemble de requêtes variées à partir des livres source,
+    # afin d'élargir la recherche de candidats recommandables.
     genres = [book.genre for book in books if book.genre]
     authors = [book.author for book in books if book.author]
     titles = [book.title for book in books if book.title]
     keywords = _extract_keywords(books, max_terms=6)
 
     queries: list[str] = []
+    # Deux requêtes centrées sur les auteurs les plus représentés
     for author, _ in Counter(authors).most_common(2):
         queries.append(f"inauthor:{_quote_term(author)}")
+    # Deux requêtes centrées sur les genres les plus représentés
     for genre, _ in Counter(genres).most_common(2):
         queries.append(f"subject:{_quote_term(genre)}")
+    # Une requête complémentaire basée sur un titre des livres source
     for title, _ in Counter(titles).most_common(1):
         queries.append(f"intitle:{_quote_term(title)}")
+    # Une requête libre construite à partir de trois mots-clés au maximum
     if keywords:
         keyword_query = " OR ".join(_quote_term(word) for word in keywords[:3])
         if keyword_query:
@@ -221,18 +232,21 @@ def _collect_candidates(queries: list[str], limit: int) -> list[dict]:
 
 
 def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
+    # On privilégie les livres favoris
     favorite_books = (
         db.query(Book)
         .filter(Book.user_id == user_id, Book.is_favorite.is_(True))
         .all()
     )
     seed_books = favorite_books
+    # Si pas de favoris, on utilise les autres livres lus
     if not seed_books:
         seed_books = (
             db.query(Book)
             .filter(Book.user_id == user_id, Book.status == _STATUS_READ)
             .all()
         )
+    # Si pas de livres lu: pas de recommandations
     if not seed_books:
         return []
 
@@ -314,7 +328,7 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
 
     if scored:
         scored.sort(key=lambda item: item[0], reverse=True)
-        # Limit to 1 book per author
+        # Limitation à 1 livre par auteur
         unique_by_author: list[dict] = []
         seen_authors: set[str] = set()
         for _, candidate in scored:
@@ -329,7 +343,7 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
         if not unique_by_author:
             unique_by_author = [item for _, item in scored]
 
-        # Mix exploration: 70% top, 30% random from remaining
+        # Mix exploration: 70% top, 30% random 
         top_count = max(1, int(limit * 0.7))
         top_slice = unique_by_author[:top_count]
         remaining_pool = unique_by_author[top_count:]
