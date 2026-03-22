@@ -1,10 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.core.passwords import validate_password_policy
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserRead, UserAdminRead, UserStatusUpdate
-from app.core.security import hash_password, get_current_admin
+from app.schemas.user import (
+    UserAdminRead,
+    UserBookStatsRead,
+    UserCreate,
+    UserRead,
+    UserStatusUpdate,
+)
+from app.core.security import get_current_admin, get_current_user, hash_password
 
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -42,6 +49,43 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+@router.get("/me/book-stats", response_model=UserBookStatsRead)
+def get_my_book_stats(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    row = (
+        db.execute(
+            text(
+                """
+                SELECT
+                    user_id,
+                    username,
+                    total_books,
+                    to_read_count,
+                    in_progress_count,
+                    read_count,
+                    favorite_count,
+                    last_book_added_at
+                FROM user_book_stats
+                WHERE user_id = :user_id
+                """
+            ),
+            {"user_id": user.id},
+        )
+        .mappings()
+        .first()
+    )
+
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Statistiques utilisateur introuvables",
+        )
+
+    return UserBookStatsRead(**row)
 
 
 @router.patch("/{user_id}/status", response_model=UserAdminRead, dependencies=[Depends(get_current_admin)])

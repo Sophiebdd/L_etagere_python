@@ -29,3 +29,14 @@ class UserAdminRead(BaseModel):
 
 class UserStatusUpdate(BaseModel):
     is_active: bool
+
+
+class UserBookStatsRead(BaseModel):
+    user_id: int
+    username: str
+    total_books: int
+    to_read_count: int
+    in_progress_count: int
+    read_count: int
+    favorite_count: int
+    last_book_added_at: datetime | None = None

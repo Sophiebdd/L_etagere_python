@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import Header from "../components/Header";
 import PageBackground from "../components/PageBackground";
 import Footer from "../components/Footer";
+import DashboardStats from "../components/DashboardStats";
 import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 import CoverPlaceholder from "../assets/cover-placeholder.svg";
 import useCurrentUser from "../hooks/useCurrentUser";
@@ -478,6 +479,8 @@ export default function Dashboard() {
               </div>
             </div>
           ))}
+
+          <DashboardStats />
         </section>
 
         {selectedBook && (
