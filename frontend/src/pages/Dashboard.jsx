@@ -13,6 +13,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const PLACEHOLDER_HOST = "via.placeholder.com";
 
 export default function Dashboard() {
+  // Etat principal du dashboard : livres mis en avant, suggestions et modale.
   const [highlights, setHighlights] = useState({
     toRead: { items: [], total: 0 },
     inProgress: { items: [], total: 0 },
@@ -32,6 +33,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    // Charge les trois sections principales du dashboard depuis la bibliothèque.
     const sections = [
       { key: "toRead", status: "À lire" },
       { key: "inProgress", status: "En cours" },
@@ -46,26 +48,19 @@ export default function Dashboard() {
       return params.toString();
     };
 
-    Promise.all([
-      ...sections.map((section) =>
+    Promise.all(
+      sections.map((section) =>
         apiFetch(`${API_BASE_URL}/books/mine?${buildParams(section.status)}`)
-      ),
-      apiFetch(`${API_BASE_URL}/manuscripts/chapters/recent`),
-    ])
+      )
+    )
       .then(async (responses) => {
-        const chaptersRes = responses[responses.length - 1];
-        const bookResponses = responses.slice(0, -1);
-
-        if (
-          bookResponses.some((res) => res.status === 401) ||
-          chaptersRes.status === 401
-        ) {
+        if (responses.some((res) => res.status === 401)) {
           redirectToLogin(navigate);
           throw new Error("Session expirée");
         }
 
         const bookPayloads = await Promise.all(
-          bookResponses.map(async (res) => {
+          responses.map(async (res) => {
             if (!res.ok) {
               const err = await res.json().catch(() => ({}));
               throw new Error(err.detail || "Erreur lors du chargement des livres");
@@ -73,13 +68,6 @@ export default function Dashboard() {
             return res.json();
           })
         );
-
-        if (!chaptersRes.ok) {
-          const err = await chaptersRes.json().catch(() => ({}));
-          throw new Error(err.detail || "Erreur lors du chargement des chapitres");
-        }
-
-        const chaptersData = await chaptersRes.json();
         const nextHighlights = {};
         sections.forEach((section, index) => {
           const data = bookPayloads[index];
@@ -95,13 +83,13 @@ export default function Dashboard() {
         });
 
         setHighlights(nextHighlights);
-        void chaptersData;
       })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, [navigate]);
 
   useEffect(() => {
+    // Charge les recommandations personnalisées proposées à l'utilisateur.
     setRecommendationsLoading(true);
     apiFetch(`${API_BASE_URL}/books/recommendations?limit=12`)
       .then(async (res) => {
@@ -123,6 +111,7 @@ export default function Dashboard() {
   }, [navigate]);
 
   useEffect(() => {
+    // Gère le comportement de la modale livre : fermeture avec Echap et blocage du scroll.
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         setSelectedBook(null);
@@ -156,6 +145,7 @@ export default function Dashboard() {
     setSelectedBook(null);
   };
 
+  // Recompose les sections à afficher à partir de l'état chargé côté API.
   const highlightSections = [
     {
       key: "inProgress",
@@ -180,6 +170,7 @@ export default function Dashboard() {
     },
   ];
 
+  // Stocke les références DOM des carrousels pour pouvoir les faire défiler manuellement.
   const setCarouselRef = (key) => (node) => {
     if (node) {
       carouselRefs.current[key] = node;
@@ -188,6 +179,7 @@ export default function Dashboard() {
     delete carouselRefs.current[key];
   };
 
+  // Défile horizontalement un carrousel par "page" visuelle.
   const scrollCarousel = (key, direction) => {
     const container = carouselRefs.current[key];
     if (!container) {
@@ -201,6 +193,7 @@ export default function Dashboard() {
     });
   };
 
+  // Carte compacte utilisée pour les livres déjà présents dans la bibliothèque.
   const renderPoster = (book) => (
     <div className="group relative w-28 shrink-0 snap-start sm:w-36 lg:w-40">
       <button
@@ -226,6 +219,7 @@ export default function Dashboard() {
     </div>
   );
 
+  // Remplace les couvertures manquantes ou placeholders externes par une image locale.
   const resolveCover = (coverUrl) => {
     if (!coverUrl || coverUrl.includes(PLACEHOLDER_HOST)) {
       return CoverPlaceholder;
@@ -233,6 +227,7 @@ export default function Dashboard() {
     return coverUrl;
   };
 
+  // Carte dédiée aux recommandations, avec action d'ajout direct à la bibliothèque.
   const renderRecommendationCard = (book) => {
     const recKey = book.external_id || `${book.title}-${book.author}`;
     const isAdding = Boolean(addingRecommendations[recKey]);
@@ -277,6 +272,7 @@ export default function Dashboard() {
     );
   };
 
+  // Boutons latéraux affichés au survol pour naviguer dans les carrousels.
   const renderCarouselControls = (key, label) => (
     <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-20 hidden lg:block">
       <button
@@ -298,6 +294,7 @@ export default function Dashboard() {
     </div>
   );
 
+  // Ajoute une suggestion à la bibliothèque puis la retire de la liste affichée.
   const handleAddRecommendation = async (book) => {
     const recKey = book.external_id || `${book.title}-${book.author}`;
     setAddingRecommendations((prev) => ({ ...prev, [recKey]: true }));
@@ -357,6 +354,7 @@ export default function Dashboard() {
     }
   };
 
+  // Etat transitoire affiché pendant le chargement initial du dashboard.
   if (loading) {
     return (
       <PageBackground>
@@ -384,6 +382,7 @@ export default function Dashboard() {
         />
         <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 pb-32 pt-12">
 
+        {/* Contenu principal : suggestions, sections de bibliothèque puis stats globales. */}
         <section className="space-y-8">
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3 text-white">
@@ -483,6 +482,7 @@ export default function Dashboard() {
           <DashboardStats />
         </section>
 
+        {/* Modale de détail ouverte au clic sur un livre ou une recommandation. */}
         {selectedBook && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"

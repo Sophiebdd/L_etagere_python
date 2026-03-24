@@ -4,6 +4,7 @@ import { apiFetch, redirectToLogin } from "../utils/auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
+// Configuration des mini-cartes de statistiques affichées en tête du composant.
 const statCards = [
   {
     key: "total_books",
@@ -27,6 +28,7 @@ const statCards = [
   },
 ];
 
+// Formate la date renvoyée par l'API pour un affichage lisible en français.
 const formatRelativeDate = (value) => {
   if (!value) {
     return "Aucun ajout pour le moment";
@@ -45,12 +47,14 @@ const formatRelativeDate = (value) => {
 };
 
 export default function DashboardStats() {
+  // Etat local du composant : données chargées, chargement en cours et éventuelle erreur.
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Charge les statistiques utilisateur depuis l'endpoint dédié du dashboard.
     let isMounted = true;
 
     const loadStats = async () => {
@@ -92,6 +96,7 @@ export default function DashboardStats() {
     };
   }, [navigate]);
 
+  // Affichage transitoire pendant la récupération des données.
   if (loading) {
     return (
       <section className="overflow-hidden rounded-3xl border border-white/30 bg-white/55 p-6 shadow-lg backdrop-blur-md">
@@ -100,6 +105,7 @@ export default function DashboardStats() {
     );
   }
 
+  // Etat d'erreur ou absence de données exploitables côté API.
   if (error || !stats) {
     return (
       <section className="overflow-hidden rounded-3xl border border-[#d9b9b9] bg-white/70 p-6 shadow-lg backdrop-blur-md">
@@ -110,6 +116,7 @@ export default function DashboardStats() {
     );
   }
 
+  // Pourcentage de livres terminés par rapport au nombre total de livres.
   const completionRate = stats.total_books
     ? Math.round((stats.read_count / stats.total_books) * 100)
     : 0;
@@ -124,6 +131,7 @@ export default function DashboardStats() {
           </h2>
         </div>
 
+        {/* Première ligne : indicateurs rapides issus directement de la vue SQL. */}
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {statCards.map((card) => (
             <article
@@ -139,6 +147,7 @@ export default function DashboardStats() {
           ))}
         </div>
 
+        {/* Deuxième ligne : synthèse visuelle de progression et rappel du dernier ajout. */}
         <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
           <article className="rounded-3xl border border-white/45 bg-white/55 p-5 shadow-lg backdrop-blur-sm">
             <div className="flex items-center justify-between gap-3">

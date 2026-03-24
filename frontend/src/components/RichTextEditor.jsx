@@ -6,6 +6,7 @@ import Underline from "@tiptap/extension-underline";
 import { TextStyle, FontSize } from "@tiptap/extension-text-style";
 import TextAlign from "@tiptap/extension-text-align";
 
+// Actions de mise en forme inline affichées dans la barre d'outils.
 const INLINE_ACTIONS = [
   {
     label: "Gras",
@@ -44,6 +45,8 @@ const INLINE_ACTIONS = [
     isActive: (editor) => editor.isActive("blockquote"),
   },
 ];
+
+// Actions d'alignement de texte proposées par l'éditeur.
 const ALIGN_ACTIONS = [
   {
     label: "Aligner à gauche",
@@ -80,9 +83,12 @@ export default function RichTextEditor({
   placeholder = "Commence à écrire ton chapitre...",
   className = "",
 }) {
+  // Taille de police actuellement reflétée dans le sélecteur d'UI.
   const [fontSizeValue, setFontSizeValue] = useState(DEFAULT_FONT_SIZE);
+  // Mémorise la dernière taille choisie manuellement pour éviter un aller-retour parasite.
   const manualFontSizeRef = useRef(null);
 
+  // Lit la taille de police active dans l'état courant de TipTap ("éditeur").
   const extractFontSize = useCallback((editorInstance) => {
     const storedMarks = editorInstance.view?.state?.storedMarks || [];
     const storedMark = storedMarks.find((mark) => mark.type.name === "textStyle");
@@ -96,6 +102,7 @@ export default function RichTextEditor({
     return DEFAULT_FONT_SIZE;
   }, []);
 
+  // Synchronise le sélecteur de taille avec la sélection active dans l'éditeur.
   const syncFontSizeFromEditor = useCallback((editorInstance) => {
     const size = extractFontSize(editorInstance);
     if (manualFontSizeRef.current !== null) {
@@ -108,6 +115,7 @@ export default function RichTextEditor({
     setFontSizeValue((prev) => (prev === size ? prev : size));
   }, [extractFontSize]);
 
+  // Instance TipTap configurée avec les extensions de base et les callbacks de synchronisation.
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ underline: false }),
@@ -141,6 +149,7 @@ export default function RichTextEditor({
     },
   });
 
+  // Répercute une nouvelle valeur externe dans l'éditeur sans boucler sur le onUpdate.
   useEffect(() => {
     if (!editor) return;
     const currentHTML = editor.getHTML();
@@ -151,11 +160,13 @@ export default function RichTextEditor({
     }
   }, [value, editor, syncFontSizeFromEditor]);
 
+  // Réinitialise complètement le contenu et prévient le parent.
   const resetContent = () => {
     editor?.commands.clearContent();
     onChange?.("");
   };
 
+  // Applique une taille de police à la sélection courante ou la réinitialise sur la valeur par défaut.
   const handleFontSizeChange = (event) => {
     const newSize = Number(event.target.value);
     if (!editor || Number.isNaN(newSize)) return;
@@ -172,6 +183,7 @@ export default function RichTextEditor({
 
   return (
     <div className={`space-y-3 ${className}`}>
+      {/* Barre d'outils : mise en forme, alignement, taille de police et remise à zéro. */}
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#B8C5E5] bg-white/80 p-2 shadow-inner">
         <div className="flex flex-wrap items-center gap-2">
           {INLINE_ACTIONS.map((action) => (
@@ -236,6 +248,7 @@ export default function RichTextEditor({
         </div>
       </div>
 
+      {/* Zone éditable principale rendue par TipTap. */}
       <div className="rich-text-editor-content min-h-[320px] rounded-2xl border border-[#B8C5E5] bg-white/80 px-4 py-3 text-[12px] text-gray-700 shadow-inner">
         <EditorContent editor={editor} className="w-full" />
       </div>
