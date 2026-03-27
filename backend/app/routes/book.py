@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 from app.database import get_db
-from app.models.book import Book   # ✅ import direct de la classe Book
+from app.models.book import Book   
 from app.models.book_note import BookNote
 from app.schemas import (
     Book as BookSchema,

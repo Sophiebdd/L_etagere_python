@@ -93,6 +93,7 @@ def search_books(
     raw_start = 0
     total_items = None
 
+    # Boucle de surcollecte : appels successifs à Google Books + double filtrage par langue
     while len(collected_items) < target_count:
         batch_size = min(40, target_count - len(collected_items))
         if extra_params:

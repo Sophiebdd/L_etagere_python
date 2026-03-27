@@ -21,6 +21,7 @@ export default function BookSearch() {
   const navigate = useNavigate();
   const { isAdmin } = useCurrentUser(navigate);
 
+  // frontend/src/pages/BookSearch.jsx (fonction de recherche et gestion des résultats)
   const fetchResults = async (searchQuery) => {
     if (!searchQuery.trim()) return;
 

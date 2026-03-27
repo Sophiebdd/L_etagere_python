@@ -18,7 +18,7 @@ export default function BookCard({ book, isInLibrary = false, onAdded }) {
   const description =
     rawDescription.slice(0, 150).replace(/<\/?[^>]+(>|$)/g, "") +
     (rawDescription.length > 150 ? "..." : "");
-
+    
   const handleAddBook = async () => {
     if (isInLibrary) return;
 
@@ -35,7 +35,7 @@ export default function BookCard({ book, isInLibrary = false, onAdded }) {
       genre,
       status: "À lire",
     };
-
+    
     const response = await apiFetch(`${API_BASE_URL}/books/`, {
       method: "POST",
       headers: {
