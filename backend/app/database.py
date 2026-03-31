@@ -10,7 +10,8 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Créer l'engine SQLAlchemy
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+
 
 # Créer une session locale
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

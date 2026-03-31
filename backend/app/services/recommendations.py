@@ -205,7 +205,7 @@ def _candidate_identity(item: dict) -> tuple[str, str]:
     external_id = (item.get("id") or "").strip().lower()
     return external_id or title, authors
 
-
+# backend/app/services/recommendations.py
 def _collect_candidates(queries: list[str], limit: int) -> list[dict]:
     candidates: list[dict] = []
     seen_candidates: set[tuple[str, str]] = set()
@@ -249,7 +249,8 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
     # Si pas de livres lu: pas de recommandations
     if not seed_books:
         return []
-
+    
+    # backend/app/services/recommendations.py (def recommend_books)
     vectors: list[list[float]] = []
     weights: list[float] = []
     needs_commit = False
@@ -318,6 +319,7 @@ def recommend_books(db: Session, user_id: int, limit: int = 10) -> list[dict]:
             candidate["description"],
             candidate["genre"],
         )
+        # backend/app/services/recommendations.py (def recommend_books)
         candidate_embedding = embed_text(candidate_text)
         if not candidate_embedding:
             fallback.append(candidate)
