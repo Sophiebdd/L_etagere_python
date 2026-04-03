@@ -1,3 +1,7 @@
+www.letagere.app {
+    redir https://letagere.app{uri} permanent
+}
+
 letagere.app {
     encode gzip
 
