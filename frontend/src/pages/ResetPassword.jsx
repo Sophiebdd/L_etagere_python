@@ -3,9 +3,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
 import PageBackground from "../components/PageBackground";
+import { getApiBaseUrl } from "../utils/api";
 import { isValidPassword, PASSWORD_POLICY_MESSAGE } from "../utils/passwordValidation";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL = getApiBaseUrl();
 
 export default function ResetPassword() {
   const navigate = useNavigate();

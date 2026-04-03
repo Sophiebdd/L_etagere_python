@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch, redirectToLogin } from "../utils/auth";
+import { getApiBaseUrl } from "../utils/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL = getApiBaseUrl();
 
 // Configuration des mini-cartes de statistiques affichées en tête du composant.
 const statCards = [

@@ -6,8 +6,9 @@ import PageBackground from "../components/PageBackground";
 import Footer from "../components/Footer";
 import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 import useCurrentUser from "../hooks/useCurrentUser";
+import { getApiBaseUrl } from "../utils/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL = getApiBaseUrl();
 
 export default function AdminUsers() {
   const navigate = useNavigate();

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { apiFetch } from "../utils/auth";
+import { getApiBaseUrl } from "../utils/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL = getApiBaseUrl();
 
 export default function ProtectedRoute({ children }) {
   const [status, setStatus] = useState("loading");

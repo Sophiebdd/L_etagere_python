@@ -2,8 +2,9 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import Header from "../components/Header";
 import PageBackground from "../components/PageBackground";
+import { getApiBaseUrl } from "../utils/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL = getApiBaseUrl();
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");

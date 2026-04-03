@@ -2,8 +2,9 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { apiFetch, redirectToLogin } from "../utils/auth";
 import CoverPlaceholder from "../assets/cover-placeholder.svg";
+import { getApiBaseUrl } from "../utils/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL = getApiBaseUrl();
 
 export default function BookCard({ book, isInLibrary = false, onAdded }) {
   const navigate = useNavigate();

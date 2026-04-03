@@ -8,8 +8,9 @@ import PageBreadcrumb from "../components/PageBreadcrumb";
 import Footer from "../components/Footer";
 import useCurrentUser from "../hooks/useCurrentUser";
 import { apiFetch, logout, redirectToLogin } from "../utils/auth";
+import { getApiBaseUrl } from "../utils/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL = getApiBaseUrl();
 const MAX_RESULTS = 40;
 
 export default function BookSearch() {

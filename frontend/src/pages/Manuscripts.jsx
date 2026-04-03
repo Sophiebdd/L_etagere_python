@@ -8,8 +8,9 @@ import Footer from "../components/Footer";
 import RichTextEditor from "../components/RichTextEditor";
 import { apiFetch, logout, redirectToLogin } from "../utils/auth";
 import useCurrentUser from "../hooks/useCurrentUser";
+import { getApiBaseUrl } from "../utils/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL = getApiBaseUrl();
 
 const isContentEmpty = (html) => {
   if (!html) return true;
