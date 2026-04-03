@@ -28,7 +28,8 @@ app.add_middleware(
 
 
 def _is_csrf_exempt(method: str, path: str) -> bool:
-    return (method, path) in {
+    normalized_path = path.rstrip("/") or "/"
+    return (method, normalized_path) in {
         ("POST", "/auth/login"),
         ("POST", "/auth/forgot-password"),
         ("POST", "/auth/reset-password"),

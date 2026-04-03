@@ -15,6 +15,22 @@ def test_create_user(client):
     assert "id" in data
 
 
+def test_create_user_allows_trailing_slash_without_csrf(client):
+    response = client.post(
+        "/users/",
+        json={
+            "username": "sophie2",
+            "email": "sophie2@example.com",
+            "password": "Secret123",
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["username"] == "sophie2"
+    assert data["email"] == "sophie2@example.com"
+
+
 def test_create_user_rejects_weak_password(client):
     response = client.post(
         "/users",
